@@ -1,11 +1,31 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.db.database import Base, engine
+from app.db.database import Base, engine, SessionLocal
 from app.core.config import settings
+from app.core.security import hash_password
+from app.models.models import UsuarioAdmin
 from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes
 
 Base.metadata.create_all(bind=engine)
+
+def seed_admin():
+    db = SessionLocal()
+    try:
+        existing = db.query(UsuarioAdmin).first()
+        if not existing:
+            admin_email = os.environ.get("ADMIN_EMAIL", "admin@garagesales.com")
+            admin_senha = os.environ.get("ADMIN_SENHA", "admin123")
+            admin = UsuarioAdmin(email=admin_email, senha_hash=hash_password(admin_senha))
+            db.add(admin)
+            db.commit()
+            print(f"[SEED] Admin criado: {admin_email}")
+        else:
+            print("[SEED] Admin já existe, pulando seed.")
+    finally:
+        db.close()
+
+seed_admin()
 
 app = FastAPI(
     title="GarageSales API",
