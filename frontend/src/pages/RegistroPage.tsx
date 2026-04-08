@@ -1,0 +1,131 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { clienteService } from '../services/api';
+import { Car } from 'lucide-react';
+
+export const RegistroPage = () => {
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      await clienteService.criar({ nome, email, senha, telefone });
+      setSuccess(true);
+      setTimeout(() => navigate('/'), 2000);
+    } catch (err: any) {
+      const message = err.response?.data?.error || 'Erro ao registrar';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+        <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
+      </div>
+
+      <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-700 relative z-10">
+        <div className="flex items-center justify-center mb-2">
+          <span className="text-5xl mr-3">🏎️</span>
+        </div>
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-extrabold text-white uppercase tracking-wider">GarageSales</h1>
+        </div>
+
+        <h2 className="text-2xl font-bold text-white mb-6">Criar Conta</h2>
+
+        {success && (
+          <div className="bg-green-600/20 border border-green-600/30 text-green-400 px-4 py-3 rounded-lg mb-4 text-sm">
+            Conta criada com sucesso! Redirecionando...
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">Nome</label>
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              placeholder="Seu nome"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">Telefone</label>
+            <input
+              type="tel"
+              value={telefone}
+              onChange={(e) => setTelefone(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              placeholder="(11) 99999-9999"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">Senha</label>
+            <input
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-600/20 border border-red-600/30 text-red-400 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:from-red-700 hover:to-orange-600 transition disabled:opacity-50 uppercase tracking-wider shadow-lg shadow-red-600/20"
+          >
+            {loading ? 'Registrando...' : 'Registrar'}
+          </button>
+        </form>
+
+        <p className="text-center text-gray-500 text-sm mt-6">
+          Já tem conta?{' '}
+          <button
+            onClick={() => navigate('/')}
+            className="text-red-400 hover:text-red-300 font-semibold transition"
+          >
+            Faça login
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+};

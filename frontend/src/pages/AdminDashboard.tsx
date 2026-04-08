@@ -1,0 +1,867 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { clienteService, loteService, garagemService } from '../services/api';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send } from 'lucide-react';
+
+export const AdminDashboard = () => {
+  const { user, logout } = useAuth();
+  const [clientes, setClientes] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem'>('clientes');
+  const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '' });
+
+  const [lotes, setLotes] = useState<any[]>([]);
+  const [selectedLote, setSelectedLote] = useState<any>(null);
+  const [vendasLote, setVendasLote] = useState<any[]>([]);
+  const [showLoteForm, setShowLoteForm] = useState(false);
+  const [showVendaForm, setShowVendaForm] = useState(false);
+  const [loteFormData, setLoteFormData] = useState({ nome: '', descricao: '', foto: '' });
+  const [vendaFormData, setVendaFormData] = useState({
+    cliente_id: '', carrinhos_comprados: '', preco: '', pago: false,
+    comprovante_pagamento: '', data_pagamento: '', observacoes: ''
+  });
+
+  const [selectedClienteGaragem, setSelectedClienteGaragem] = useState<any>(null);
+  const [fotosGaragem, setFotosGaragem] = useState<any[]>([]);
+  const [solicitacoes, setSolicitacoes] = useState<any[]>([]);
+  const [showFotoForm, setShowFotoForm] = useState(false);
+  const [fotoFormData, setFotoFormData] = useState({ foto: '', descricao: '' });
+
+  useEffect(() => {
+    loadClientes();
+    loadLotes();
+    const interval = setInterval(loadClientes, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadClientes = async () => {
+    setLoading(true);
+    try {
+      const response = await clienteService.listar();
+      setClientes(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateCliente = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await clienteService.criar(formData);
+      setFormData({ nome: '', email: '', senha: '', telefone: '' });
+      setShowForm(false);
+      loadClientes();
+    } catch (error) {
+      console.error('Erro ao criar cliente:', error);
+    }
+  };
+
+  const handleDeleteCliente = async (id: number) => {
+    if (window.confirm('Tem certeza que deseja deletar este cliente?')) {
+      try {
+        await clienteService.deletar(id);
+        loadClientes();
+      } catch (error) {
+        console.error('Erro ao deletar cliente:', error);
+      }
+    }
+  };
+
+  const loadLotes = async () => {
+    try {
+      const response = await loteService.listar();
+      setLotes(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar lotes:', error);
+    }
+  };
+
+  const loadVendasLote = async (loteId: number) => {
+    try {
+      const response = await loteService.listarVendas(loteId);
+      setVendasLote(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar vendas:', error);
+    }
+  };
+
+  const handleSelectLote = async (lote: any) => {
+    setSelectedLote(lote);
+    await loadVendasLote(lote.id);
+  };
+
+  const handleCreateLote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await loteService.criar(loteFormData);
+      setLoteFormData({ nome: '', descricao: '', foto: '' });
+      setShowLoteForm(false);
+      loadLotes();
+    } catch (error) {
+      console.error('Erro ao criar lote:', error);
+    }
+  };
+
+  const handleDeleteLote = async (id: number) => {
+    if (window.confirm('Tem certeza que deseja deletar este lote e todas as vendas associadas?')) {
+      try {
+        await loteService.deletar(id);
+        if (selectedLote?.id === id) {
+          setSelectedLote(null);
+          setVendasLote([]);
+        }
+        loadLotes();
+      } catch (error) {
+        console.error('Erro ao deletar lote:', error);
+      }
+    }
+  };
+
+  const handleCreateVenda = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedLote) return;
+    try {
+      await loteService.criarVenda({
+        lote_id: selectedLote.id,
+        cliente_id: parseInt(vendaFormData.cliente_id),
+        carrinhos_comprados: vendaFormData.carrinhos_comprados,
+        preco: parseFloat(vendaFormData.preco),
+        pago: vendaFormData.pago,
+        data_pagamento: vendaFormData.data_pagamento || null,
+        observacoes: vendaFormData.observacoes || null,
+        comprovante_pagamento: vendaFormData.comprovante_pagamento || null,
+      });
+      setVendaFormData({
+        cliente_id: '', carrinhos_comprados: '', preco: '', pago: false,
+        comprovante_pagamento: '', data_pagamento: '', observacoes: ''
+      });
+      setShowVendaForm(false);
+      loadVendasLote(selectedLote.id);
+      loadLotes();
+    } catch (error) {
+      console.error('Erro ao criar venda:', error);
+    }
+  };
+
+  const handleTogglePago = async (venda: any) => {
+    try {
+      await loteService.atualizarVenda(venda.id, {
+        pago: !venda.pago,
+        data_pagamento: !venda.pago ? new Date().toISOString() : null
+      });
+      if (selectedLote) loadVendasLote(selectedLote.id);
+    } catch (error) {
+      console.error('Erro ao atualizar pagamento:', error);
+    }
+  };
+
+  const handleDeleteVenda = async (vendaId: number) => {
+    if (window.confirm('Tem certeza que deseja deletar esta venda?')) {
+      try {
+        await loteService.deletarVenda(vendaId);
+        if (selectedLote) loadVendasLote(selectedLote.id);
+        loadLotes();
+      } catch (error) {
+        console.error('Erro ao deletar venda:', error);
+      }
+    }
+  };
+
+  const handleLoteFoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        setLoteFormData({ ...loteFormData, foto: base64 });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleComprovante = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        setVendaFormData({ ...vendaFormData, comprovante_pagamento: base64 });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const statusEntregaOptions = [
+    { value: 'aguardando_pagamento', label: 'Aguardando Pagamento', color: 'bg-gray-100 text-gray-700' },
+    { value: 'pago', label: 'Pago', color: 'bg-yellow-100 text-yellow-700' },
+    { value: 'chegou_eua', label: 'Chegou EUA', color: 'bg-blue-100 text-blue-700' },
+    { value: 'importado_brasil', label: 'Importado p/ Brasil', color: 'bg-indigo-100 text-indigo-700' },
+    { value: 'alfandega', label: 'Alfândega/Tributação', color: 'bg-orange-100 text-orange-700' },
+    { value: 'centro_distribuicao', label: 'Centro Distribuição', color: 'bg-green-100 text-green-700' },
+    { value: 'entregue', label: 'Entregue', color: 'bg-emerald-100 text-emerald-700' },
+  ];
+
+  const handleChangeStatusEntrega = async (vendaId: number, novoStatus: string) => {
+    try {
+      await loteService.atualizarVenda(vendaId, { status_entrega: novoStatus });
+      if (selectedLote) loadVendasLote(selectedLote.id);
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+    }
+  };
+
+  const loadFotosGaragem = async (clienteId: number) => {
+    try {
+      const response = await garagemService.listarFotos(clienteId);
+      setFotosGaragem(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar fotos:', error);
+    }
+  };
+
+  const loadSolicitacoes = async () => {
+    try {
+      const response = await garagemService.listarTodasSolicitacoes();
+      setSolicitacoes(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar solicitações:', error);
+    }
+  };
+
+  const handleSelectClienteGaragem = async (cliente: any) => {
+    setSelectedClienteGaragem(cliente);
+    await loadFotosGaragem(cliente.id);
+  };
+
+  const handleAddFotoGaragem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedClienteGaragem) return;
+    try {
+      await garagemService.adicionarFoto({
+        cliente_id: selectedClienteGaragem.id,
+        foto: fotoFormData.foto,
+        descricao: fotoFormData.descricao || null
+      });
+      setFotoFormData({ foto: '', descricao: '' });
+      setShowFotoForm(false);
+      loadFotosGaragem(selectedClienteGaragem.id);
+    } catch (error) {
+      console.error('Erro ao adicionar foto:', error);
+    }
+  };
+
+  const handleDeleteFotoGaragem = async (fotoId: number) => {
+    if (window.confirm('Deletar esta foto?')) {
+      try {
+        await garagemService.deletarFoto(fotoId);
+        if (selectedClienteGaragem) loadFotosGaragem(selectedClienteGaragem.id);
+      } catch (error) {
+        console.error('Erro ao deletar foto:', error);
+      }
+    }
+  };
+
+  const handleFotoGaragemFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        setFotoFormData({ ...fotoFormData, foto: base64 });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdateSolicitacao = async (solId: number, novoStatus: string, codigoRastreio?: string) => {
+    try {
+      const dados: any = { status: novoStatus };
+      if (codigoRastreio !== undefined) dados.codigo_rastreio = codigoRastreio;
+      await garagemService.atualizarSolicitacao(solId, dados);
+      loadSolicitacoes();
+    } catch (error) {
+      console.error('Erro ao atualizar solicitação:', error);
+    }
+  };
+
+  const handleEnviarComRastreio = async (sol: any) => {
+    const itensNaoPagos = (sol.itens || []).filter((i: any) => !i.pago);
+    if (itensNaoPagos.length > 0) {
+      const nomes = itensNaoPagos.map((i: any) => `• ${i.carrinhos_comprados} (R$ ${i.preco.toFixed(2)})`).join('\n');
+      const confirmar = window.confirm(
+        `⚠️ ATENÇÃO: Este cliente possui ${itensNaoPagos.length} item(ns) NÃO PAGO(S) na garagem:\n\n${nomes}\n\nDeseja enviar mesmo assim?`
+      );
+      if (!confirmar) return;
+    }
+    const codigo = prompt('Digite o código de rastreio:');
+    if (codigo !== null && codigo.trim() !== '') {
+      await handleUpdateSolicitacao(sol.id, 'enviado', codigo.trim());
+    }
+  };
+
+  const handleSalvarRastreio = async (solId: number) => {
+    const codigo = prompt('Digite/atualize o código de rastreio:');
+    if (codigo !== null && codigo.trim() !== '') {
+      try {
+        await garagemService.atualizarSolicitacao(solId, { codigo_rastreio: codigo.trim() });
+        loadSolicitacoes();
+      } catch (error) {
+        console.error('Erro ao salvar rastreio:', error);
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900">
+      <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-4 flex justify-between items-center shadow-lg">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">🏎️</span>
+          <h1 className="text-2xl font-extrabold tracking-wider uppercase">GarageSales</h1>
+          <span className="text-xs bg-black/30 px-2 py-1 rounded font-mono">ADMIN</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm opacity-90">{user?.email}</span>
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 bg-black/30 hover:bg-black/50 px-4 py-2 rounded transition"
+          >
+            <LogOut size={18} />
+            Sair
+          </button>
+        </div>
+      </nav>
+
+      <div className="flex">
+        <div className="w-52 bg-gray-800 shadow-lg min-h-screen border-r border-gray-700">
+          <div className="p-4 space-y-2">
+            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-3 px-3">Navegação</p>
+            <button
+              onClick={() => setActiveTab('clientes')}
+              className={`w-full flex items-center gap-2 p-3 rounded font-semibold transition ${
+                activeTab === 'clientes' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Users size={20} />
+              Clientes
+            </button>
+            <button
+              onClick={() => { setActiveTab('vendas'); loadLotes(); }}
+              className={`w-full flex items-center gap-2 p-3 rounded font-semibold transition ${
+                activeTab === 'vendas' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <ShoppingBag size={20} />
+              Vendas
+            </button>
+            <button
+              onClick={() => { setActiveTab('garagem'); loadSolicitacoes(); }}
+              className={`w-full flex items-center gap-2 p-3 rounded font-semibold transition ${
+                activeTab === 'garagem' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Warehouse size={20} />
+              Garagem
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 p-8">
+          {activeTab === 'clientes' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-3xl font-extrabold text-white uppercase tracking-wide">Clientes</h2>
+                  <span className="bg-red-600/20 text-red-400 px-3 py-1 rounded-full text-sm font-semibold border border-red-600/30">
+                    {clientes.length} cadastrado{clientes.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={loadClientes}
+                    disabled={loading}
+                    className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition"
+                  >
+                    <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                    Atualizar
+                  </button>
+                  <button
+                    onClick={() => setShowForm(!showForm)}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition"
+                  >
+                    {showForm ? 'Cancelar' : 'Novo Cliente'}
+                  </button>
+                </div>
+              </div>
+
+              {showForm && (
+                <form onSubmit={handleCreateCliente} className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="Nome"
+                      value={formData.nome}
+                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      required
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder="Senha"
+                      value={formData.senha}
+                      onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      required
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Telefone"
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition"
+                  >
+                    Criar Cliente
+                  </button>
+                </form>
+              )}
+
+              {loading && clientes.length === 0 ? (
+                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-400 border border-gray-700">
+                  <RefreshCw size={32} className="animate-spin mx-auto mb-4 text-red-500" />
+                  Carregando clientes...
+                </div>
+              ) : clientes.length === 0 ? (
+                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-400 border border-gray-700">
+                  <Users size={48} className="mx-auto mb-4 text-gray-600" />
+                  <p className="text-lg">Nenhum cliente cadastrado ainda</p>
+                  <p className="text-sm mt-2 text-gray-500">Clientes que se registrarem aparecerão aqui automaticamente</p>
+                </div>
+              ) : (
+                <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700">
+                  <table className="w-full">
+                    <thead className="bg-gray-900/50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Nome</th>
+                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Email</th>
+                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Telefone</th>
+                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Cadastro</th>
+                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clientes.map((cliente) => (
+                        <tr key={cliente.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
+                          <td className="px-6 py-3 text-white font-medium">{cliente.nome}</td>
+                          <td className="px-6 py-3 text-gray-300">{cliente.email}</td>
+                          <td className="px-6 py-3 text-gray-300">{cliente.telefone || '-'}</td>
+                          <td className="px-6 py-3 text-gray-400 text-sm">{new Date(cliente.data_cadastro).toLocaleString('pt-BR')}</td>
+                          <td className="px-6 py-3">
+                            <button
+                              onClick={() => handleDeleteCliente(cliente.id)}
+                              className="text-red-500 hover:text-red-400 transition"
+                            >
+                              Deletar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'vendas' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-3xl font-extrabold text-white uppercase tracking-wide">Vendas / Lotes</h2>
+                  <span className="bg-orange-600/20 text-orange-400 px-3 py-1 rounded-full text-sm font-semibold border border-orange-600/30">
+                    {lotes.length} lote{lotes.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={loadLotes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
+                    <RefreshCw size={18} />
+                    Atualizar
+                  </button>
+                  <button onClick={() => setShowLoteForm(!showLoteForm)} className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                    <Plus size={18} />
+                    {showLoteForm ? 'Cancelar' : 'Novo Lote'}
+                  </button>
+                </div>
+              </div>
+
+              {showLoteForm && (
+                <form onSubmit={handleCreateLote} className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                  <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Lote</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input type="text" placeholder="Nome do Lote (ex: Lote Janeiro 2026)" value={loteFormData.nome}
+                      onChange={(e) => setLoteFormData({ ...loteFormData, nome: e.target.value })}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
+                      <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300" />
+                    </div>
+                    <textarea placeholder="Descrição do lote" value={loteFormData.descricao}
+                      onChange={(e) => setLoteFormData({ ...loteFormData, descricao: e.target.value })}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 col-span-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                  </div>
+                  <button type="submit" className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                    Criar Lote
+                  </button>
+                </form>
+              )}
+
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {lotes.map((lote) => (
+                  <div key={lote.id}
+                    onClick={() => handleSelectLote(lote)}
+                    className={`bg-gray-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
+                      selectedLote?.id === lote.id ? 'border-red-500 shadow-red-500/20 shadow-lg' : 'border-gray-700 hover:border-gray-500'
+                    }`}>
+                    {lote.foto ? (
+                      <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
+                        className="w-full h-32 object-cover rounded mb-3" />
+                    ) : (
+                      <div className="w-full h-32 bg-gray-700 rounded mb-3 flex items-center justify-center">
+                        <Image size={32} className="text-gray-500" />
+                      </div>
+                    )}
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-bold text-lg text-white">{lote.nome}</h3>
+                        {lote.descricao && <p className="text-sm text-gray-400 mt-1">{lote.descricao}</p>}
+                        <p className="text-sm text-gray-500 mt-1">{new Date(lote.data_criacao).toLocaleString('pt-BR')}</p>
+                        <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded mt-2 inline-block border border-orange-600/30">
+                          {lote.total_vendas} venda{lote.total_vendas !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteLote(lote.id); }}
+                        className="text-red-500 hover:text-red-400 p-1 transition">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {selectedLote && (
+                <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-white">Vendas - {selectedLote.nome}</h3>
+                    <button onClick={() => setShowVendaForm(!showVendaForm)}
+                      className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                      <Plus size={18} />
+                      {showVendaForm ? 'Cancelar' : 'Adicionar Venda'}
+                    </button>
+                  </div>
+
+                  {showVendaForm && (
+                    <form onSubmit={handleCreateVenda} className="bg-gray-900/50 p-4 rounded-lg mb-4 border border-gray-600">
+                      <h4 className="font-semibold mb-3 text-white">Nova Venda</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <select value={vendaFormData.cliente_id}
+                          onChange={(e) => setVendaFormData({ ...vendaFormData, cliente_id: e.target.value })}
+                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-red-500 focus:outline-none" required>
+                          <option value="">Selecione o Cliente</option>
+                          {clientes.map((c) => (
+                            <option key={c.id} value={c.id}>{c.nome} ({c.email})</option>
+                          ))}
+                        </select>
+                        <input type="number" step="0.01" placeholder="Preço (R$)" value={vendaFormData.preco}
+                          onChange={(e) => setVendaFormData({ ...vendaFormData, preco: e.target.value })}
+                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                        <textarea placeholder="Carrinhos comprados (ex: Hot Wheels Camaro, Matchbox Fusca)" value={vendaFormData.carrinhos_comprados}
+                          onChange={(e) => setVendaFormData({ ...vendaFormData, carrinhos_comprados: e.target.value })}
+                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 col-span-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} required />
+                        <div className="flex items-center gap-2">
+                          <input type="checkbox" id="pago" checked={vendaFormData.pago}
+                            onChange={(e) => setVendaFormData({ ...vendaFormData, pago: e.target.checked })}
+                            className="w-4 h-4 accent-red-600" />
+                          <label htmlFor="pago" className="text-sm text-gray-300">Já foi pago?</label>
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Data do Pagamento</label>
+                          <input type="datetime-local" value={vendaFormData.data_pagamento}
+                            onChange={(e) => setVendaFormData({ ...vendaFormData, data_pagamento: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Comprovante de Pagamento</label>
+                          <input type="file" accept="image/*" onChange={handleComprovante} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300" />
+                        </div>
+                        <textarea placeholder="Observações" value={vendaFormData.observacoes}
+                          onChange={(e) => setVendaFormData({ ...vendaFormData, observacoes: e.target.value })}
+                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                      </div>
+                      <button type="submit" className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                        Salvar Venda
+                      </button>
+                    </form>
+                  )}
+
+                  {vendasLote.length === 0 ? (
+                    <div className="text-center text-gray-500 py-8">
+                      <ShoppingBag size={48} className="mx-auto mb-3 text-gray-600" />
+                      <p>Nenhuma venda neste lote ainda</p>
+                    </div>
+                  ) : (
+                    <table className="w-full">
+                      <thead className="bg-gray-900/50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Preço</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Pago</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Pagamento</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Comprovante</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status Entrega</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Observações</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendasLote.map((venda) => (
+                          <tr key={venda.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
+                            <td className="px-4 py-2 font-medium text-white">{venda.cliente_nome}</td>
+                            <td className="px-4 py-2 text-sm max-w-xs truncate text-gray-300">{venda.carrinhos_comprados}</td>
+                            <td className="px-4 py-2 font-semibold text-green-400">R$ {Number(venda.preco).toFixed(2)}</td>
+                            <td className="px-4 py-2">
+                              <button onClick={() => handleTogglePago(venda)}
+                                className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
+                                  venda.pago ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                }`}>
+                                {venda.pago ? <><Check size={14} /> Pago</> : <><X size={14} /> Pendente</>}
+                              </button>
+                            </td>
+                            <td className="px-4 py-2 text-sm text-gray-400">
+                              {venda.data_pagamento ? new Date(venda.data_pagamento).toLocaleString('pt-BR') : '-'}
+                            </td>
+                            <td className="px-4 py-2">
+                              {venda.comprovante_pagamento ? (
+                                <button onClick={() => {
+                                  const w = window.open('');
+                                  w?.document.write(`<img src="data:image/jpeg;base64,${venda.comprovante_pagamento}" />`);
+                                }} className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-sm transition">
+                                  <Eye size={14} /> Ver
+                                </button>
+                              ) : <span className="text-gray-600">-</span>}
+                            </td>
+                            <td className="px-4 py-2">
+                              <select value={venda.status_entrega || 'aguardando_pagamento'}
+                                onChange={(e) => handleChangeStatusEntrega(venda.id, e.target.value)}
+                                className={`text-xs font-semibold px-2 py-1 rounded border-0 cursor-pointer ${
+                                  statusEntregaOptions.find(o => o.value === venda.status_entrega)?.color || 'bg-gray-100 text-gray-700'
+                                }`}>
+                                {statusEntregaOptions.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="px-4 py-2 text-sm text-gray-500 max-w-xs truncate">{venda.observacoes || '-'}</td>
+                            <td className="px-4 py-2">
+                              <button onClick={() => handleDeleteVenda(venda.id)} className="text-red-500 hover:text-red-400 transition">
+                                <Trash2 size={16} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'garagem' && (
+            <div>
+              <h2 className="text-3xl font-extrabold text-white uppercase tracking-wide mb-6">Garagem dos Clientes</h2>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-300">Selecione um Cliente</h3>
+                  <div className="bg-gray-800 rounded-lg shadow border border-gray-700 max-h-96 overflow-y-auto">
+                    {clientes.map((cliente) => (
+                      <div key={cliente.id}
+                        onClick={() => handleSelectClienteGaragem(cliente)}
+                        className={`p-3 cursor-pointer border-b border-gray-700 transition ${
+                          selectedClienteGaragem?.id === cliente.id ? 'bg-red-600/20 border-l-4 border-l-red-500' : 'hover:bg-gray-700/50'
+                        }`}>
+                        <p className="font-medium text-white">{cliente.nome}</p>
+                        <p className="text-sm text-gray-400">{cliente.email}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  {selectedClienteGaragem ? (
+                    <div>
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-lg font-semibold text-white">Fotos - {selectedClienteGaragem.nome}</h3>
+                        <button onClick={() => setShowFotoForm(!showFotoForm)}
+                          className="flex items-center gap-2 bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 font-semibold transition">
+                          <Plus size={16} />
+                          {showFotoForm ? 'Cancelar' : 'Adicionar Foto'}
+                        </button>
+                      </div>
+
+                      {showFotoForm && (
+                        <form onSubmit={handleAddFotoGaragem} className="bg-gray-900/50 p-4 rounded-lg border border-gray-600 mb-4">
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm text-gray-400 mb-1">Foto</label>
+                              <input type="file" accept="image/*" onChange={handleFotoGaragemFile}
+                                className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300" required />
+                            </div>
+                            <input type="text" placeholder="Descrição (opcional)" value={fotoFormData.descricao}
+                              onChange={(e) => setFotoFormData({ ...fotoFormData, descricao: e.target.value })}
+                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                            <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition"
+                              disabled={!fotoFormData.foto}>
+                              Salvar Foto
+                            </button>
+                          </div>
+                        </form>
+                      )}
+
+                      {fotosGaragem.length === 0 ? (
+                        <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                          <Image size={48} className="mx-auto mb-3 text-gray-600" />
+                          <p>Nenhuma foto na garagem deste cliente</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3">
+                          {fotosGaragem.map((foto) => (
+                            <div key={foto.id} className="bg-gray-800 rounded-lg shadow overflow-hidden relative group border border-gray-700">
+                              <img src={`data:image/jpeg;base64,${foto.foto}`} alt={foto.descricao || 'Foto garagem'}
+                                className="w-full h-40 object-cover" />
+                              <div className="p-2">
+                                {foto.descricao && <p className="text-sm text-gray-300">{foto.descricao}</p>}
+                                <p className="text-xs text-gray-500">{new Date(foto.data_upload).toLocaleString('pt-BR')}</p>
+                              </div>
+                              <button onClick={() => handleDeleteFotoGaragem(foto.id)}
+                                className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                      <Warehouse size={48} className="mx-auto mb-3 text-gray-600" />
+                      <p>Selecione um cliente para gerenciar a garagem</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-white">Solicitações de Envio</h3>
+                  <button onClick={loadSolicitacoes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-3 py-2 rounded hover:bg-gray-600 text-sm transition">
+                    <RefreshCw size={16} /> Atualizar
+                  </button>
+                </div>
+                {solicitacoes.length === 0 ? (
+                  <div className="bg-gray-800 rounded-lg shadow p-6 text-center text-gray-500 border border-gray-700">
+                    <Send size={32} className="mx-auto mb-2 text-gray-600" />
+                    <p>Nenhuma solicitação de envio pendente</p>
+                  </div>
+                ) : (
+                  <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700">
+                    <table className="w-full">
+                      <thead className="bg-gray-900/50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Rastreio</th>
+                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {solicitacoes.map((sol) => (
+                          <tr key={sol.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
+                            <td className="px-4 py-2 font-medium text-white">{sol.cliente_nome}</td>
+                            <td className="px-4 py-2 text-sm text-gray-400">{new Date(sol.data_solicitacao).toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-2">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                sol.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
+                                sol.status === 'enviado' ? 'bg-green-100 text-green-700' :
+                                sol.status === 'entregue' ? 'bg-blue-100 text-blue-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {sol.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2">
+                              {sol.codigo_rastreio ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-mono bg-gray-700 text-orange-400 px-2 py-1 rounded">{sol.codigo_rastreio}</span>
+                                  <button onClick={() => handleSalvarRastreio(sol.id)}
+                                    className="text-xs text-orange-400 hover:text-orange-300 transition">✏️</button>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-600">—</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-2">
+                              <div className="flex gap-2">
+                                {sol.status === 'pendente' && (
+                                  <button onClick={() => handleEnviarComRastreio(sol)}
+                                    className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded hover:bg-green-600/30 border border-green-600/30 transition">
+                                    Enviar + Rastreio
+                                  </button>
+                                )}
+                                {sol.status === 'enviado' && (
+                                  <>
+                                    <button onClick={() => handleSalvarRastreio(sol.id)}
+                                      className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded hover:bg-gray-600 transition">
+                                      Editar Rastreio
+                                    </button>
+                                    <button onClick={() => handleUpdateSolicitacao(sol.id, 'entregue')}
+                                      className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded hover:bg-blue-600/30 border border-blue-600/30 transition">
+                                      Entregue
+                                    </button>
+                                  </>
+                                )}
+                                {sol.status === 'entregue' && (
+                                  <span className="text-xs text-gray-500">✅ Finalizado</span>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

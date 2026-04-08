@@ -1,0 +1,81 @@
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const authService = {
+  loginAdmin: (email: string, senha: string) =>
+    api.post('/auth/admin/login', { email, senha }),
+  loginCliente: (email: string, senha: string) =>
+    api.post('/auth/cliente/login', { email, senha }),
+};
+
+export const clienteService = {
+  criar: (data: any) => api.post('/clientes/', data),
+  listar: () => api.get('/clientes/'),
+  obter: (id: number) => api.get(`/clientes/${id}/`),
+  atualizar: (id: number, data: any) => api.put(`/clientes/${id}/`, data),
+  deletar: (id: number) => api.delete(`/clientes/${id}/`),
+};
+
+export const compraService = {
+  criar: (data: any) => api.post('/compras/', data),
+  listarPorCliente: (clienteId: number) => api.get(`/compras/cliente/${clienteId}/`),
+  obter: (id: number) => api.get(`/compras/${id}/`),
+  atualizar: (id: number, data: any) => api.put(`/compras/${id}/`, data),
+  deletar: (id: number) => api.delete(`/compras/${id}/`),
+};
+
+export const pagamentoService = {
+  criar: (data: any) => api.post('/pagamentos/', data),
+  listarPorCliente: (clienteId: number) => api.get(`/pagamentos/cliente/${clienteId}/`),
+  obter: (id: number) => api.get(`/pagamentos/${id}/`),
+  atualizar: (id: number, data: any) => api.put(`/pagamentos/${id}/`, data),
+  deletar: (id: number) => api.delete(`/pagamentos/${id}/`),
+};
+
+export const solicitacaoService = {
+  criar: (data: any) => api.post('/solicitacoes/', data),
+  listar: () => api.get('/solicitacoes/'),
+  listarPorCliente: (clienteId: number) => api.get(`/solicitacoes/cliente/${clienteId}/`),
+  atualizar: (id: number, data: any) => api.put(`/solicitacoes/${id}/`, data),
+};
+
+export const loteService = {
+  criar: (data: any) => api.post('/lotes/', data),
+  listar: () => api.get('/lotes/'),
+  obter: (id: number) => api.get(`/lotes/${id}/`),
+  atualizar: (id: number, data: any) => api.put(`/lotes/${id}/`, data),
+  deletar: (id: number) => api.delete(`/lotes/${id}/`),
+  criarVenda: (data: any) => api.post('/lotes/vendas/', data),
+  listarVendas: (loteId: number) => api.get(`/lotes/${loteId}/vendas/`),
+  listarVendasCliente: (clienteId: number) => api.get(`/lotes/vendas/cliente/${clienteId}/`),
+  atualizarVenda: (vendaId: number, data: any) => api.put(`/lotes/vendas/${vendaId}/`, data),
+  deletarVenda: (vendaId: number) => api.delete(`/lotes/vendas/${vendaId}/`),
+};
+
+export const garagemService = {
+  adicionarFoto: (data: any) => api.post('/garagem/fotos/', data),
+  listarFotos: (clienteId: number) => api.get(`/garagem/fotos/${clienteId}/`),
+  deletarFoto: (fotoId: number) => api.delete(`/garagem/fotos/${fotoId}/`),
+  criarSolicitacao: (data: any) => api.post('/garagem/solicitacoes/', data),
+  listarSolicitacoesCliente: (clienteId: number) => api.get(`/garagem/solicitacoes/cliente/${clienteId}/`),
+  listarTodasSolicitacoes: () => api.get('/garagem/solicitacoes/'),
+  atualizarSolicitacao: (solId: number, data: any) => api.put(`/garagem/solicitacoes/${solId}/`, data),
+};
+
+export default api;
