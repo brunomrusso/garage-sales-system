@@ -83,36 +83,47 @@ def init_admin_permissions(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Apenas Admin Master pode gerenciar permissões"
         )
+
+
+@router.post("/setup-master")
+def setup_master(
+    db: Session = Depends(get_db)
+):
+    """Rota temporária para setup inicial do admin_master - SEM autenticação"""
+    from app.models.models import UsuarioAdmin
     
-    # Encontrar o admin
-    admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
+    # Pegar o primeiro admin da tabela UsuarioAdmin
+    admin = db.query(UsuarioAdmin).first()
     if not admin:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Admin não encontrado"
+            detail="Nenhum admin encontrado"
         )
     
-    if admin.role not in ['admin', 'admin_master']:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Usuário não é um admin"
-        )
+    # Verificar se já existe na tabela Cliente
+    cliente = db.query(Cliente).filter(Cliente.email == admin.email).first()
+    if cliente:
+        cliente.role = 'admin_master'
+        cliente.ativo = True
+        db.commit()
+        db.refresh(cliente)
+        master_id = cliente.id
+    else:
+        master_id = admin.id
     
     # Remover permissões antigas
     existing_perms = db.query(AdminPermission).filter(
-        AdminPermission.admin_id == admin_id
+        AdminPermission.admin_id == master_id
     ).first()
-    
     if existing_perms:
         db.delete(existing_perms)
         db.commit()
     
-    # Inicializar permissões com acesso total se for master
-    is_master = admin.role == 'admin_master'
-    initialize_admin_permissions(db, admin_id, is_master=is_master)
+    # Inicializar permissões com acesso total
+    initialize_admin_permissions(db, master_id, is_master=True)
     
     return {
-        "message": f"✅ Permissões inicializadas para {admin.nome}",
-        "admin_id": admin_id,
-        "is_master": is_master
+        "message": "Admin Master configurado com sucesso!",
+        "admin_id": master_id,
+        "email": admin.email
     }
