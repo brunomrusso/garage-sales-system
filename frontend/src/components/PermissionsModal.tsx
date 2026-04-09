@@ -169,6 +169,30 @@ export const PermissionsModal = ({ adminId, adminNome, isOpen, onClose, onSave }
                 </div>
               </div>
 
+              {/* Garagem Permissions */}
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  🏠 Permissões de Garagem
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    { key: 'garagem_view', label: 'Visualizar garagens' },
+                    { key: 'garagem_edit', label: 'Editar garagens' },
+                    { key: 'garagem_foto_upload', label: 'Upload de fotos' },
+                  ].map(perm => (
+                    <label key={perm.key} className="flex items-center gap-3 p-3 bg-gray-700/30 rounded hover:bg-gray-700/50 cursor-pointer transition">
+                      <input
+                        type="checkbox"
+                        checked={permissions[perm.key] || false}
+                        onChange={() => handleToggle(perm.key)}
+                        className="w-4 h-4 rounded"
+                      />
+                      <span className="text-gray-300">{perm.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Admin Permissions */}
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
@@ -177,6 +201,7 @@ export const PermissionsModal = ({ adminId, adminNome, isOpen, onClose, onSave }
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
                     { key: 'admin_manage_perms', label: 'Gerenciar permissões' },
+                    { key: 'admin_approve_admins', label: 'Aprovar admins pendentes' },
                     { key: 'admin_view_audit', label: 'Ver auditoria' },
                   ].map(perm => (
                     <label key={perm.key} className="flex items-center gap-3 p-3 bg-gray-700/30 rounded hover:bg-gray-700/50 cursor-pointer transition">

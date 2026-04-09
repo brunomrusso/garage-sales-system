@@ -27,7 +27,11 @@ class AdminPermissionUpdate(BaseModel):
     venda_delete: Optional[bool] = None
     venda_change_status: Optional[bool] = None
     venda_mark_paid: Optional[bool] = None
+    garagem_view: Optional[bool] = None
+    garagem_edit: Optional[bool] = None
+    garagem_foto_upload: Optional[bool] = None
     admin_manage_perms: Optional[bool] = None
+    admin_approve_admins: Optional[bool] = None
     admin_view_audit: Optional[bool] = None
     max_deletes_per_day: Optional[int] = None
 

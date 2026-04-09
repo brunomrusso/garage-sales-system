@@ -18,7 +18,11 @@ interface Permissions {
   venda_delete: boolean;
   venda_change_status: boolean;
   venda_mark_paid: boolean;
+  garagem_view: boolean;
+  garagem_edit: boolean;
+  garagem_foto_upload: boolean;
   admin_manage_perms: boolean;
+  admin_approve_admins: boolean;
   admin_view_audit: boolean;
   max_deletes_per_day: number;
 }
@@ -66,7 +70,12 @@ export const usePermissions = (adminId: number) => {
   const canDeleteCliente = () => hasPermission('cliente_delete');
   const canResetClientePassword = () => hasPermission('cliente_reset_pwd');
 
+  const canViewGaragem = () => hasPermission('garagem_view');
+  const canEditGaragem = () => hasPermission('garagem_edit');
+  const canUploadFotoGaragem = () => hasPermission('garagem_foto_upload');
+
   const canManagePermissions = () => hasPermission('admin_manage_perms');
+  const canApproveAdmins = () => hasPermission('admin_approve_admins');
   const canViewAudit = () => hasPermission('admin_view_audit');
 
   return {
@@ -87,7 +96,11 @@ export const usePermissions = (adminId: number) => {
     canDeleteVenda,
     canChangeVendaStatus,
     canMarkVendaPaid,
+    canViewGaragem,
+    canEditGaragem,
+    canUploadFotoGaragem,
     canManagePermissions,
+    canApproveAdmins,
     canViewAudit,
   };
 };
