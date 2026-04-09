@@ -131,6 +131,13 @@ def check_permission(db: Session, admin_id: int, permission: str) -> bool:
         'admin.view_audit': 'admin_view_audit',
     }
     
+    # Verificar permissões extras (garagem, admin_approve_admins)
+    if permission in ['garagem_view', 'garagem_edit', 'garagem_foto_upload', 'admin_approve_admins']:
+        extra_perms = db.query(AdminExtraPermission).filter(AdminExtraPermission.admin_id == admin_id).first()
+        if extra_perms:
+            return getattr(extra_perms, permission, False)
+        return False
+    
     attr = perm_map.get(permission)
     if not attr:
         return False
