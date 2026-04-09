@@ -921,9 +921,9 @@ export const AdminDashboard = () => {
               <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide mb-6">Garagem dos Clientes</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div className="flex flex-col h-full">
                   <h3 className="text-lg font-semibold mb-3 text-gray-300">Selecione um Cliente</h3>
-                  <div className="bg-gray-800 rounded-lg shadow border border-gray-700 max-h-96 overflow-y-auto">
+                  <div className="bg-gray-800 rounded-lg shadow border border-gray-700 flex-1 overflow-y-auto max-h-[600px]">
                     {clientes.map((cliente) => (
                       <div key={cliente.id}
                         onClick={() => handleSelectClienteGaragem(cliente)}
@@ -937,9 +937,9 @@ export const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="flex flex-col h-full">
                   {selectedClienteGaragem ? (
-                    <div>
+                    <div className="flex flex-col h-full">
                       <div className="flex justify-between items-center mb-3">
                         <h3 className="text-lg font-semibold text-white">Fotos - {selectedClienteGaragem.nome}</h3>
                         <button onClick={() => setShowFotoForm(!showFotoForm)}
@@ -969,31 +969,33 @@ export const AdminDashboard = () => {
                       )}
 
                       {fotosGaragem.length === 0 ? (
-                        <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                        <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700 flex-1 flex items-center justify-center">
                           <Image size={48} className="mx-auto mb-3 text-gray-600" />
                           <p>Nenhuma foto na garagem deste cliente</p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 gap-3">
-                          {fotosGaragem.map((foto) => (
-                            <div key={foto.id} className="bg-gray-800 rounded-lg shadow overflow-hidden relative group border border-gray-700">
-                              <img src={`data:image/jpeg;base64,${foto.foto}`} alt={foto.descricao || 'Foto garagem'}
-                                className="w-full h-40 object-cover" />
-                              <div className="p-2">
-                                {foto.descricao && <p className="text-sm text-gray-300">{foto.descricao}</p>}
-                                <p className="text-xs text-gray-500">{new Date(foto.data_upload).toLocaleString('pt-BR')}</p>
+                        <div className="flex-1 overflow-y-auto max-h-[600px]">
+                          <div className="grid grid-cols-2 gap-3">
+                            {fotosGaragem.map((foto) => (
+                              <div key={foto.id} className="bg-gray-800 rounded-lg shadow overflow-hidden relative group border border-gray-700">
+                                <img src={`data:image/jpeg;base64,${foto.foto}`} alt={foto.descricao || 'Foto garagem'}
+                                  className="w-full h-40 object-cover" />
+                                <div className="p-2">
+                                  {foto.descricao && <p className="text-sm text-gray-300">{foto.descricao}</p>}
+                                  <p className="text-xs text-gray-500">{new Date(foto.data_upload).toLocaleString('pt-BR')}</p>
+                                </div>
+                                <button onClick={() => handleDeleteFotoGaragem(foto.id)}
+                                  className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition">
+                                  <Trash2 size={14} />
+                                </button>
                               </div>
-                              <button onClick={() => handleDeleteFotoGaragem(foto.id)}
-                                className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition">
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                    <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700 flex-1 flex items-center justify-center">
                       <Warehouse size={48} className="mx-auto mb-3 text-gray-600" />
                       <p>Selecione um cliente para gerenciar a garagem</p>
                     </div>
