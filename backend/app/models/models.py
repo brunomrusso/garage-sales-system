@@ -178,13 +178,13 @@ class AdminPermission(Base):
     venda_mark_paid = Column(Boolean, default=False)
     
     # Permissões de Garagem
-    garagem_view = Column(Boolean, default=False)
-    garagem_edit = Column(Boolean, default=False)
-    garagem_foto_upload = Column(Boolean, default=False)
+    garagem_view = Column(Boolean, default=False, nullable=True)
+    garagem_edit = Column(Boolean, default=False, nullable=True)
+    garagem_foto_upload = Column(Boolean, default=False, nullable=True)
     
     # Permissões de Admin
     admin_manage_perms = Column(Boolean, default=False)
-    admin_approve_admins = Column(Boolean, default=False)
+    admin_approve_admins = Column(Boolean, default=False, nullable=True)
     admin_view_audit = Column(Boolean, default=False)
     
     # Limite de ações por dia
