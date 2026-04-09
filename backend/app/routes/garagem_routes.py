@@ -6,6 +6,7 @@ from app.controllers import garagem_controller, permission_controller
 from app.core.security import verify_token, verify_admin_token
 from pydantic import BaseModel
 from typing import Optional
+import json
 
 router = APIRouter(prefix="/api/garagem", tags=["garagem"])
 
@@ -68,18 +69,60 @@ class SolicitacaoUpdate(BaseModel):
 
 @router.get("/fotos/{cliente_id}/nao-solicitadas/")
 def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
-    """Verifica se há fotos não solicitadas na garagem do cliente"""
-    from app.models.models import FotoGaragem
+    """Verifica se há fotos não solicitadas na garagem do cliente e se pode solicitar envio"""
+    from app.models.models import FotoGaragem, SolicitacaoEnvio, VendaLote
     
-    count = db.query(FotoGaragem).filter(
+    # Contar fotos não solicitadas
+    fotos_nao_solicitadas = db.query(FotoGaragem).filter(
         FotoGaragem.cliente_id == cliente_id,
         FotoGaragem.solicitado == False
     ).count()
     
+    # Verificar se existe solicitação pendente
+    solicitacao_pendente = db.query(SolicitacaoEnvio).filter(
+        SolicitacaoEnvio.cliente_id == cliente_id,
+        SolicitacaoEnvio.status == "pendente"
+    ).first()
+    
+    # Obter itens atualmente na garagem
+    itens_garagem = db.query(VendaLote).filter(
+        VendaLote.cliente_id == cliente_id,
+        VendaLote.status_entrega == "centro_distribuicao"
+    ).all()
+    itens_garagem_ids = {v.id for v in itens_garagem}
+    
+    pode_solicitar = False
+    motivo = ""
+    
+    if solicitacao_pendente:
+        # Se existe solicitação pendente, verificar se há novos itens
+        if solicitacao_pendente.vendas_ids:
+            try:
+                ids_solicitacao = set(json.loads(solicitacao_pendente.vendas_ids))
+            except:
+                ids_solicitacao = set()
+        else:
+            ids_solicitacao = set()
+        
+        novos_itens = itens_garagem_ids - ids_solicitacao
+        if novos_itens:
+            pode_solicitar = True
+            motivo = f"Há {len(novos_itens)} novos itens na garagem"
+        else:
+            pode_solicitar = False
+            motivo = "Todos os itens já estão na solicitação pendente"
+    else:
+        # Se não existe solicitação pendente, pode solicitar se há itens
+        pode_solicitar = len(itens_garagem) > 0
+        motivo = "Pode solicitar envio" if pode_solicitar else "Não há itens na garagem"
+    
     return {
         "cliente_id": cliente_id,
-        "fotos_nao_solicitadas": count,
-        "pode_solicitar": count > 0
+        "fotos_nao_solicitadas": fotos_nao_solicitadas,
+        "pode_solicitar": pode_solicitar,
+        "motivo": motivo,
+        "tem_solicitacao_pendente": solicitacao_pendente is not None,
+        "itens_garagem": len(itens_garagem)
     }
 
 

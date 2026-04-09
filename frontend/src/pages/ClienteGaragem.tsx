@@ -13,6 +13,9 @@ export const ClienteGaragem = () => {
   const [selectedFoto, setSelectedFoto] = useState<any>(null);
   const [comprasTab, setComprasTab] = useState<'andamento' | 'entregues'>('andamento');
   const [fotosNaoSolicitadas, setFotosNaoSolicitadas] = useState<number>(0);
+  const [podeSolicitar, setPodeSolicitar] = useState<boolean>(false);
+  const [motivoSolicitacao, setMotivoSolicitacao] = useState<string>("");
+  const [temSolicitacaoPendente, setTemSolicitacaoPendente] = useState<boolean>(false);
 
   useEffect(() => {
     if (user) {
@@ -56,19 +59,33 @@ export const ClienteGaragem = () => {
   const loadFotosNaoSolicitadas = async () => {
     try {
       const response = await garagemService.verificarFotosNaoSolicitadas(user!.id);
-      setFotosNaoSolicitadas(response.data.fotos_nao_solicitadas);
+      const data = response.data;
+      setFotosNaoSolicitadas(data.fotos_nao_solicitadas);
+      setPodeSolicitar(data.pode_solicitar);
+      setMotivoSolicitacao(data.motivo);
+      setTemSolicitacaoPendente(data.tem_solicitacao_pendente);
     } catch (error) {
       console.error('Erro ao verificar fotos não solicitadas:', error);
     }
   };
 
   const handleSolicitarEnvio = async () => {
-    if (window.confirm('Deseja solicitar o envio da sua garagem?')) {
+    const mensagem = temSolicitacaoPendente 
+      ? 'Deseja atualizar sua solicitação de envio com os novos itens da garagem? A solicitação anterior será substituída.'
+      : 'Deseja solicitar o envio da sua garagem?';
+    
+    if (window.confirm(mensagem)) {
       try {
-        await garagemService.criarSolicitacao({ cliente_id: user!.id });
+        const response = await garagemService.criarSolicitacao({ cliente_id: user!.id });
         loadSolicitacoes();
         loadFotosNaoSolicitadas(); // Recarregar o status das fotos
-        alert('Solicitação de envio criada com sucesso!');
+        
+        const acao = response.data.acao;
+        if (acao === 'substituida') {
+          alert('Solicitação de envio atualizada com sucesso! Todos os itens foram incluídos.');
+        } else {
+          alert('Solicitação de envio criada com sucesso!');
+        }
       } catch (error) {
         console.error('Erro ao solicitar envio:', error);
       }
@@ -80,7 +97,7 @@ export const ClienteGaragem = () => {
   const totalPendente = totalGasto - totalPago;
   const itensRecebidos = vendas.filter(v => v.status_entrega === 'centro_distribuicao');
   const todosGaragemPagos = itensRecebidos.every(v => v.pago);
-  const podeEnviar = itensRecebidos.length > 0 && todosGaragemPagos && fotosNaoSolicitadas > 0;
+  const podeEnviar = itensRecebidos.length > 0 && todosGaragemPagos && podeSolicitar;
 
   // Filtrar compras por status
   const comprasEmAndamento = vendas.filter(venda => venda.status_entrega !== 'entregue');
@@ -306,8 +323,8 @@ export const ClienteGaragem = () => {
                   {itensRecebidos.length > 0 && !todosGaragemPagos && (
                     <span className="text-xs text-red-400">Itens na garagem com pagamento pendente</span>
                   )}
-                  {fotosNaoSolicitadas === 0 && itensRecebidos.length > 0 && todosGaragemPagos && (
-                    <span className="text-xs text-yellow-400">Todos os itens já foram solicitados</span>
+                  {itensRecebidos.length > 0 && todosGaragemPagos && !podeSolicitar && motivoSolicitacao && (
+                    <span className="text-xs text-yellow-400">{motivoSolicitacao}</span>
                   )}
                   <button onClick={handleSolicitarEnvio}
                     disabled={!podeEnviar}

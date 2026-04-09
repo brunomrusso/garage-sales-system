@@ -59,27 +59,48 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
     if not cliente:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cliente não encontrado")
 
-    # Marcar todas as fotos da garagem como solicitadas
-    fotos_solicitadas = marcar_fotos_como_solicitadas(db, data.cliente_id)
+    # Verificar se existe solicitação pendente
+    solicitacao_pendente = db.query(SolicitacaoEnvio).filter(
+        SolicitacaoEnvio.cliente_id == data.cliente_id,
+        SolicitacaoEnvio.status == "pendente"
+    ).first()
 
+    # Obter todos os itens na garagem
     vendas_garagem = db.query(VendaLote).filter(
         VendaLote.cliente_id == data.cliente_id,
         VendaLote.status_entrega == "centro_distribuicao"
     ).all()
     ids = [v.id for v in vendas_garagem]
 
-    nova = SolicitacaoEnvio(
-        cliente_id=data.cliente_id,
-        status="pendente",
-        vendas_ids=json.dumps(ids) if ids else None
-    )
-    db.add(nova)
-    db.commit()
-    db.refresh(nova)
-    
-    response = _solicitacao_to_response(nova, db)
-    response["fotos_garagem_solicitadas"] = fotos_solicitadas
-    return response
+    # Marcar todas as fotos da garagem como solicitadas
+    fotos_solicitadas = marcar_fotos_como_solicitadas(db, data.cliente_id)
+
+    if solicitacao_pendente:
+        # Se existe solicitação pendente, substituir com todos os itens
+        solicitacao_pendente.vendas_ids = json.dumps(ids) if ids else None
+        solicitacao_pendente.data_solicitacao = datetime.utcnow()
+        db.commit()
+        db.refresh(solicitacao_pendente)
+        
+        response = _solicitacao_to_response(solicitacao_pendente, db)
+        response["acao"] = "substituida"
+        response["fotos_garagem_solicitadas"] = fotos_solicitadas
+        return response
+    else:
+        # Se não existe solicitação pendente, criar nova
+        nova = SolicitacaoEnvio(
+            cliente_id=data.cliente_id,
+            status="pendente",
+            vendas_ids=json.dumps(ids) if ids else None
+        )
+        db.add(nova)
+        db.commit()
+        db.refresh(nova)
+        
+        response = _solicitacao_to_response(nova, db)
+        response["acao"] = "criada"
+        response["fotos_garagem_solicitadas"] = fotos_solicitadas
+        return response
 
 
 def listar_solicitacoes_cliente(db: Session, cliente_id: int) -> list:
