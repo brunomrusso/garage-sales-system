@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS clientes (
   email VARCHAR(255) UNIQUE NOT NULL,
   senha_hash VARCHAR(255) NOT NULL,
   telefone VARCHAR(20),
-  data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  role VARCHAR(20) DEFAULT 'cliente',
+  ativo BOOLEAN DEFAULT TRUE
 );
 
 -- Criar tabela de compras

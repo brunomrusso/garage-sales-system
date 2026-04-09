@@ -9,6 +9,14 @@ from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_rou
 
 Base.metadata.create_all(bind=engine)
 
+def run_migrations():
+    """Execute pending database migrations"""
+    try:
+        from app.db.run_migrations import run_migrations as execute_migrations
+        execute_migrations()
+    except Exception as e:
+        print(f"[MIGRATIONS] Error: {str(e)}")
+
 def seed_admin():
     db = SessionLocal()
     try:
@@ -25,6 +33,7 @@ def seed_admin():
     finally:
         db.close()
 
+run_migrations()
 seed_admin()
 
 app = FastAPI(
