@@ -12,24 +12,23 @@ def login_admin(db: Session, request: LoginRequest) -> TokenResponse:
     admin = db.query(UsuarioAdmin).filter(UsuarioAdmin.email == request.email).first()
     
     if admin and verify_password(request.senha, admin.senha_hash):
-        # Verificar se existe na tabela Cliente com role atualizado
-        cliente_match = db.query(Cliente).filter(
-            Cliente.email == admin.email,
-            Cliente.role.in_(['admin', 'admin_master'])
-        ).first()
-        
-        role = cliente_match.role if cliente_match else "admin"
-        user_id = cliente_match.id if cliente_match else admin.id
-        
+        # UsuarioAdmin sao os admins originais - tratar como admin_master
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": str(user_id), "role": role, "ativo": True},
+            data={"sub": str(admin.id), "role": "admin_master", "ativo": True},
             expires_delta=access_token_expires
         )
         
+        # Garantir que permissoes existem
+        from app.models.models import AdminPermission
+        from app.core.permissions import initialize_admin_permissions
+        existing = db.query(AdminPermission).filter(AdminPermission.admin_id == admin.id).first()
+        if not existing:
+            initialize_admin_permissions(db, admin.id, is_master=True)
+        
         return TokenResponse(
             token=access_token,
-            user={"id": user_id, "email": admin.email, "role": role}
+            user={"id": admin.id, "email": admin.email, "role": "admin_master"}
         )
     
     # Se não encontrou em UsuarioAdmin, tenta na tabela Cliente com role='admin'
