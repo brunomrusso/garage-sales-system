@@ -14,7 +14,11 @@ router = APIRouter(prefix="/api/garagem", tags=["garagem"])
 def adicionar_foto(foto_data: FotoGaragemCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
     # Verificar permissão garagem_foto_upload
     admin_id = current_user.get("user_id")
-    if not permission_controller.check_permission(db, admin_id, "garagem_foto_upload"):
+    has_perm = permission_controller.check_permission(db, admin_id, "garagem_foto_upload")
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"[GARAGEM] Admin {admin_id} tentando upload. Permissão: {has_perm}")
+    if not has_perm:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Você não tem permissão para fazer upload de fotos"

@@ -108,6 +108,7 @@ def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict)
     if not extra_perms:
         extra_perms = AdminExtraPermission(admin_id=admin_id)
         db.add(extra_perms)
+        db.flush()  # Garantir que o objeto é criado antes de atualizar
     
     # Atualizar apenas os campos fornecidos que existem no modelo
     for key, value in permissions_data.items():
