@@ -181,11 +181,28 @@ class AdminPermission(Base):
     admin_manage_perms = Column(Boolean, default=False)
     admin_view_audit = Column(Boolean, default=False)
     
-    # Permissões extras em JSON (garagem, admin_approve_admins, etc)
-    extra_permissions = Column(JSON, default={})
-    
     # Limite de ações por dia
     max_deletes_per_day = Column(Integer, default=0)  # 0 = sem limite
+    
+    data_criacao = Column(DateTime, default=datetime.utcnow)
+    data_atualizacao = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    admin = relationship("Cliente", foreign_keys=[admin_id])
+
+
+class AdminExtraPermission(Base):
+    __tablename__ = "admin_extra_permissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"), nullable=False, unique=True)
+    
+    # Permissões de Garagem
+    garagem_view = Column(Boolean, default=False)
+    garagem_edit = Column(Boolean, default=False)
+    garagem_foto_upload = Column(Boolean, default=False)
+    
+    # Permissões de Admin
+    admin_approve_admins = Column(Boolean, default=False)
     
     data_criacao = Column(DateTime, default=datetime.utcnow)
     data_atualizacao = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

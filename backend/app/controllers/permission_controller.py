@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from fastapi import HTTPException, status
-from app.models.models import AdminPermission, Cliente, AuditLog
+from app.models.models import AdminPermission, AdminExtraPermission, Cliente, AuditLog
 from app.core.permissions import initialize_admin_permissions, log_action
 from typing import Optional
 from datetime import datetime, timedelta
@@ -43,8 +43,8 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
             detail="Permissões não encontradas para este admin"
         )
     
-    # Obter permissões extras do JSON
-    extra_perms = perms.extra_permissions or {}
+    # Obter permissões extras
+    extra_perms = db.query(AdminExtraPermission).filter(AdminExtraPermission.admin_id == admin_id).first()
     
     # Converter para dict
     perms_dict = {
@@ -66,11 +66,11 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
         'venda_delete': perms.venda_delete,
         'venda_change_status': perms.venda_change_status,
         'venda_mark_paid': perms.venda_mark_paid,
-        'garagem_view': extra_perms.get('garagem_view', False),
-        'garagem_edit': extra_perms.get('garagem_edit', False),
-        'garagem_foto_upload': extra_perms.get('garagem_foto_upload', False),
+        'garagem_view': extra_perms.garagem_view if extra_perms else False,
+        'garagem_edit': extra_perms.garagem_edit if extra_perms else False,
+        'garagem_foto_upload': extra_perms.garagem_foto_upload if extra_perms else False,
         'admin_manage_perms': perms.admin_manage_perms,
-        'admin_approve_admins': extra_perms.get('admin_approve_admins', False),
+        'admin_approve_admins': extra_perms.admin_approve_admins if extra_perms else False,
         'admin_view_audit': perms.admin_view_audit,
         'max_deletes_per_day': perms.max_deletes_per_day,
     }
@@ -100,27 +100,28 @@ def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict)
         'max_deletes_per_day'
     }
     
-    # Permissões extras que vão no JSON
+    # Permissões extras que vão na tabela separada
     extra_perms_keys = {'garagem_view', 'garagem_edit', 'garagem_foto_upload', 'admin_approve_admins'}
     
-    # Inicializar extra_permissions se não existir
-    if not perms.extra_permissions:
-        perms.extra_permissions = {}
+    # Obter ou criar permissões extras
+    extra_perms = db.query(AdminExtraPermission).filter(AdminExtraPermission.admin_id == admin_id).first()
+    if not extra_perms:
+        extra_perms = AdminExtraPermission(admin_id=admin_id)
+        db.add(extra_perms)
     
     # Atualizar apenas os campos fornecidos que existem no modelo
     for key, value in permissions_data.items():
         if key in valid_columns and hasattr(perms, key):
             setattr(perms, key, value)
-        elif key in extra_perms_keys:
-            # Salvar no JSON
-            perms.extra_permissions[key] = value
+        elif key in extra_perms_keys and hasattr(extra_perms, key):
+            # Salvar na tabela de permissões extras
+            setattr(extra_perms, key, value)
     
     perms.data_atualizacao = datetime.utcnow()
+    extra_perms.data_atualizacao = datetime.utcnow()
     db.commit()
     db.refresh(perms)
-    
-    # Obter permissões extras do JSON
-    extra_perms = perms.extra_permissions or {}
+    db.refresh(extra_perms)
     
     # Retornar como dict
     return {
@@ -142,11 +143,11 @@ def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict)
         'venda_delete': perms.venda_delete,
         'venda_change_status': perms.venda_change_status,
         'venda_mark_paid': perms.venda_mark_paid,
-        'garagem_view': extra_perms.get('garagem_view', False),
-        'garagem_edit': extra_perms.get('garagem_edit', False),
-        'garagem_foto_upload': extra_perms.get('garagem_foto_upload', False),
+        'garagem_view': extra_perms.garagem_view,
+        'garagem_edit': extra_perms.garagem_edit,
+        'garagem_foto_upload': extra_perms.garagem_foto_upload,
         'admin_manage_perms': perms.admin_manage_perms,
-        'admin_approve_admins': extra_perms.get('admin_approve_admins', False),
+        'admin_approve_admins': extra_perms.admin_approve_admins,
         'admin_view_audit': perms.admin_view_audit,
         'max_deletes_per_day': perms.max_deletes_per_day,
     }
