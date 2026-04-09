@@ -35,6 +35,7 @@ app = FastAPI(
 
 allowed_origins = [
     settings.FRONTEND_URL,
+    "https://garage-sales-system.vercel.app",
     "http://localhost:3000",
     "http://localhost:3003",
     "http://localhost:5173",
