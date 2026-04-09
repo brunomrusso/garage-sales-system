@@ -12,12 +12,14 @@ export const ClienteGaragem = () => {
   const [solicitacoes, setSolicitacoes] = useState<any[]>([]);
   const [selectedFoto, setSelectedFoto] = useState<any>(null);
   const [comprasTab, setComprasTab] = useState<'andamento' | 'entregues'>('andamento');
+  const [fotosNaoSolicitadas, setFotosNaoSolicitadas] = useState<number>(0);
 
   useEffect(() => {
     if (user) {
       loadVendas();
       loadFotos();
       loadSolicitacoes();
+      loadFotosNaoSolicitadas();
     }
   }, [user]);
 
@@ -51,11 +53,21 @@ export const ClienteGaragem = () => {
     }
   };
 
+  const loadFotosNaoSolicitadas = async () => {
+    try {
+      const response = await garagemService.verificarFotosNaoSolicitadas(user!.id);
+      setFotosNaoSolicitadas(response.data.fotos_nao_solicitadas);
+    } catch (error) {
+      console.error('Erro ao verificar fotos não solicitadas:', error);
+    }
+  };
+
   const handleSolicitarEnvio = async () => {
     if (window.confirm('Deseja solicitar o envio da sua garagem?')) {
       try {
         await garagemService.criarSolicitacao({ cliente_id: user!.id });
         loadSolicitacoes();
+        loadFotosNaoSolicitadas(); // Recarregar o status das fotos
         alert('Solicitação de envio criada com sucesso!');
       } catch (error) {
         console.error('Erro ao solicitar envio:', error);
@@ -68,7 +80,7 @@ export const ClienteGaragem = () => {
   const totalPendente = totalGasto - totalPago;
   const itensRecebidos = vendas.filter(v => v.status_entrega === 'centro_distribuicao');
   const todosGaragemPagos = itensRecebidos.every(v => v.pago);
-  const podeEnviar = itensRecebidos.length > 0 && todosGaragemPagos;
+  const podeEnviar = itensRecebidos.length > 0 && todosGaragemPagos && fotosNaoSolicitadas > 0;
 
   // Filtrar compras por status
   const comprasEmAndamento = vendas.filter(venda => venda.status_entrega !== 'entregue');
@@ -135,7 +147,7 @@ export const ClienteGaragem = () => {
             }`}>
             <ShoppingBag size={18} /> Compras
           </button>
-          <button onClick={() => { setActiveTab('garagem'); loadFotos(); loadSolicitacoes(); }}
+          <button onClick={() => { setActiveTab('garagem'); loadFotos(); loadSolicitacoes(); loadFotosNaoSolicitadas(); }}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide text-sm md:text-base ${
               activeTab === 'garagem' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white border border-gray-700'
             }`}>
@@ -294,6 +306,9 @@ export const ClienteGaragem = () => {
                   {itensRecebidos.length > 0 && !todosGaragemPagos && (
                     <span className="text-xs text-red-400">Itens na garagem com pagamento pendente</span>
                   )}
+                  {fotosNaoSolicitadas === 0 && itensRecebidos.length > 0 && todosGaragemPagos && (
+                    <span className="text-xs text-yellow-400">Todos os itens já foram solicitados</span>
+                  )}
                   <button onClick={handleSolicitarEnvio}
                     disabled={!podeEnviar}
                     className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition ${
@@ -348,8 +363,17 @@ export const ClienteGaragem = () => {
                 <h3 className="text-xl font-bold mb-4 text-white">Fotos da Garagem</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {fotosGaragem.map((foto) => (
-                    <div key={foto.id} className="rounded-lg border border-gray-700 overflow-hidden cursor-pointer hover:shadow-xl hover:border-gray-500 transition"
+                    <div key={foto.id} className={`rounded-lg border overflow-hidden cursor-pointer hover:shadow-xl transition relative ${
+                      foto.solicitado 
+                        ? 'border-gray-600 opacity-75' 
+                        : 'border-gray-700 hover:border-gray-500'
+                    }`}
                       onClick={() => setSelectedFoto(foto)}>
+                      {foto.solicitado && (
+                        <div className="absolute top-2 right-2 bg-yellow-600 text-white px-2 py-1 rounded text-xs font-semibold z-10">
+                          Solicitado
+                        </div>
+                      )}
                       <img src={`data:image/jpeg;base64,${foto.foto}`} alt={foto.descricao || 'Foto garagem'}
                         className="w-full h-40 object-cover" />
                       {foto.descricao && (

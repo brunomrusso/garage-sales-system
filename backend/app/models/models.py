@@ -145,6 +145,8 @@ class FotoGaragem(Base):
     foto = Column(LargeBinary, nullable=False)
     descricao = Column(String(255), nullable=True)
     data_upload = Column(DateTime, default=datetime.utcnow)
+    solicitado = Column(Boolean, default=False)
+    data_solicitacao = Column(DateTime, nullable=True)
 
     cliente = relationship("Cliente", back_populates="fotos_garagem")
 

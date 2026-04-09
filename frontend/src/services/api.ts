@@ -85,6 +85,7 @@ export const garagemService = {
   listarSolicitacoesCliente: (clienteId: number) => api.get(`/garagem/solicitacoes/cliente/${clienteId}/`),
   listarTodasSolicitacoes: () => api.get('/garagem/solicitacoes/'),
   atualizarSolicitacao: (solId: number, data: any) => api.put(`/garagem/solicitacoes/${solId}/`, data),
+  verificarFotosNaoSolicitadas: (clienteId: number) => api.get(`/garagem/fotos/${clienteId}/nao-solicitadas/`),
 };
 
 export const permissionService = {

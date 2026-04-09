@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.models import FotoGaragem, SolicitacaoEnvio, Cliente, VendaLote, Lote
 from app.schemas.schemas import FotoGaragemCreate, SolicitacaoEnvioCreate
+from datetime import datetime
 import base64
 import json
 
@@ -36,10 +37,30 @@ def deletar_foto(db: Session, foto_id: int) -> dict:
     return {"message": "Foto deletada com sucesso"}
 
 
+def marcar_fotos_como_solicitadas(db: Session, cliente_id: int) -> int:
+    """Marca todas as fotos não solicitadas da garagem como solicitadas"""
+    fotos_nao_solicitadas = db.query(FotoGaragem).filter(
+        FotoGaragem.cliente_id == cliente_id,
+        FotoGaragem.solicitado == False
+    ).all()
+    
+    count = 0
+    for foto in fotos_nao_solicitadas:
+        foto.solicitado = True
+        foto.data_solicitacao = datetime.utcnow()
+        count += 1
+    
+    db.commit()
+    return count
+
+
 def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
     cliente = db.query(Cliente).filter(Cliente.id == data.cliente_id).first()
     if not cliente:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cliente não encontrado")
+
+    # Marcar todas as fotos da garagem como solicitadas
+    fotos_solicitadas = marcar_fotos_como_solicitadas(db, data.cliente_id)
 
     vendas_garagem = db.query(VendaLote).filter(
         VendaLote.cliente_id == data.cliente_id,
@@ -55,7 +76,10 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
     db.add(nova)
     db.commit()
     db.refresh(nova)
-    return _solicitacao_to_response(nova, db)
+    
+    response = _solicitacao_to_response(nova, db)
+    response["fotos_garagem_solicitadas"] = fotos_solicitadas
+    return response
 
 
 def listar_solicitacoes_cliente(db: Session, cliente_id: int) -> list:
@@ -94,7 +118,9 @@ def _foto_to_response(foto: FotoGaragem) -> dict:
         "cliente_id": foto.cliente_id,
         "foto": base64.b64encode(foto.foto).decode() if foto.foto else None,
         "descricao": foto.descricao,
-        "data_upload": foto.data_upload
+        "data_upload": foto.data_upload,
+        "solicitado": foto.solicitado,
+        "data_solicitacao": foto.data_solicitacao
     }
 
 

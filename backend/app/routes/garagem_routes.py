@@ -66,6 +66,23 @@ class SolicitacaoUpdate(BaseModel):
     codigo_rastreio: Optional[str] = None
 
 
+@router.get("/fotos/{cliente_id}/nao-solicitadas/")
+def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
+    """Verifica se há fotos não solicitadas na garagem do cliente"""
+    from app.models.models import FotoGaragem
+    
+    count = db.query(FotoGaragem).filter(
+        FotoGaragem.cliente_id == cliente_id,
+        FotoGaragem.solicitado == False
+    ).count()
+    
+    return {
+        "cliente_id": cliente_id,
+        "fotos_nao_solicitadas": count,
+        "pode_solicitar": count > 0
+    }
+
+
 @router.put("/solicitacoes/{sol_id}/")
 def atualizar_solicitacao(sol_id: int, data: SolicitacaoUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
     # Verificar permissão garagem_edit
