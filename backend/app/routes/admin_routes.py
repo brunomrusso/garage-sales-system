@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.db.database import get_db
 from app.core.security import verify_admin_token
 from app.models.models import Cliente, AdminPermission
@@ -127,3 +128,47 @@ def setup_master(
         "admin_id": master_id,
         "email": admin.email
     }
+
+
+@router.post("/migrate-permissions")
+def migrate_permissions(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_admin_token)
+):
+    """Executar migration de permissões (adicionar colunas faltantes)"""
+    
+    # Apenas admin_master pode executar
+    if current_user.get("role") != "admin_master":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Apenas Admin Master pode executar migrations"
+        )
+    
+    try:
+        # Executar migration para adicionar colunas faltantes
+        migration_sql = """
+        ALTER TABLE admin_permissions
+        ADD COLUMN IF NOT EXISTS garagem_view BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS garagem_edit BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS garagem_foto_upload BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS admin_approve_admins BOOLEAN DEFAULT FALSE;
+        """
+        
+        db.execute(text(migration_sql))
+        db.commit()
+        
+        return {
+            "message": "Migration executada com sucesso!",
+            "columns_added": [
+                "garagem_view",
+                "garagem_edit", 
+                "garagem_foto_upload",
+                "admin_approve_admins"
+            ]
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao executar migration: {str(e)}"
+        )
