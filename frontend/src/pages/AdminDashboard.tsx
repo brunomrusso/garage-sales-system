@@ -11,7 +11,9 @@ export const AdminDashboard = () => {
     canCreateLote, canDeleteLote,
     canCreateCliente, canDeleteCliente,
     canManagePermissions,
-    canViewGaragem
+    canViewGaragem,
+    canEditGaragem,
+    canUploadFotoGaragem
   } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
@@ -1085,14 +1087,20 @@ export const AdminDashboard = () => {
                     <div className="flex flex-col h-full">
                       <div className="flex justify-between items-center mb-3">
                         <h3 className="text-lg font-semibold text-white">Fotos - {selectedClienteGaragem.nome}</h3>
-                        <button onClick={() => setShowFotoForm(!showFotoForm)}
-                          className="flex items-center gap-2 bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 font-semibold transition">
+                        <button onClick={() => { if (canUploadFotoGaragem()) setShowFotoForm(!showFotoForm); }}
+                          disabled={!canUploadFotoGaragem()}
+                          title={!canUploadFotoGaragem() ? 'Você não tem permissão para fazer upload de fotos' : ''}
+                          className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-semibold transition ${
+                            canUploadFotoGaragem()
+                              ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
+                              : 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+                          }`}>
                           <Plus size={16} />
                           {showFotoForm ? 'Cancelar' : 'Adicionar Foto'}
                         </button>
                       </div>
 
-                      {showFotoForm && (
+                      {showFotoForm && canUploadFotoGaragem() && (
                         <form onSubmit={handleAddFotoGaragem} className="bg-gray-900/50 p-4 rounded-lg border border-gray-600 mb-4">
                           <div className="space-y-3">
                             <div>
@@ -1127,8 +1135,14 @@ export const AdminDashboard = () => {
                                   {foto.descricao && <p className="text-sm text-gray-300">{foto.descricao}</p>}
                                   <p className="text-xs text-gray-500">{new Date(foto.data_upload).toLocaleString('pt-BR')}</p>
                                 </div>
-                                <button onClick={() => handleDeleteFotoGaragem(foto.id)}
-                                  className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition">
+                                <button onClick={() => { if (canEditGaragem()) handleDeleteFotoGaragem(foto.id); }}
+                                  disabled={!canEditGaragem()}
+                                  title={!canEditGaragem() ? 'Você não tem permissão para deletar fotos' : ''}
+                                  className={`absolute top-2 right-2 p-1 rounded transition ${
+                                    canEditGaragem()
+                                      ? 'bg-red-600 text-white opacity-0 group-hover:opacity-100 cursor-pointer'
+                                      : 'bg-gray-700 text-gray-500 opacity-50 cursor-not-allowed'
+                                  }`}>
                                   <Trash2 size={14} />
                                 </button>
                               </div>
