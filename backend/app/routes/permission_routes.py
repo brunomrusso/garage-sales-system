@@ -50,12 +50,11 @@ def update_admin_permissions(
     current_user: dict = Depends(verify_admin_token)
 ):
     """Atualizar permissões de um admin (apenas Admin Master)"""
-    print(f"[PERM UPDATE] current_user: {current_user}")
     # Verificar se é Admin Master
     if current_user.get("role") != "admin_master":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Apenas Admin Master pode gerenciar permissões. Seu role atual: {current_user.get('role')}"
+            detail="Apenas Admin Master pode gerenciar permissões"
         )
     
     # Remover campos None

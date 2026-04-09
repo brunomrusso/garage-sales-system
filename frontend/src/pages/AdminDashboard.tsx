@@ -635,7 +635,7 @@ export const AdminDashboard = () => {
                           <td className="px-3 md:px-6 py-3 text-gray-400 text-sm hidden md:table-cell">{new Date(cliente.data_cadastro).toLocaleString('pt-BR')}</td>
                           <td className="px-3 md:px-6 py-3">
                             <div className="flex gap-2">
-                              {cliente.role !== 'cliente' && (
+                              {user?.role === 'admin_master' && cliente.role !== 'cliente' && (
                                 <button
                                   onClick={() => {
                                     setSelectedAdminForPerms(cliente);
