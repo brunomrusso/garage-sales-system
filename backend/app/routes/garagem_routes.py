@@ -162,13 +162,37 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
     print(f"  - Pode solicitar: {pode_solicitar}")
     print(f"  - Motivo: {motivo}")
     
+    # Criar mapa de status dos itens na garagem
+    itens_status = {}
+    for item in itens_garagem:
+        itens_status[item.id] = {
+            "id": item.id,
+            "preco": float(item.preco),
+            "carrinhos_comprados": item.carrinhos_comprados,
+            "status_entrega": item.status_entrega,
+            "ja_enviado": False
+        }
+    
+    # Marcar itens que já foram enviados anteriormente
+    if solicitacoes_anteriores:
+        for sol in solicitacoes_anteriores:
+            if sol.vendas_ids:
+                try:
+                    ids_enviados = json.loads(sol.vendas_ids)
+                    for item_id in ids_enviados:
+                        if item_id in itens_status:
+                            itens_status[item_id]["ja_enviado"] = True
+                except:
+                    continue
+    
     return {
         "cliente_id": cliente_id,
         "fotos_nao_solicitadas": fotos_nao_solicitadas,
         "pode_solicitar": pode_solicitar,
         "motivo": motivo,
         "tem_solicitacao_pendente": solicitacao_pendente is not None,
-        "itens_garagem": len(itens_garagem)
+        "itens_garagem": len(itens_garagem),
+        "itens_status": itens_status
     }
 
 

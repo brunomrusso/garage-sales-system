@@ -16,6 +16,7 @@ export const ClienteGaragem = () => {
   const [podeSolicitar, setPodeSolicitar] = useState<boolean>(false);
   const [motivoSolicitacao, setMotivoSolicitacao] = useState<string>("");
   const [temSolicitacaoPendente, setTemSolicitacaoPendente] = useState<boolean>(false);
+  const [itensStatus, setItensStatus] = useState<Record<number, any>>({});
 
   useEffect(() => {
     if (user) {
@@ -64,6 +65,7 @@ export const ClienteGaragem = () => {
       setPodeSolicitar(data.pode_solicitar);
       setMotivoSolicitacao(data.motivo);
       setTemSolicitacaoPendente(data.tem_solicitacao_pendente);
+      setItensStatus(data.itens_status || {});
     } catch (error) {
       console.error('Erro ao verificar fotos não solicitadas:', error);
     }
@@ -349,28 +351,40 @@ export const ClienteGaragem = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {itensRecebidos.map((venda) => (
-                    <div key={venda.id} className={`flex items-center gap-4 border rounded-lg p-3 ${
-                      venda.pago ? 'bg-green-600/10 border-green-600/30' : 'bg-red-600/10 border-red-600/30'
-                    }`}>
-                      {venda.lote_foto && (
-                        <img src={`data:image/jpeg;base64,${venda.lote_foto}`} alt={venda.lote_nome}
-                          className="w-16 h-16 object-cover rounded" />
-                      )}
-                      <div className="flex-1">
-                        <p className="font-semibold text-white">{venda.carrinhos_comprados}</p>
-                        <p className="text-sm text-gray-400">Lote: {venda.lote_nome}</p>
+                  {itensRecebidos.map((venda) => {
+                    const itemStatus = itensStatus[venda.id];
+                    const jaEnviado = itemStatus?.ja_enviado || false;
+                    
+                    return (
+                      <div key={venda.id} className={`flex items-center gap-4 border rounded-lg p-3 relative ${
+                        venda.pago ? 'bg-green-600/10 border-green-600/30' : 'bg-red-600/10 border-red-600/30'
+                      } ${jaEnviado ? 'opacity-75' : ''}`}>
+                        {jaEnviado && (
+                          <div className="absolute top-2 right-2">
+                            <span className="flex items-center gap-1 text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded-full border border-blue-600/30">
+                              <Package size={10} /> Já enviado
+                            </span>
+                          </div>
+                        )}
+                        {venda.lote_foto && (
+                          <img src={`data:image/jpeg;base64,${venda.lote_foto}`} alt={venda.lote_nome}
+                            className="w-16 h-16 object-cover rounded" />
+                        )}
+                        <div className="flex-1">
+                          <p className="font-semibold text-white">{venda.carrinhos_comprados}</p>
+                          <p className="text-sm text-gray-400">Lote: {venda.lote_nome}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-400">R$ {Number(venda.preco).toFixed(2)}</p>
+                          <span className={`flex items-center gap-1 text-xs font-semibold ${
+                            venda.pago ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {venda.pago ? <><Check size={12} /> Pago</> : <><X size={12} /> Não pago</>}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-green-400">R$ {Number(venda.preco).toFixed(2)}</p>
-                        <span className={`flex items-center gap-1 text-xs font-semibold ${
-                          venda.pago ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {venda.pago ? <><Check size={12} /> Pago</> : <><X size={12} /> Não pago</>}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

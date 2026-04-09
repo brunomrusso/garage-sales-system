@@ -70,7 +70,32 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
         VendaLote.cliente_id == data.cliente_id,
         VendaLote.status_entrega == "centro_distribuicao"
     ).all()
-    ids = [v.id for v in vendas_garagem]
+    
+    if solicitacao_pendente:
+        # Se existe solicitação pendente, incluir todos os itens
+        ids = [v.id for v in vendas_garagem]
+    else:
+        # Se não existe solicitação pendente, incluir apenas itens não enviados anteriormente
+        solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
+            SolicitacaoEnvio.cliente_id == data.cliente_id,
+            SolicitacaoEnvio.status.in_(["enviado", "entregue"])
+        ).all()
+        
+        if solicitacoes_anteriores:
+            # Obter IDs de itens já enviados anteriormente
+            itens_enviados_anteriormente = set()
+            for sol in solicitacoes_anteriores:
+                if sol.vendas_ids:
+                    try:
+                        itens_enviados_anteriormente.update(json.loads(sol.vendas_ids))
+                    except:
+                        continue
+            
+            # Incluir apenas itens que NÃO foram enviados anteriormente
+            ids = [v.id for v in vendas_garagem if v.id not in itens_enviados_anteriormente]
+        else:
+            # Primeira vez solicitando, incluir todos os itens
+            ids = [v.id for v in vendas_garagem]
 
     # Marcar todas as fotos da garagem como solicitadas
     fotos_solicitadas = marcar_fotos_como_solicitadas(db, data.cliente_id)
