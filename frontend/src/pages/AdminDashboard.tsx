@@ -9,7 +9,8 @@ export const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const { 
     canCreateLote, canDeleteLote,
-    canCreateCliente, canDeleteCliente
+    canCreateCliente, canDeleteCliente,
+    canManagePermissions
   } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
@@ -644,7 +645,7 @@ export const AdminDashboard = () => {
                           <td className="px-3 md:px-6 py-3 text-gray-400 text-sm hidden md:table-cell">{new Date(cliente.data_cadastro).toLocaleString('pt-BR')}</td>
                           <td className="px-3 md:px-6 py-3">
                             <div className="flex gap-2">
-                              {user?.role === 'admin_master' && cliente.role !== 'cliente' && (
+                              {(user?.role === 'admin_master' || canManagePermissions()) && cliente.role !== 'cliente' && (
                                 <button
                                   onClick={() => {
                                     setSelectedAdminForPerms(cliente);
