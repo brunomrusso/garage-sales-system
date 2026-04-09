@@ -17,6 +17,13 @@ def check_permission(db: Session, admin_id: int, permission_key: str) -> bool:
     if admin and admin.role == 'admin_master':
         return True
     
+    # Verificar permissões extras (garagem, admin_approve_admins)
+    if permission_key in ['garagem_view', 'garagem_edit', 'garagem_foto_upload', 'admin_approve_admins']:
+        extra_perms = db.query(AdminExtraPermission).filter(AdminExtraPermission.admin_id == admin_id).first()
+        if extra_perms:
+            return getattr(extra_perms, permission_key, False)
+        return False
+    
     # Verificar permissão específica
     perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
     if not perms:
