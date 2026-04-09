@@ -28,6 +28,11 @@ def listar_clientes(db: Session = Depends(get_db), current_user: dict = Depends(
     return cliente_controller.listar_clientes(db)
 
 
+@router.get("/admins-pendentes", response_model=list[ClienteResponse])
+def listar_admins_pendentes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return cliente_controller.listar_admins_pendentes(db)
+
+
 @router.get("/{cliente_id}", response_model=ClienteResponse)
 def obter_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return cliente_controller.obter_cliente(db, cliente_id)
@@ -46,11 +51,6 @@ def resetar_senha_cliente(cliente_id: int, senha_data: SenhaReset, db: Session =
 @router.post("/{cliente_id}/alterar-senha")
 def alterar_senha_cliente(cliente_id: int, senha_data: SenhaAlteracao, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return cliente_controller.alterar_senha_cliente(db, cliente_id, senha_data.senha_atual, senha_data.nova_senha)
-
-
-@router.get("/admins-pendentes", response_model=list[ClienteResponse])
-def listar_admins_pendentes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return cliente_controller.listar_admins_pendentes(db)
 
 
 @router.post("/{cliente_id}/aprovar-admin")

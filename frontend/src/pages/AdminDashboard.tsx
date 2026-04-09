@@ -592,16 +592,41 @@ export const AdminDashboard = () => {
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Nome</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Email</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden sm:table-cell">Telefone</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden md:table-cell">Role</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden md:table-cell">Data Cadastro</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
                       {clientes.map((cliente) => (
-                        <tr key={cliente.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
-                          <td className="px-3 md:px-6 py-3 text-white font-medium">{cliente.nome}</td>
+                        <tr key={cliente.id} className={`border-t border-gray-700 hover:bg-gray-700/50 transition ${cliente.role !== 'cliente' ? 'bg-gray-700/20' : ''}`}>
+                          <td className="px-3 md:px-6 py-3 text-white font-medium">
+                            <div className="flex items-center gap-2">
+                              {cliente.nome}
+                              {cliente.role !== 'cliente' && (
+                                <span className={`text-xs px-2 py-1 rounded font-semibold ${
+                                  cliente.role === 'admin_master' 
+                                    ? 'bg-purple-600/30 text-purple-300 border border-purple-600/50' 
+                                    : 'bg-orange-600/30 text-orange-300 border border-orange-600/50'
+                                }`}>
+                                  {cliente.role === 'admin_master' ? 'Master' : 'Admin'}
+                                </span>
+                              )}
+                            </div>
+                          </td>
                           <td className="px-3 md:px-6 py-3 text-gray-300 text-sm">{cliente.email}</td>
                           <td className="px-3 md:px-6 py-3 text-gray-300 hidden sm:table-cell">{cliente.telefone || '-'}</td>
+                          <td className="px-3 md:px-6 py-3 text-gray-400 text-sm hidden md:table-cell">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded ${
+                              cliente.role === 'admin_master' 
+                                ? 'bg-purple-600/20 text-purple-400 border border-purple-600/30' 
+                                : cliente.role === 'admin'
+                                ? 'bg-orange-600/20 text-orange-400 border border-orange-600/30'
+                                : 'bg-gray-600/20 text-gray-400 border border-gray-600/30'
+                            }`}>
+                              {cliente.role === 'admin_master' ? 'Admin Master' : cliente.role === 'admin' ? 'Admin' : 'Cliente'}
+                            </span>
+                          </td>
                           <td className="px-3 md:px-6 py-3 text-gray-400 text-sm hidden md:table-cell">{new Date(cliente.data_cadastro).toLocaleString('pt-BR')}</td>
                           <td className="px-3 md:px-6 py-3">
                             <button
