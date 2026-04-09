@@ -367,76 +367,76 @@ export const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-4 flex justify-between items-center shadow-lg">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">🏎️</span>
-          <h1 className="text-2xl font-extrabold tracking-wider uppercase">GarageSales</h1>
-          <span className="text-xs bg-black/30 px-2 py-1 rounded font-mono">ADMIN</span>
+      <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
+        <div className="flex items-center gap-2 md:gap-3">
+          <span className="text-2xl md:text-3xl">🏎️</span>
+          <h1 className="text-lg md:text-2xl font-extrabold tracking-wider uppercase">GarageSales</h1>
+          <span className="text-xs bg-black/30 px-2 py-1 rounded font-mono hidden sm:inline">ADMIN</span>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm opacity-90">{user?.email}</span>
+        <div className="flex items-center gap-2 md:gap-4">
+          <span className="text-xs md:text-sm opacity-90 hidden sm:inline">{user?.email}</span>
           <button
             onClick={logout}
-            className="flex items-center gap-2 bg-black/30 hover:bg-black/50 px-4 py-2 rounded transition"
+            className="flex items-center gap-1 md:gap-2 bg-black/30 hover:bg-black/50 px-3 py-2 rounded transition text-sm"
           >
             <LogOut size={18} />
-            Sair
+            <span className="hidden sm:inline">Sair</span>
           </button>
         </div>
       </nav>
 
-      <div className="flex">
-        <div className="w-52 bg-gray-800 shadow-lg min-h-screen border-r border-gray-700">
-          <div className="p-4 space-y-2">
-            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-3 px-3">Navegação</p>
+      <div className="flex flex-col md:flex-row">
+        <div className="md:w-52 bg-gray-800 shadow-lg md:min-h-screen border-b md:border-b-0 md:border-r border-gray-700">
+          <div className="p-2 md:p-4 flex md:flex-col md:space-y-2 gap-1 md:gap-0 overflow-x-auto">
+            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-0 md:mb-3 px-3 hidden md:block">Navegação</p>
             <button
               onClick={() => setActiveTab('clientes')}
-              className={`w-full flex items-center gap-2 p-3 rounded font-semibold transition ${
+              className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
                 activeTab === 'clientes' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
               }`}
             >
-              <Users size={20} />
+              <Users size={18} />
               Clientes
             </button>
             <button
               onClick={() => { setActiveTab('vendas'); loadLotes(); }}
-              className={`w-full flex items-center gap-2 p-3 rounded font-semibold transition ${
+              className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
                 activeTab === 'vendas' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
               }`}
             >
-              <ShoppingBag size={20} />
+              <ShoppingBag size={18} />
               Vendas
             </button>
             <button
               onClick={() => { setActiveTab('garagem'); loadSolicitacoes(); }}
-              className={`w-full flex items-center gap-2 p-3 rounded font-semibold transition ${
+              className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
                 activeTab === 'garagem' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
               }`}
             >
-              <Warehouse size={20} />
+              <Warehouse size={18} />
               Garagem
             </button>
           </div>
         </div>
 
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 md:p-8">
           {activeTab === 'clientes' && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-3xl font-extrabold text-white uppercase tracking-wide">Clientes</h2>
-                  <span className="bg-red-600/20 text-red-400 px-3 py-1 rounded-full text-sm font-semibold border border-red-600/30">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide">Clientes</h2>
+                  <span className="bg-red-600/20 text-red-400 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-red-600/30">
                     {clientes.length} cadastrado{clientes.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="flex gap-2 items-center">
-                  <div className="relative">
+                <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
+                  <div className="relative flex-1 sm:flex-none">
                     <input
                       type="text"
-                      placeholder="Buscar por nome, email ou telefone..."
+                      placeholder="Buscar..."
                       value={buscaCliente}
                       onChange={(e) => handleBuscaClientes(e.target.value)}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 pl-10 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none w-80"
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 pl-10 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none w-full sm:w-80"
                     />
                     <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
                     {resultadosBusca.length > 0 && buscaCliente.length > 2 && (
@@ -479,8 +479,8 @@ export const AdminDashboard = () => {
               </div>
 
               {showForm && (
-                <form onSubmit={handleCreateCliente} className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
-                  <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleCreateCliente} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input
                       type="text"
                       placeholder="Nome"
@@ -534,30 +534,30 @@ export const AdminDashboard = () => {
                   <p className="text-sm mt-2 text-gray-500">Clientes que se registrarem aparecerão aqui automaticamente</p>
                 </div>
               ) : (
-                <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700">
-                  <table className="w-full">
+                <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700 overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
                     <thead className="bg-gray-900/50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Nome</th>
-                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Email</th>
-                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Telefone</th>
-                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Cadastro</th>
-                        <th className="px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Nome</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Email</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden sm:table-cell">Telefone</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden md:table-cell">Data Cadastro</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
                       {clientes.map((cliente) => (
                         <tr key={cliente.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
-                          <td className="px-6 py-3 text-white font-medium">{cliente.nome}</td>
-                          <td className="px-6 py-3 text-gray-300">{cliente.email}</td>
-                          <td className="px-6 py-3 text-gray-300">{cliente.telefone || '-'}</td>
-                          <td className="px-6 py-3 text-gray-400 text-sm">{new Date(cliente.data_cadastro).toLocaleString('pt-BR')}</td>
-                          <td className="px-6 py-3">
+                          <td className="px-3 md:px-6 py-3 text-white font-medium">{cliente.nome}</td>
+                          <td className="px-3 md:px-6 py-3 text-gray-300 text-sm">{cliente.email}</td>
+                          <td className="px-3 md:px-6 py-3 text-gray-300 hidden sm:table-cell">{cliente.telefone || '-'}</td>
+                          <td className="px-3 md:px-6 py-3 text-gray-400 text-sm hidden md:table-cell">{new Date(cliente.data_cadastro).toLocaleString('pt-BR')}</td>
+                          <td className="px-3 md:px-6 py-3">
                             <button
                               onClick={() => handleDeleteCliente(cliente.id)}
                               className="text-red-500 hover:text-red-400 transition"
                             >
-                              Deletar
+                              <Trash2 size={16} />
                             </button>
                           </td>
                         </tr>
@@ -571,9 +571,9 @@ export const AdminDashboard = () => {
 
           {activeTab === 'vendas' && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-3xl font-extrabold text-white uppercase tracking-wide">Vendas / Lotes</h2>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide">Vendas / Lotes</h2>
                   <span className="bg-orange-600/20 text-orange-400 px-3 py-1 rounded-full text-sm font-semibold border border-orange-600/30">
                     {lotes.length} lote{lotes.length !== 1 ? 's' : ''}
                   </span>
@@ -597,10 +597,10 @@ export const AdminDashboard = () => {
               </div>
 
               {showLoteForm && (
-                <form onSubmit={handleCreateLote} className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                <form onSubmit={handleCreateLote} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
                   <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Lote</h3>
                   <p className="text-sm text-gray-400 mb-4">O número do lote será gerado automaticamente (#001, #002, etc.)</p>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Status do Lote (opcional)</label>
                       <select value={loteFormData.status_lote}
@@ -627,7 +627,7 @@ export const AdminDashboard = () => {
                 </form>
               )}
 
-              <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 {lotes.map((lote) => (
                   <div key={lote.id}
                     onClick={() => handleSelectLote(lote)}
@@ -701,13 +701,13 @@ export const AdminDashboard = () => {
               {/* Seção de Lotes Arquivados */}
               {lotesArquivados.length > 0 && (
                 <div className="mt-8">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-4">
-                      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <Archive size={24} className="text-gray-400" />
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h2 className="text-lg md:text-2xl font-bold text-white flex items-center gap-2">
+                        <Archive size={20} className="text-gray-400" />
                         Lotes Arquivados
                       </h2>
-                      <span className="bg-gray-600/20 text-gray-400 px-3 py-1 rounded-full text-sm font-semibold border border-gray-600/30">
+                      <span className="bg-gray-600/20 text-gray-400 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-gray-600/30">
                         {lotesArquivados.length} arquivado{lotesArquivados.length !== 1 ? 's' : ''}
                       </span>
                     </div>
@@ -732,7 +732,7 @@ export const AdminDashboard = () => {
                     </div>
                   </div>
                   {mostrarArquivados && (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {lotesArquivados.map((lote) => (
                       <div key={lote.id} 
                         onClick={() => handleSelectLote(lote)}
@@ -778,10 +778,10 @@ export const AdminDashboard = () => {
               )}
 
               {selectedLote && (
-                <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700 mt-8">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-bold text-white">Vendas - {selectedLote.nome}</h3>
+                <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 border border-gray-700 mt-8">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h3 className="text-lg md:text-xl font-bold text-white">Vendas - {selectedLote.nome}</h3>
                       {selectedLote.arquivado && (
                         <span className="bg-yellow-600/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-600/30">
                           <Archive size={16} className="inline mr-1" />
@@ -799,7 +799,7 @@ export const AdminDashboard = () => {
                   {showVendaForm && (
                     <form onSubmit={handleCreateVenda} className="bg-gray-900/50 p-4 rounded-lg mb-4 border border-gray-600">
                       <h4 className="font-semibold mb-3 text-white">Nova Venda</h4>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <select value={vendaFormData.cliente_id}
                           onChange={(e) => setVendaFormData({ ...vendaFormData, cliente_id: e.target.value })}
                           className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-red-500 focus:outline-none" required>
@@ -846,18 +846,19 @@ export const AdminDashboard = () => {
                       <p>Nenhuma venda neste lote ainda</p>
                     </div>
                   ) : (
-                    <table className="w-full">
+                    <div className="overflow-x-auto">
+                    <table className="w-full min-w-[800px]">
                       <thead className="bg-gray-900/50">
                         <tr>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Preço</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Pago</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Pagamento</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Comprovante</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status Entrega</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Observações</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Preço</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Pago</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Pgto</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Comprov.</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Entrega</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Obs</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -908,6 +909,7 @@ export const AdminDashboard = () => {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   )}
                 </div>
               )}
@@ -916,9 +918,9 @@ export const AdminDashboard = () => {
 
           {activeTab === 'garagem' && (
             <div>
-              <h2 className="text-3xl font-extrabold text-white uppercase tracking-wide mb-6">Garagem dos Clientes</h2>
+              <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide mb-6">Garagem dos Clientes</h2>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-3 text-gray-300">Selecione um Cliente</h3>
                   <div className="bg-gray-800 rounded-lg shadow border border-gray-700 max-h-96 overflow-y-auto">
@@ -1000,8 +1002,8 @@ export const AdminDashboard = () => {
               </div>
 
               <div className="mt-8">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-white">Solicitações de Envio</h3>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                  <h3 className="text-lg md:text-xl font-bold text-white">Solicitações de Envio</h3>
                   <button onClick={loadSolicitacoes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-3 py-2 rounded hover:bg-gray-600 text-sm transition">
                     <RefreshCw size={16} /> Atualizar
                   </button>
@@ -1012,15 +1014,15 @@ export const AdminDashboard = () => {
                     <p>Nenhuma solicitação de envio pendente</p>
                   </div>
                 ) : (
-                  <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700">
-                    <table className="w-full">
+                  <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700 overflow-x-auto">
+                    <table className="w-full min-w-[600px]">
                       <thead className="bg-gray-900/50">
                         <tr>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Rastreio</th>
-                          <th className="px-4 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Rastreio</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
                         </tr>
                       </thead>
                       <tbody>

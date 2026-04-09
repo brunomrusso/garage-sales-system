@@ -81,13 +81,13 @@ export const ClienteGaragem = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-4 flex justify-between items-center shadow-lg">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">🏎️</span>
-          <h1 className="text-2xl font-extrabold tracking-wider uppercase">Minha Garagem</h1>
+      <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
+        <div className="flex items-center gap-2 md:gap-3">
+          <span className="text-2xl md:text-3xl">🏎️</span>
+          <h1 className="text-lg md:text-2xl font-extrabold tracking-wider uppercase">Minha Garagem</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="text-right hidden sm:block">
             <span className="text-sm opacity-90 block">{user?.email}</span>
             {user?.telefone && (
               <span className="text-xs opacity-75">{user.telefone}</span>
@@ -95,53 +95,53 @@ export const ClienteGaragem = () => {
           </div>
           <button
             onClick={logout}
-            className="flex items-center gap-2 bg-black/30 hover:bg-black/50 px-4 py-2 rounded transition"
+            className="flex items-center gap-1 md:gap-2 bg-black/30 hover:bg-black/50 px-3 py-2 rounded transition text-sm"
           >
             <LogOut size={18} />
-            Sair
+            <span className="hidden sm:inline">Sair</span>
           </button>
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto p-8">
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 text-center border border-gray-700">
-            <p className="text-sm text-gray-400 mb-1">Total de Compras</p>
-            <p className="text-3xl font-extrabold text-white">{vendas.length}</p>
+      <div className="max-w-6xl mx-auto p-4 md:p-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
+            <p className="text-xs md:text-sm text-gray-400 mb-1">Total de Compras</p>
+            <p className="text-2xl md:text-3xl font-extrabold text-white">{vendas.length}</p>
           </div>
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 text-center border border-gray-700">
-            <p className="text-sm text-gray-400 mb-1">Total Pago</p>
-            <p className="text-3xl font-extrabold text-green-400">R$ {totalPago.toFixed(2)}</p>
+          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
+            <p className="text-xs md:text-sm text-gray-400 mb-1">Total Pago</p>
+            <p className="text-xl md:text-3xl font-extrabold text-green-400">R$ {totalPago.toFixed(2)}</p>
           </div>
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 text-center border border-gray-700">
-            <p className="text-sm text-gray-400 mb-1">Pendente</p>
-            <p className="text-3xl font-extrabold text-red-400">R$ {totalPendente.toFixed(2)}</p>
+          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
+            <p className="text-xs md:text-sm text-gray-400 mb-1">Pendente</p>
+            <p className="text-xl md:text-3xl font-extrabold text-red-400">R$ {totalPendente.toFixed(2)}</p>
           </div>
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 text-center border border-gray-700">
-            <p className="text-sm text-gray-400 mb-1">Na Garagem</p>
-            <p className="text-3xl font-extrabold text-orange-400">{itensRecebidos.length}</p>
+          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
+            <p className="text-xs md:text-sm text-gray-400 mb-1">Na Garagem</p>
+            <p className="text-2xl md:text-3xl font-extrabold text-orange-400">{itensRecebidos.length}</p>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-2 md:gap-4 mb-6">
           <button onClick={() => setActiveTab('compras')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide ${
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide text-sm md:text-base ${
               activeTab === 'compras' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white border border-gray-700'
             }`}>
-            <ShoppingBag size={20} /> Minhas Compras
+            <ShoppingBag size={18} /> Compras
           </button>
           <button onClick={() => { setActiveTab('garagem'); loadFotos(); loadSolicitacoes(); }}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide ${
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide text-sm md:text-base ${
               activeTab === 'garagem' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white border border-gray-700'
             }`}>
-            <Warehouse size={20} /> Minha Garagem
+            <Warehouse size={18} /> Garagem
           </button>
         </div>
 
         {activeTab === 'compras' && (
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-extrabold text-white uppercase tracking-wide">Minhas Compras</h2>
+          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 border border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+              <h2 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">Minhas Compras</h2>
               <button onClick={loadVendas} disabled={loading}
                 className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition">
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -164,17 +164,17 @@ export const ClienteGaragem = () => {
               <div className="space-y-4">
                 {vendas.map((venda) => (
                   <div key={venda.id} className="border border-gray-700 rounded-lg overflow-hidden hover:shadow-xl hover:border-gray-600 transition bg-gray-900/50">
-                    <div className="flex">
+                    <div className="flex flex-col sm:flex-row">
                       {venda.lote_foto && (
-                        <div className="w-48 flex-shrink-0">
+                        <div className="w-full sm:w-48 flex-shrink-0">
                           <img src={`data:image/jpeg;base64,${venda.lote_foto}`} alt={venda.lote_nome}
-                            className="w-full h-full object-cover" />
+                            className="w-full h-40 sm:h-full object-cover" />
                         </div>
                       )}
                       <div className="flex-1 p-4">
-                        <div className="flex justify-between items-start">
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
+                            <div className="flex items-center gap-2 flex-wrap mb-2">
                               <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-xs font-semibold border border-red-600/30">
                                 {venda.lote_nome}
                               </span>
@@ -193,7 +193,7 @@ export const ClienteGaragem = () => {
                             </div>
                             <h3 className="font-semibold text-lg mb-1 text-white">Carrinhos Comprados</h3>
                             <p className="text-gray-300 mb-2">{venda.carrinhos_comprados}</p>
-                            <div className="flex gap-6 text-sm text-gray-500">
+                            <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 text-sm text-gray-500">
                               <span>Comprado em: <strong className="text-gray-400">{new Date(venda.data_venda).toLocaleString('pt-BR')}</strong></span>
                               {venda.data_pagamento && (
                                 <span>Pago em: <strong className="text-gray-400">{new Date(venda.data_pagamento).toLocaleString('pt-BR')}</strong></span>
@@ -203,8 +203,8 @@ export const ClienteGaragem = () => {
                               <p className="text-sm text-gray-500 mt-2 italic">Obs: {venda.observacoes}</p>
                             )}
                           </div>
-                          <div className="text-right ml-4">
-                            <p className="text-2xl font-extrabold text-green-400">R$ {Number(venda.preco).toFixed(2)}</p>
+                          <div className="text-left sm:text-right sm:ml-4">
+                            <p className="text-xl md:text-2xl font-extrabold text-green-400">R$ {Number(venda.preco).toFixed(2)}</p>
                             {venda.comprovante_pagamento && (
                               <button onClick={() => {
                                 const w = window.open('');
@@ -226,10 +226,10 @@ export const ClienteGaragem = () => {
 
         {activeTab === 'garagem' && (
           <div>
-            <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-6 border border-gray-700">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-extrabold text-white uppercase tracking-wide">Minha Garagem</h2>
-                <div className="flex items-center gap-3">
+            <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 mb-6 border border-gray-700">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                <h2 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">Minha Garagem</h2>
+                <div className="flex items-center gap-3 flex-wrap">
                   {itensRecebidos.length > 0 && !todosGaragemPagos && (
                     <span className="text-xs text-red-400">Itens na garagem com pagamento pendente</span>
                   )}
