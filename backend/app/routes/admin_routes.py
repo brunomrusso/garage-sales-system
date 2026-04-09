@@ -17,12 +17,7 @@ def convert_to_admin_master(
     """Converter um admin para admin_master (apenas para setup inicial)"""
     
     # Verificar se é o próprio usuário ou admin_master
-    current_user_id = current_user.get("sub")
-    if current_user_id:
-        try:
-            current_user_id = int(current_user_id)
-        except (ValueError, TypeError):
-            current_user_id = None
+    current_user_id = current_user.get("user_id")
     
     if current_user.get("role") != "admin_master" and current_user_id != admin_id:
         raise HTTPException(

@@ -40,12 +40,7 @@ def get_admin_permissions(
 ):
     """Obter permissões de um admin (Admin Master ou o próprio admin)"""
     # Verificar se é Admin Master ou o próprio admin
-    current_user_id = current_user.get("sub")
-    if current_user_id:
-        try:
-            current_user_id = int(current_user_id)
-        except (ValueError, TypeError):
-            current_user_id = None
+    current_user_id = current_user.get("user_id")
     
     if current_user.get("role") != "admin_master" and current_user_id != admin_id:
         raise HTTPException(
