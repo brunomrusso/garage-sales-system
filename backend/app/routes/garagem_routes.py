@@ -91,6 +91,13 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
     ).all()
     itens_garagem_ids = {v.id for v in itens_garagem}
     
+    # DEBUG LOGS
+    print(f"[DEBUG] Cliente {cliente_id}:")
+    print(f"  - Fotos não solicitadas: {fotos_nao_solicitadas}")
+    print(f"  - Tem solicitação pendente: {solicitacao_pendente is not None}")
+    print(f"  - Itens na garagem: {len(itens_garagem)}")
+    print(f"  - IDs itens garagem: {itens_garagem_ids}")
+    
     pode_solicitar = False
     motivo = ""
     
@@ -99,12 +106,17 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
         if solicitacao_pendente.vendas_ids:
             try:
                 ids_solicitacao = set(json.loads(solicitacao_pendente.vendas_ids))
+                print(f"  - IDs na solicitação: {ids_solicitacao}")
             except:
                 ids_solicitacao = set()
+                print(f"  - Erro ao parsear vendas_ids")
         else:
             ids_solicitacao = set()
+            print(f"  - Sem vendas_ids na solicitação")
         
         novos_itens = itens_garagem_ids - ids_solicitacao
+        print(f"  - Novos itens: {novos_itens}")
+        
         if novos_itens:
             pode_solicitar = True
             motivo = f"Há {len(novos_itens)} novos itens na garagem"
@@ -115,6 +127,9 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
         # Se não existe solicitação pendente, pode solicitar se há itens
         pode_solicitar = len(itens_garagem) > 0
         motivo = "Pode solicitar envio" if pode_solicitar else "Não há itens na garagem"
+    
+    print(f"  - Pode solicitar: {pode_solicitar}")
+    print(f"  - Motivo: {motivo}")
     
     return {
         "cliente_id": cliente_id,
