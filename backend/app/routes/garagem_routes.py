@@ -101,6 +101,9 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
     pode_solicitar = False
     motivo = ""
     
+    # Definir solicitacoes_anteriores em ambos os casos para uso posterior
+    solicitacoes_anteriores = []
+    
     if solicitacao_pendente:
         # Se existe solicitação pendente, verificar se há novos itens
         if solicitacao_pendente.vendas_ids:
