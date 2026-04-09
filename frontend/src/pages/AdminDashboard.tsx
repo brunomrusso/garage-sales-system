@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings } from 'lucide-react';
+import { PermissionsModal } from '../components/PermissionsModal';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -13,6 +14,8 @@ export const AdminDashboard = () => {
   const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '' });
 
   const [lotes, setLotes] = useState<any[]>([]);
+  const [selectedAdminForPerms, setSelectedAdminForPerms] = useState<any>(null);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [lotesArquivados, setLotesArquivados] = useState<any[]>([]);
   const [selectedLote, setSelectedLote] = useState<any>(null);
   const [mostrarArquivados, setMostrarArquivados] = useState(false);
@@ -629,12 +632,26 @@ export const AdminDashboard = () => {
                           </td>
                           <td className="px-3 md:px-6 py-3 text-gray-400 text-sm hidden md:table-cell">{new Date(cliente.data_cadastro).toLocaleString('pt-BR')}</td>
                           <td className="px-3 md:px-6 py-3">
-                            <button
-                              onClick={() => handleDeleteCliente(cliente.id)}
-                              className="text-red-500 hover:text-red-400 transition"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            <div className="flex gap-2">
+                              {cliente.role !== 'cliente' && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedAdminForPerms(cliente);
+                                    setShowPermissionsModal(true);
+                                  }}
+                                  className="text-blue-500 hover:text-blue-400 transition"
+                                  title="Editar permissões"
+                                >
+                                  <Settings size={16} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeleteCliente(cliente.id)}
+                                className="text-red-500 hover:text-red-400 transition"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1256,6 +1273,22 @@ export const AdminDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Permissions Modal */}
+      {selectedAdminForPerms && (
+        <PermissionsModal
+          adminId={selectedAdminForPerms.id}
+          adminNome={selectedAdminForPerms.nome}
+          isOpen={showPermissionsModal}
+          onClose={() => {
+            setShowPermissionsModal(false);
+            setSelectedAdminForPerms(null);
+          }}
+          onSave={() => {
+            loadClientes();
+          }}
+        />
+      )}
     </div>
   );
 };

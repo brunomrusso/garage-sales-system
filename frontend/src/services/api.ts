@@ -87,4 +87,13 @@ export const garagemService = {
   atualizarSolicitacao: (solId: number, data: any) => api.put(`/garagem/solicitacoes/${solId}/`, data),
 };
 
+export const permissionService = {
+  obterPermissoes: (adminId: number) => api.get(`/permissions/admin/${adminId}`),
+  atualizarPermissoes: (adminId: number, data: any) => api.put(`/permissions/admin/${adminId}`, data),
+  obterAuditoria: (params?: any) => api.get('/permissions/audit', { params }),
+  obterResumoAtividades: (adminId: number, dias?: number) => 
+    api.get(`/permissions/activity-summary/${adminId}`, { params: { dias } }),
+  verificarAtividadeSuspeita: (adminId: number) => api.get(`/permissions/suspicious-activity/${adminId}`),
+};
+
 export default api;
