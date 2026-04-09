@@ -109,6 +109,18 @@ export const LoginPage = () => {
             </button>
           </p>
         )}
+
+        {userType === 'admin' && (
+          <p className="text-center text-gray-500 text-sm mt-6">
+            Quer se tornar admin?{' '}
+            <button
+              onClick={() => navigate('/cadastro-admin')}
+              className="text-orange-400 hover:text-orange-300 font-semibold transition"
+            >
+              Cadastre-se aqui
+            </button>
+          </p>
+        )}
       </div>
     </div>
   );

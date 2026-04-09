@@ -35,15 +35,18 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get("sub")
         role: str = payload.get("role")
+        ativo: bool = payload.get("ativo", True)
         if user_id is None or role is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-        return {"user_id": int(user_id), "role": role}
+        if not ativo:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuário inativo - aguardando aprovação")
+        return {"user_id": int(user_id), "role": role, "ativo": ativo}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
 def verify_admin_token(current_user: dict = Depends(verify_token)) -> dict:
-    if current_user["role"] != "admin":
+    if current_user["role"] not in ["admin", "admin_master"]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return current_user
 

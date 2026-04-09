@@ -19,6 +19,7 @@ class ClienteCreate(BaseModel):
     email: EmailStr
     senha: str
     telefone: Optional[str] = None
+    role: Optional[str] = 'cliente'  # cliente, admin, admin_master
 
 
 class ClienteUpdate(BaseModel):

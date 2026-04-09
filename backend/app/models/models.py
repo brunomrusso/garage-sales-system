@@ -22,6 +22,8 @@ class Cliente(Base):
     senha_hash = Column(String(255))
     telefone = Column(String(20), nullable=True)
     data_cadastro = Column(DateTime, default=datetime.utcnow)
+    role = Column(String(20), default='cliente')  # cliente, admin, admin_master
+    ativo = Column(Boolean, default=True)  # False para admins pendentes
 
     compras = relationship("Compra", back_populates="cliente", cascade="all, delete-orphan")
     pagamentos = relationship("Pagamento", back_populates="cliente", cascade="all, delete-orphan")

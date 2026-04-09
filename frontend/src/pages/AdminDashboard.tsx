@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const [clientes, setClientes] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem'>('clientes');
+  const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins'>('clientes');
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '' });
@@ -36,6 +37,7 @@ export const AdminDashboard = () => {
   useEffect(() => {
     loadClientes();
     loadLotes();
+    loadAdminsPendentes();
     const interval = setInterval(loadClientes, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -49,6 +51,39 @@ export const AdminDashboard = () => {
       console.error('Erro ao carregar clientes:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAdminsPendentes = async () => {
+    try {
+      const response = await clienteService.listarAdminsPendentes();
+      setAdminsPendentes(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar admins pendentes:', error);
+    }
+  };
+
+  const handleAprovarAdmin = async (adminId: number) => {
+    try {
+      await clienteService.aprovarAdmin(adminId);
+      alert('Admin aprovado com sucesso!');
+      loadAdminsPendentes();
+    } catch (error: any) {
+      const message = error.response?.data?.detail || 'Erro ao aprovar admin';
+      alert(message);
+    }
+  };
+
+  const handleRejeitarAdmin = async (adminId: number) => {
+    if (window.confirm('Tem certeza que deseja rejeitar este admin? Ele será permanentemente deletado.')) {
+      try {
+        await clienteService.rejeitarAdmin(adminId);
+        alert('Admin rejeitado com sucesso!');
+        loadAdminsPendentes();
+      } catch (error: any) {
+        const message = error.response?.data?.detail || 'Erro ao rejeitar admin';
+        alert(message);
+      }
     }
   };
 
@@ -417,6 +452,20 @@ export const AdminDashboard = () => {
             >
               <Warehouse size={18} />
               Garagem
+            </button>
+            <button
+              onClick={() => { setActiveTab('admins'); loadAdminsPendentes(); }}
+              className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
+                activeTab === 'admins' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Shield size={18} />
+              Admins Pendentes
+              {adminsPendentes.length > 0 && (
+                <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                  {adminsPendentes.length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -1087,6 +1136,97 @@ export const AdminDashboard = () => {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'admins' && (
+            <div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide">Admins Pendentes</h2>
+                  <span className="bg-orange-600/20 text-orange-400 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-orange-600/30">
+                    {adminsPendentes.length} aguardando aprovação
+                  </span>
+                </div>
+                <button onClick={loadAdminsPendentes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
+                  <RefreshCw size={18} />
+                  Atualizar
+                </button>
+              </div>
+
+              {adminsPendentes.length === 0 ? (
+                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                  <Shield size={64} className="mx-auto mb-4 text-gray-600" />
+                  <p className="text-lg">Nenhum admin pendente</p>
+                  <p className="text-sm mt-2">Todos os admins estão aprovados e ativos</p>
+                </div>
+              ) : (
+                <div className="bg-gray-800 rounded-lg shadow border border-gray-700 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-900/50 border-b border-gray-700">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nome</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Telefone</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Tipo</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Cadastro</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-700">
+                        {adminsPendentes.map((admin) => (
+                          <tr key={admin.id} className="hover:bg-gray-700/50 transition">
+                            <td className="px-4 py-3">
+                              <div>
+                                <p className="font-medium text-white">{admin.nome}</p>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <p className="text-sm text-gray-300">{admin.email}</p>
+                            </td>
+                            <td className="px-4 py-3">
+                              <p className="text-sm text-gray-300">{admin.telefone || 'Não informado'}</p>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                admin.role === 'admin_master' 
+                                  ? 'bg-purple-600/20 text-purple-400 border border-purple-600/30' 
+                                  : 'bg-orange-600/20 text-orange-400 border border-orange-600/30'
+                              }`}>
+                                {admin.role === 'admin_master' ? 'Admin Master' : 'Admin'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <p className="text-sm text-gray-300">
+                                {new Date(admin.data_cadastro).toLocaleDateString('pt-BR')}
+                              </p>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleAprovarAdmin(admin.id)}
+                                  className="flex items-center gap-1 text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded hover:bg-green-600/30 border border-green-600/30 transition"
+                                >
+                                  <Check size={12} />
+                                  Aprovar
+                                </button>
+                                <button
+                                  onClick={() => handleRejeitarAdmin(admin.id)}
+                                  className="flex items-center gap-1 text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded hover:bg-red-600/30 border border-red-600/30 transition"
+                                >
+                                  <X size={12} />
+                                  Rejeitar
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

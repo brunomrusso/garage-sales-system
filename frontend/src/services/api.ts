@@ -28,8 +28,13 @@ export const clienteService = {
   criar: (data: any) => api.post('/clientes/', data),
   listar: () => api.get('/clientes/'),
   obter: (id: number) => api.get(`/clientes/${id}/`),
-  atualizar: (id: number, data: any) => api.put(`/clientes/${id}/`, data),
-  deletar: (id: number) => api.delete(`/clientes/${id}/`),
+  atualizar: (id: number, data: any) => api.put(`/clientes/${id}`, data),
+  deletar: (id: number) => api.delete(`/clientes/${id}`),
+  listarAdminsPendentes: () => api.get('/clientes/admins-pendentes'),
+  aprovarAdmin: (id: number) => api.post(`/clientes/${id}/aprovar-admin`),
+  rejeitarAdmin: (id: number) => api.post(`/clientes/${id}/rejeitar-admin`),
+  resetarSenha: (id: number, novaSenha: string) => api.post(`/clientes/${id}/resetar-senha`, { nova_senha: novaSenha }),
+  alterarSenha: (id: number, senhaAtual: string, novaSenha: string) => api.post(`/clientes/${id}/alterar-senha`, { senha_atual: senhaAtual, nova_senha: novaSenha }),
 };
 
 export const compraService = {
