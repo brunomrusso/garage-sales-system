@@ -74,7 +74,7 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
     return perms_dict
 
 
-def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict) -> AdminPermission:
+def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict) -> dict:
     """Atualizar permissões de um admin"""
     # Verificar se admin existe
     admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
@@ -88,15 +88,52 @@ def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict)
     if not perms:
         perms = initialize_admin_permissions(db, admin_id, is_master=False)
     
-    # Atualizar apenas os campos fornecidos
+    # Colunas que existem no modelo
+    valid_columns = {
+        'cliente_view', 'cliente_create', 'cliente_edit', 'cliente_delete', 'cliente_reset_pwd',
+        'lote_view', 'lote_create', 'lote_edit', 'lote_delete', 'lote_archive',
+        'venda_view', 'venda_create', 'venda_edit', 'venda_delete', 'venda_change_status', 'venda_mark_paid',
+        'admin_manage_perms', 'admin_view_audit',
+        'max_deletes_per_day'
+    }
+    
+    # Atualizar apenas os campos fornecidos que existem no modelo
     for key, value in permissions_data.items():
-        if hasattr(perms, key):
+        if key in valid_columns and hasattr(perms, key):
             setattr(perms, key, value)
     
     perms.data_atualizacao = datetime.utcnow()
     db.commit()
     db.refresh(perms)
-    return perms
+    
+    # Retornar como dict
+    return {
+        'id': perms.id,
+        'admin_id': perms.admin_id,
+        'cliente_view': perms.cliente_view,
+        'cliente_create': perms.cliente_create,
+        'cliente_edit': perms.cliente_edit,
+        'cliente_delete': perms.cliente_delete,
+        'cliente_reset_pwd': perms.cliente_reset_pwd,
+        'lote_view': perms.lote_view,
+        'lote_create': perms.lote_create,
+        'lote_edit': perms.lote_edit,
+        'lote_delete': perms.lote_delete,
+        'lote_archive': perms.lote_archive,
+        'venda_view': perms.venda_view,
+        'venda_create': perms.venda_create,
+        'venda_edit': perms.venda_edit,
+        'venda_delete': perms.venda_delete,
+        'venda_change_status': perms.venda_change_status,
+        'venda_mark_paid': perms.venda_mark_paid,
+        'garagem_view': False,
+        'garagem_edit': False,
+        'garagem_foto_upload': False,
+        'admin_manage_perms': perms.admin_manage_perms,
+        'admin_approve_admins': False,
+        'admin_view_audit': perms.admin_view_audit,
+        'max_deletes_per_day': perms.max_deletes_per_day,
+    }
 
 
 def get_audit_logs(

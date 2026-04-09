@@ -10,7 +10,8 @@ export const AdminDashboard = () => {
   const { 
     canCreateLote, canDeleteLote,
     canCreateCliente, canDeleteCliente,
-    canManagePermissions
+    canManagePermissions,
+    canViewGaragem
   } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
@@ -454,9 +455,13 @@ export const AdminDashboard = () => {
               Vendas
             </button>
             <button
-              onClick={() => { setActiveTab('garagem'); loadSolicitacoes(); }}
+              onClick={() => { if (canViewGaragem()) { setActiveTab('garagem'); loadSolicitacoes(); } }}
+              disabled={!canViewGaragem()}
+              title={!canViewGaragem() ? 'Você não tem permissão para acessar garagem' : ''}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'garagem' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                !canViewGaragem() 
+                  ? 'text-gray-600 cursor-not-allowed opacity-50' 
+                  : activeTab === 'garagem' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
               }`}
             >
               <Warehouse size={18} />
@@ -1047,6 +1052,15 @@ export const AdminDashboard = () => {
 
           {activeTab === 'garagem' && (
             <div>
+              {!canViewGaragem() ? (
+                <div className="bg-red-600/20 border border-red-600/30 rounded-lg p-8 text-center">
+                  <Warehouse size={64} className="mx-auto mb-4 text-red-400" />
+                  <h2 className="text-2xl font-bold text-red-400 mb-2">Acesso Negado</h2>
+                  <p className="text-red-300">Você não tem permissão para acessar a garagem dos clientes.</p>
+                  <p className="text-sm text-red-400 mt-2">Solicite ao Admin Master para habilitar essa permissão.</p>
+                </div>
+              ) : (
+                <>
               <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide mb-6">Garagem dos Clientes</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1214,6 +1228,8 @@ export const AdminDashboard = () => {
                   </div>
                 )}
               </div>
+                </>
+              )}
             </div>
           )}
 
