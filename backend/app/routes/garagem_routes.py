@@ -125,9 +125,39 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
             pode_solicitar = False
             motivo = "Todos os itens já estão na solicitação pendente"
     else:
-        # Se não existe solicitação pendente, pode solicitar se há itens
-        pode_solicitar = len(itens_garagem) > 0
-        motivo = "Pode solicitar envio" if pode_solicitar else "Não há itens na garagem"
+        # Se não existe solicitação pendente, verificar se há solicitações anteriores
+        solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
+            SolicitacaoEnvio.cliente_id == cliente_id,
+            SolicitacaoEnvio.status.in_(["enviado", "entregue"])
+        ).all()
+        
+        if solicitacoes_anteriores:
+            # Verificar itens já enviados anteriormente
+            itens_enviados_anteriormente = set()
+            for sol in solicitacoes_anteriores:
+                if sol.vendas_ids:
+                    try:
+                        itens_enviados_anteriormente.update(json.loads(sol.vendas_ids))
+                    except:
+                        continue
+            
+            print(f"  - Solicitações anteriores: {len(solicitacoes_anteriores)}")
+            print(f"  - Itens enviados anteriormente: {itens_enviados_anteriormente}")
+            
+            # Verificar se há itens na garagem que NÃO foram enviados antes
+            itens_novos_na_garagem = itens_garagem_ids - itens_enviados_anteriormente
+            print(f"  - Itens novos na garagem: {itens_novos_na_garagem}")
+            
+            if itens_novos_na_garagem:
+                pode_solicitar = True
+                motivo = f"Há {len(itens_novos_na_garagem)} itens não enviados anteriormente"
+            else:
+                pode_solicitar = False
+                motivo = "Todos os itens já foram enviados anteriormente"
+        else:
+            # Primeira vez solicitando, pode solicitar se há itens
+            pode_solicitar = len(itens_garagem) > 0
+            motivo = "Pode solicitar envio" if pode_solicitar else "Não há itens na garagem"
     
     print(f"  - Pode solicitar: {pode_solicitar}")
     print(f"  - Motivo: {motivo}")
