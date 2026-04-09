@@ -45,6 +45,7 @@ export const AdminDashboard = () => {
   const [solicitacoes, setSolicitacoes] = useState<any[]>([]);
   const [showFotoForm, setShowFotoForm] = useState(false);
   const [fotoFormData, setFotoFormData] = useState({ foto: '', descricao: '' });
+  const [savingFoto, setSavingFoto] = useState(false);
 
   useEffect(() => {
     loadClientes();
@@ -339,6 +340,7 @@ export const AdminDashboard = () => {
   const handleAddFotoGaragem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClienteGaragem) return;
+    setSavingFoto(true);
     try {
       await garagemService.adicionarFoto({
         cliente_id: selectedClienteGaragem.id,
@@ -348,8 +350,13 @@ export const AdminDashboard = () => {
       setFotoFormData({ foto: '', descricao: '' });
       setShowFotoForm(false);
       loadFotosGaragem(selectedClienteGaragem.id);
-    } catch (error) {
+      alert('Foto adicionada com sucesso!');
+    } catch (error: any) {
+      const message = error.response?.data?.detail || 'Erro ao adicionar foto';
+      alert(message);
       console.error('Erro ao adicionar foto:', error);
+    } finally {
+      setSavingFoto(false);
     }
   };
 
@@ -1100,20 +1107,22 @@ export const AdminDashboard = () => {
                         </button>
                       </div>
 
-                      {showFotoForm && canUploadFotoGaragem() && (
+                      {showFotoForm && (
                         <form onSubmit={handleAddFotoGaragem} className="bg-gray-900/50 p-4 rounded-lg border border-gray-600 mb-4">
                           <div className="space-y-3">
                             <div>
                               <label className="block text-sm text-gray-400 mb-1">Foto</label>
                               <input type="file" accept="image/*" onChange={handleFotoGaragemFile}
-                                className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300" required />
+                                disabled={!canUploadFotoGaragem()}
+                                className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" required />
                             </div>
                             <input type="text" placeholder="Descrição (opcional)" value={fotoFormData.descricao}
                               onChange={(e) => setFotoFormData({ ...fotoFormData, descricao: e.target.value })}
-                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
-                            <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition"
-                              disabled={!fotoFormData.foto}>
-                              Salvar Foto
+                              disabled={!canUploadFotoGaragem()}
+                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" />
+                            <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={!fotoFormData.foto || !canUploadFotoGaragem() || savingFoto}>
+                              {savingFoto ? 'Salvando...' : 'Salvar Foto'}
                             </button>
                           </div>
                         </form>
