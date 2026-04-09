@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { usePermissions } from '../hooks/usePermissions';
 import { clienteService, loteService, garagemService } from '../services/api';
 import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const { canCreateLote } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins'>('clientes');
@@ -676,7 +678,15 @@ export const AdminDashboard = () => {
                     <RefreshCw size={18} />
                     Atualizar
                   </button>
-                  <button onClick={() => setShowLoteForm(!showLoteForm)} className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                  <button 
+                    onClick={() => canCreateLote() && setShowLoteForm(!showLoteForm)} 
+                    disabled={!canCreateLote()}
+                    title={!canCreateLote() ? 'Você não tem permissão para criar lotes' : ''}
+                    className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition ${
+                      canCreateLote() 
+                        ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer' 
+                        : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
+                    }`}>
                     <Plus size={18} />
                     {showLoteForm ? 'Cancelar' : 'Novo Lote'}
                   </button>
