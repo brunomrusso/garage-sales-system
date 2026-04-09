@@ -34,6 +34,27 @@ def seed_admin():
     finally:
         db.close()
 
+def fix_admin_master_role():
+    """Corrigir role do admin_master se estiver como cliente"""
+    db = SessionLocal()
+    try:
+        # Encontrar o primeiro UsuarioAdmin (que deve ser admin_master)
+        usuario_admin = db.query(UsuarioAdmin).first()
+        if usuario_admin:
+            # Encontrar o Cliente com o mesmo email
+            cliente = db.query(Cliente).filter(Cliente.email == usuario_admin.email).first()
+            if cliente and cliente.role != 'admin_master':
+                print(f"[FIX] Corrigindo role de {cliente.email} de '{cliente.role}' para 'admin_master'")
+                cliente.role = 'admin_master'
+                cliente.ativo = True
+                db.commit()
+                db.refresh(cliente)
+                print(f"[FIX] Role corrigido com sucesso!")
+    except Exception as e:
+        print(f"[FIX] Error: {str(e)}")
+    finally:
+        db.close()
+
 def initialize_admin_perms():
     """Inicializar permissões para admins aprovados sem permissões"""
     db = SessionLocal()
@@ -64,6 +85,7 @@ def initialize_admin_perms():
 
 run_migrations()
 seed_admin()
+fix_admin_master_role()
 initialize_admin_perms()
 
 app = FastAPI(
