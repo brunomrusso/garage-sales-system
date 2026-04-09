@@ -7,7 +7,10 @@ import { PermissionsModal } from '../components/PermissionsModal';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
-  const { canCreateLote, canDeleteLote } = usePermissions(user?.id || 0);
+  const { 
+    canCreateLote, canDeleteLote,
+    canCreateCliente, canDeleteCliente
+  } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins'>('clientes');
@@ -526,8 +529,14 @@ export const AdminDashboard = () => {
                     Atualizar
                   </button>
                   <button
-                    onClick={() => setShowForm(!showForm)}
-                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition"
+                    onClick={() => canCreateCliente() && setShowForm(!showForm)}
+                    disabled={!canCreateCliente()}
+                    title={!canCreateCliente() ? 'Você não tem permissão para criar clientes' : ''}
+                    className={`px-4 py-2 rounded font-semibold transition ${
+                      canCreateCliente()
+                        ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
+                        : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
+                    }`}
                   >
                     {showForm ? 'Cancelar' : 'Novo Cliente'}
                   </button>
@@ -648,8 +657,14 @@ export const AdminDashboard = () => {
                                 </button>
                               )}
                               <button
-                                onClick={() => handleDeleteCliente(cliente.id)}
-                                className="text-red-500 hover:text-red-400 transition"
+                                onClick={() => canDeleteCliente() && handleDeleteCliente(cliente.id)}
+                                disabled={!canDeleteCliente()}
+                                title={!canDeleteCliente() ? 'Você não tem permissão para deletar clientes' : ''}
+                                className={`transition ${
+                                  canDeleteCliente()
+                                    ? 'text-red-500 hover:text-red-400 cursor-pointer'
+                                    : 'text-gray-600 cursor-not-allowed opacity-50'
+                                }`}
                               >
                                 <Trash2 size={16} />
                               </button>

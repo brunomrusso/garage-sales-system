@@ -61,6 +61,8 @@ export const usePermissions = (adminId: number) => {
   const canChangeVendaStatus = () => hasPermission('venda_change_status');
   const canMarkVendaPaid = () => hasPermission('venda_mark_paid');
 
+  const canCreateCliente = () => hasPermission('cliente_create');
+  const canEditCliente = () => hasPermission('cliente_edit');
   const canDeleteCliente = () => hasPermission('cliente_delete');
   const canResetClientePassword = () => hasPermission('cliente_reset_pwd');
 
@@ -76,13 +78,15 @@ export const usePermissions = (adminId: number) => {
     canEditLote,
     canDeleteLote,
     canArchiveLote,
+    canCreateCliente,
+    canEditCliente,
+    canDeleteCliente,
+    canResetClientePassword,
     canCreateVenda,
     canEditVenda,
     canDeleteVenda,
     canChangeVendaStatus,
     canMarkVendaPaid,
-    canDeleteCliente,
-    canResetClientePassword,
     canManagePermissions,
     canViewAudit,
   };
