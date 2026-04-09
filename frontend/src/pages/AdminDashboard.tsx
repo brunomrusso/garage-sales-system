@@ -703,12 +703,12 @@ export const AdminDashboard = () => {
                 <form onSubmit={handleCreateLote} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
                   <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Lote</h3>
                   <p className="text-sm text-gray-400 mb-4">O número do lote será gerado automaticamente (#001, #002, etc.)</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-4">
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Status do Lote (opcional)</label>
                       <select value={loteFormData.status_lote}
                         onChange={(e) => setLoteFormData({ ...loteFormData, status_lote: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-red-500 focus:outline-none">
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
                         <option value="">Selecione um status</option>
                         <option value="Chegou EUA">Chegou EUA</option>
                         <option value="Importado Brasil">Importado Brasil</option>
@@ -718,13 +718,16 @@ export const AdminDashboard = () => {
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
-                      <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300" />
+                      <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300 text-sm" />
                     </div>
-                    <textarea placeholder="Descrição do lote" value={loteFormData.descricao}
-                      onChange={(e) => setLoteFormData({ ...loteFormData, descricao: e.target.value })}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 col-span-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Descrição do Lote</label>
+                      <textarea placeholder="Descrição do lote" value={loteFormData.descricao}
+                        onChange={(e) => setLoteFormData({ ...loteFormData, descricao: e.target.value })}
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={3} />
+                    </div>
                   </div>
-                  <button type="submit" className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                  <button type="submit" className="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
                     Criar Lote
                   </button>
                 </form>
