@@ -6,12 +6,22 @@ from app.core.security import hash_password
 
 
 def criar_cliente(db: Session, cliente_data: ClienteCreate) -> ClienteResponse:
+    # Verificar email duplicado
     cliente_existente = db.query(Cliente).filter(Cliente.email == cliente_data.email).first()
     if cliente_existente:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email já cadastrado"
         )
+    
+    # Verificar telefone duplicado (se fornecido)
+    if cliente_data.telefone:
+        telefone_existente = db.query(Cliente).filter(Cliente.telefone == cliente_data.telefone).first()
+        if telefone_existente:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Telefone já cadastrado"
+            )
     
     novo_cliente = Cliente(
         nome=cliente_data.nome,
@@ -50,6 +60,16 @@ def atualizar_cliente(db: Session, cliente_id: int, cliente_data: ClienteUpdate)
     if cliente_data.nome:
         cliente.nome = cliente_data.nome
     if cliente_data.telefone:
+        # Verificar se o telefone já está em uso por outro cliente
+        telefone_existente = db.query(Cliente).filter(
+            Cliente.telefone == cliente_data.telefone,
+            Cliente.id != cliente_id
+        ).first()
+        if telefone_existente:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Telefone já cadastrado"
+            )
         cliente.telefone = cliente_data.telefone
     
     db.commit()

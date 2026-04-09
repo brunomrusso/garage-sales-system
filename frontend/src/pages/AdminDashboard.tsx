@@ -59,7 +59,9 @@ export const AdminDashboard = () => {
       setFormData({ nome: '', email: '', senha: '', telefone: '' });
       setShowForm(false);
       loadClientes();
-    } catch (error) {
+    } catch (error: any) {
+      const message = error.response?.data?.detail || 'Erro ao criar cliente';
+      alert(message);
       console.error('Erro ao criar cliente:', error);
     }
   };
