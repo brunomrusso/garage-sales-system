@@ -58,16 +58,6 @@ def deletar_venda(venda_id: int, db: Session = Depends(get_db), current_user: di
     return lote_controller.deletar_venda(db, venda_id)
 
 
-@router.get("/arquivados/")
-def listar_lotes_arquivados(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.listar_lotes_arquivados(db)
-
-
-@router.put("/{lote_id}/desarquivar/")
-def desarquivar_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.desarquivar_lote(db, lote_id)
-
-
 @router.post("/migrar/")
 def migrar_lotes_existentes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
     return lote_controller.migrar_lotes_existentes(db)
@@ -76,6 +66,11 @@ def migrar_lotes_existentes(db: Session = Depends(get_db), current_user: dict = 
 @router.get("/buscar-clientes/{termo}/")
 def buscar_clientes(termo: str, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return lote_controller.buscar_clientes(db, termo)
+
+
+@router.get("/arquivados/")
+def listar_lotes_arquivados(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.listar_lotes_arquivados(db)
 
 
 @router.post("/migrar-producao/")
