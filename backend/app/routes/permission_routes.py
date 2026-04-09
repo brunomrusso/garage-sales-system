@@ -40,7 +40,13 @@ def get_admin_permissions(
 ):
     """Obter permissões de um admin (Admin Master ou o próprio admin)"""
     # Verificar se é Admin Master ou o próprio admin
-    current_user_id = int(current_user.get("sub"))
+    current_user_id = current_user.get("sub")
+    if current_user_id:
+        try:
+            current_user_id = int(current_user_id)
+        except (ValueError, TypeError):
+            current_user_id = None
+    
     if current_user.get("role") != "admin_master" and current_user_id != admin_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
