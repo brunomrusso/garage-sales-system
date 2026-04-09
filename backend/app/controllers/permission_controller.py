@@ -6,6 +6,30 @@ from typing import Optional
 from datetime import datetime, timedelta
 
 
+def check_permission(db: Session, admin_id: int, permission_key: str) -> bool:
+    """Verificar se um admin tem uma permissão específica"""
+    # Admin Master tem todas as permissões
+    admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
+    if admin and admin.role == 'admin_master':
+        return True
+    
+    # Verificar permissão específica
+    perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
+    if not perms:
+        return False
+    
+    return getattr(perms, permission_key, False)
+
+
+def require_permission(db: Session, admin_id: int, permission_key: str, action_name: str = ""):
+    """Verificar permissão e lançar exceção se não tiver"""
+    if not check_permission(db, admin_id, permission_key):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Você não tem permissão para {action_name or permission_key}"
+        )
+
+
 def get_admin_permissions(db: Session, admin_id: int) -> AdminPermission:
     """Obter permissões de um admin"""
     perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()

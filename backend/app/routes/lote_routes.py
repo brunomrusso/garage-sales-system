@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate
-from app.controllers import lote_controller
+from app.controllers import lote_controller, permission_controller
 from app.core.security import verify_token, verify_admin_token
 
 router = APIRouter(prefix="/api/lotes", tags=["lotes"])
@@ -10,6 +10,9 @@ router = APIRouter(prefix="/api/lotes", tags=["lotes"])
 
 @router.post("/")
 def criar_lote(lote_data: LoteCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "lote_create", "criar lotes")
     return lote_controller.criar_lote(db, lote_data)
 
 
@@ -30,16 +33,25 @@ def obter_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict =
 
 @router.put("/{lote_id}/")
 def atualizar_lote(lote_id: int, lote_data: LoteUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "lote_edit", "editar lotes")
     return lote_controller.atualizar_lote(db, lote_id, lote_data)
 
 
 @router.delete("/{lote_id}/")
 def deletar_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "lote_delete", "deletar lotes")
     return lote_controller.deletar_lote(db, lote_id)
 
 
 @router.post("/vendas/")
 def criar_venda(venda_data: VendaLoteCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_create", "criar vendas")
     return lote_controller.criar_venda(db, venda_data)
 
 
@@ -55,11 +67,17 @@ def listar_vendas_cliente(cliente_id: int, db: Session = Depends(get_db), curren
 
 @router.put("/vendas/{venda_id}/")
 def atualizar_venda(venda_id: int, venda_data: VendaLoteUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_edit", "editar vendas")
     return lote_controller.atualizar_venda(db, venda_id, venda_data)
 
 
 @router.delete("/vendas/{venda_id}/")
 def deletar_venda(venda_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_delete", "deletar vendas")
     return lote_controller.deletar_venda(db, venda_id)
 
 

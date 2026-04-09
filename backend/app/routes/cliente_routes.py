@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.schemas import ClienteCreate, ClienteUpdate, ClienteResponse
-from app.controllers import cliente_controller
+from app.controllers import cliente_controller, permission_controller
 from app.core.security import verify_token, verify_admin_token
 from pydantic import BaseModel
 
@@ -45,6 +45,9 @@ def atualizar_cliente(cliente_id: int, cliente_data: ClienteUpdate, db: Session 
 
 @router.post("/{cliente_id}/resetar-senha")
 def resetar_senha_cliente(cliente_id: int, senha_data: SenhaReset, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "cliente_reset_pwd", "resetar senha de clientes")
     return cliente_controller.resetar_senha_cliente(db, cliente_id, senha_data.nova_senha)
 
 
@@ -65,4 +68,7 @@ def rejeitar_admin(cliente_id: int, db: Session = Depends(get_db), current_user:
 
 @router.delete("/{cliente_id}")
 def deletar_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "cliente_delete", "deletar clientes")
     return cliente_controller.deletar_cliente(db, cliente_id)
