@@ -46,6 +46,7 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
     # Verificar se é admin_master
     admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
     is_master = admin and admin.role == 'admin_master'
+    logger.info(f"[PERMS] Admin {admin_id}: role={admin.role if admin else 'NOT_FOUND'}, is_master={is_master}")
     
     perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
     if not perms:
