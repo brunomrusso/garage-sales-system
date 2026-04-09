@@ -11,6 +11,7 @@ export const ClienteGaragem = () => {
   const [fotosGaragem, setFotosGaragem] = useState<any[]>([]);
   const [solicitacoes, setSolicitacoes] = useState<any[]>([]);
   const [selectedFoto, setSelectedFoto] = useState<any>(null);
+  const [comprasTab, setComprasTab] = useState<'andamento' | 'entregues'>('andamento');
 
   useEffect(() => {
     if (user) {
@@ -68,6 +69,10 @@ export const ClienteGaragem = () => {
   const itensRecebidos = vendas.filter(v => v.status_entrega === 'centro_distribuicao');
   const todosGaragemPagos = itensRecebidos.every(v => v.pago);
   const podeEnviar = itensRecebidos.length > 0 && todosGaragemPagos;
+
+  // Filtrar compras por status
+  const comprasEmAndamento = vendas.filter(venda => venda.status_entrega !== 'entregue');
+  const comprasEntregues = vendas.filter(venda => venda.status_entrega === 'entregue');
 
   const statusLabels: Record<string, { label: string; color: string }> = {
     aguardando_pagamento: { label: 'Aguardando Pagamento', color: 'bg-gray-700 text-gray-300' },
@@ -149,6 +154,42 @@ export const ClienteGaragem = () => {
               </button>
             </div>
 
+            {/* Tabs internas para separar compras */}
+            <div className="flex gap-2 mb-6 border-b border-gray-700">
+              <button
+                onClick={() => setComprasTab('andamento')}
+                className={`flex items-center gap-2 px-4 py-2 font-semibold transition border-b-2 -mb-px ${
+                  comprasTab === 'andamento'
+                    ? 'text-red-400 border-red-400'
+                    : 'text-gray-400 border-transparent hover:text-gray-300'
+                }`}
+              >
+                <ShoppingBag size={16} />
+                Em Andamento
+                {comprasEmAndamento.length > 0 && (
+                  <span className="bg-red-600/20 text-red-400 px-2 py-0.5 rounded-full text-xs font-semibold">
+                    {comprasEmAndamento.length}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setComprasTab('entregues')}
+                className={`flex items-center gap-2 px-4 py-2 font-semibold transition border-b-2 -mb-px ${
+                  comprasTab === 'entregues'
+                    ? 'text-green-400 border-green-400'
+                    : 'text-gray-400 border-transparent hover:text-gray-300'
+                }`}
+              >
+                <Check size={16} />
+                Entregues
+                {comprasEntregues.length > 0 && (
+                  <span className="bg-green-600/20 text-green-400 px-2 py-0.5 rounded-full text-xs font-semibold">
+                    {comprasEntregues.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
             {loading && vendas.length === 0 ? (
               <div className="text-center text-gray-400 py-8">
                 <RefreshCw size={32} className="animate-spin mx-auto mb-4 text-red-500" />
@@ -161,8 +202,26 @@ export const ClienteGaragem = () => {
                 <p className="text-sm mt-2 text-gray-600">Quando o administrador vincular uma compra a você, ela aparecerá aqui</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {vendas.map((venda) => (
+              <>
+                {comprasTab === 'andamento' && comprasEmAndamento.length === 0 && (
+                  <div className="text-center text-gray-500 py-12">
+                    <ShoppingBag size={64} className="mx-auto mb-4 text-gray-600" />
+                    <p className="text-lg">Nenhuma compra em andamento</p>
+                    <p className="text-sm mt-2 text-gray-600">Todas as suas compras já foram entregues ou você ainda não tem compras</p>
+                  </div>
+                )}
+                
+                {comprasTab === 'entregues' && comprasEntregues.length === 0 && (
+                  <div className="text-center text-gray-500 py-12">
+                    <Check size={64} className="mx-auto mb-4 text-gray-600" />
+                    <p className="text-lg">Nenhuma compra entregue ainda</p>
+                    <p className="text-sm mt-2 text-gray-600">Suas compras em andamento aparecerão aqui quando forem entregues</p>
+                  </div>
+                )}
+
+                {(comprasTab === 'andamento' ? comprasEmAndamento : comprasEntregues).length > 0 && (
+                  <div className="space-y-4">
+                    {(comprasTab === 'andamento' ? comprasEmAndamento : comprasEntregues).map((venda) => (
                   <div key={venda.id} className="border border-gray-700 rounded-lg overflow-hidden hover:shadow-xl hover:border-gray-600 transition bg-gray-900/50">
                     <div className="flex flex-col sm:flex-row">
                       {venda.lote_foto && (
@@ -219,7 +278,9 @@ export const ClienteGaragem = () => {
                     </div>
                   </div>
                 ))}
-              </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
