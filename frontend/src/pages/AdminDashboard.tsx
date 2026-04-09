@@ -14,6 +14,7 @@ export const AdminDashboard = () => {
   const [lotes, setLotes] = useState<any[]>([]);
   const [lotesArquivados, setLotesArquivados] = useState<any[]>([]);
   const [selectedLote, setSelectedLote] = useState<any>(null);
+  const [mostrarArquivados, setMostrarArquivados] = useState(false);
   const [vendasLote, setVendasLote] = useState<any[]>([]);
   const [showLoteForm, setShowLoteForm] = useState(false);
   const [showVendaForm, setShowVendaForm] = useState(false);
@@ -701,16 +702,38 @@ export const AdminDashboard = () => {
               {lotesArquivados.length > 0 && (
                 <div className="mt-8">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                      <Archive size={24} className="text-gray-400" />
-                      Lotes Arquivados
-                    </h2>
-                    <span className="bg-gray-600/20 text-gray-400 px-3 py-1 rounded-full text-sm font-semibold border border-gray-600/30">
-                      {lotesArquivados.length} arquivado{lotesArquivados.length !== 1 ? 's' : ''}
-                    </span>
+                    <div className="flex items-center gap-4">
+                      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <Archive size={24} className="text-gray-400" />
+                        Lotes Arquivados
+                      </h2>
+                      <span className="bg-gray-600/20 text-gray-400 px-3 py-1 rounded-full text-sm font-semibold border border-gray-600/30">
+                        {lotesArquivados.length} arquivado{lotesArquivados.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <span className="text-sm text-gray-300">Mostrar arquivados</span>
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            checked={mostrarArquivados}
+                            onChange={(e) => setMostrarArquivados(e.target.checked)}
+                            className="sr-only"
+                          />
+                          <div className={`block w-14 h-8 rounded-full transition-colors ${
+                            mostrarArquivados ? 'bg-yellow-600' : 'bg-gray-600'
+                          }`}></div>
+                          <div className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${
+                            mostrarArquivados ? 'translate-x-6' : 'translate-x-0'
+                          }`}></div>
+                        </div>
+                      </label>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    {lotesArquivados.map((lote) => (
+                  {mostrarArquivados && (
+                    <div className="grid grid-cols-3 gap-4">
+                      {lotesArquivados.map((lote) => (
                       <div key={lote.id} 
                         onClick={() => handleSelectLote(lote)}
                         className={`bg-gray-900/50 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 opacity-75 ${
@@ -749,7 +772,8 @@ export const AdminDashboard = () => {
                         </div>
                       </div>
                     ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
 
