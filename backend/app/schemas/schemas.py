@@ -33,6 +33,8 @@ class ClienteResponse(BaseModel):
     email: str
     telefone: Optional[str]
     data_cadastro: datetime
+    role: Optional[str] = 'cliente'
+    ativo: Optional[bool] = True
 
     class Config:
         from_attributes = True
