@@ -173,17 +173,23 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
             "ja_enviado": False
         }
     
+    print(f"  - Itens status inicial: {[(k, v['ja_enviado']) for k, v in itens_status.items()]}")
+    
     # Marcar itens que já foram enviados anteriormente
     if solicitacoes_anteriores:
         for sol in solicitacoes_anteriores:
             if sol.vendas_ids:
                 try:
                     ids_enviados = json.loads(sol.vendas_ids)
+                    print(f"  - Marcando itens enviados da solicitação {sol.id}: {ids_enviados}")
                     for item_id in ids_enviados:
                         if item_id in itens_status:
                             itens_status[item_id]["ja_enviado"] = True
+                            print(f"    - Item {item_id} marcado como ja_enviado=True")
                 except:
                     continue
+    
+    print(f"  - Itens status final: {[(k, v['ja_enviado']) for k, v in itens_status.items()]}")
     
     return {
         "cliente_id": cliente_id,
