@@ -36,6 +36,10 @@ def require_permission(db: Session, admin_id: int, permission_key: str, action_n
 
 def get_admin_permissions(db: Session, admin_id: int) -> dict:
     """Obter permissões de um admin"""
+    # Verificar se é admin_master
+    admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
+    is_master = admin and admin.role == 'admin_master'
+    
     perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
     if not perms:
         raise HTTPException(
@@ -66,11 +70,11 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
         'venda_delete': perms.venda_delete,
         'venda_change_status': perms.venda_change_status,
         'venda_mark_paid': perms.venda_mark_paid,
-        'garagem_view': extra_perms.garagem_view if extra_perms else False,
-        'garagem_edit': extra_perms.garagem_edit if extra_perms else False,
-        'garagem_foto_upload': extra_perms.garagem_foto_upload if extra_perms else False,
+        'garagem_view': True if is_master else (extra_perms.garagem_view if extra_perms else False),
+        'garagem_edit': True if is_master else (extra_perms.garagem_edit if extra_perms else False),
+        'garagem_foto_upload': True if is_master else (extra_perms.garagem_foto_upload if extra_perms else False),
         'admin_manage_perms': perms.admin_manage_perms,
-        'admin_approve_admins': extra_perms.admin_approve_admins if extra_perms else False,
+        'admin_approve_admins': True if is_master else (extra_perms.admin_approve_admins if extra_perms else False),
         'admin_view_audit': perms.admin_view_audit,
         'max_deletes_per_day': perms.max_deletes_per_day,
     }
