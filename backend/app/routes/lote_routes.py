@@ -56,3 +56,71 @@ def atualizar_venda(venda_id: int, venda_data: VendaLoteUpdate, db: Session = De
 @router.delete("/vendas/{venda_id}/")
 def deletar_venda(venda_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
     return lote_controller.deletar_venda(db, venda_id)
+
+
+@router.get("/arquivados/")
+def listar_lotes_arquivados(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.listar_lotes_arquivados(db)
+
+
+@router.put("/{lote_id}/desarquivar/")
+def desarquivar_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.desarquivar_lote(db, lote_id)
+
+
+@router.post("/migrar/")
+def migrar_lotes_existentes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.migrar_lotes_existentes(db)
+
+
+@router.get("/buscar-clientes/{termo}/")
+def buscar_clientes(termo: str, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
+    return lote_controller.buscar_clientes(db, termo)
+
+
+@router.post("/migrar-producao/")
+def migrar_producao(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    """
+    Endpoint para executar migração do banco de dados em produção.
+    Adiciona colunas numero_lote, status_lote, arquivado e migra lotes existentes.
+    """
+    try:
+        # Verificar se as colunas já existem
+        from sqlalchemy import text
+        
+        # Adicionar coluna numero_lote se não existir
+        try:
+            db.execute(text("ALTER TABLE lotes ADD COLUMN numero_lote VARCHAR(10) NOT NULL DEFAULT ''"))
+            db.commit()
+        except Exception:
+            pass  # Coluna já existe
+        
+        # Adicionar coluna status_lote se não existir
+        try:
+            db.execute(text("ALTER TABLE lotes ADD COLUMN status_lote VARCHAR(50)"))
+            db.commit()
+        except Exception:
+            pass  # Coluna já existe
+        
+        # Adicionar coluna arquivado se não existir
+        try:
+            db.execute(text("ALTER TABLE lotes ADD COLUMN arquivado BOOLEAN DEFAULT FALSE"))
+            db.commit()
+        except Exception:
+            pass  # Coluna já existe
+        
+        # Migrar lotes existentes
+        resultado = lote_controller.migrar_lotes_existentes(db)
+        
+        return {
+            "message": "Migração executada com sucesso!",
+            "colunas_adicionadas": ["numero_lote", "status_lote", "arquivado"],
+            "resultado_migracao": resultado
+        }
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro durante a migração: {str(e)}"
+        )

@@ -66,6 +66,10 @@ export const loteService = {
   listarVendasCliente: (clienteId: number) => api.get(`/lotes/vendas/cliente/${clienteId}/`),
   atualizarVenda: (vendaId: number, data: any) => api.put(`/lotes/vendas/${vendaId}/`, data),
   deletarVenda: (vendaId: number) => api.delete(`/lotes/vendas/${vendaId}/`),
+  listarArquivados: () => api.get('/lotes/arquivados/'),
+  desarquivar: (loteId: number) => api.put(`/lotes/${loteId}/desarquivar/`),
+  migrar: () => api.post('/lotes/migrar/'),
+  buscarClientes: (termo: string) => api.get(`/lotes/buscar-clientes/${termo}/`),
 };
 
 export const garagemService = {

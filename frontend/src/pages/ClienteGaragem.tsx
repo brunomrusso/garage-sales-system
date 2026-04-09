@@ -87,7 +87,12 @@ export const ClienteGaragem = () => {
           <h1 className="text-2xl font-extrabold tracking-wider uppercase">Minha Garagem</h1>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm opacity-90">{user?.email}</span>
+          <div className="text-right">
+            <span className="text-sm opacity-90 block">{user?.email}</span>
+            {user?.telefone && (
+              <span className="text-xs opacity-75">{user.telefone}</span>
+            )}
+          </div>
           <button
             onClick={logout}
             className="flex items-center gap-2 bg-black/30 hover:bg-black/50 px-4 py-2 rounded transition"

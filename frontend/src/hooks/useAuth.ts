@@ -6,6 +6,8 @@ export interface User {
   id: number;
   email: string;
   role: 'admin' | 'cliente';
+  nome?: string;
+  telefone?: string;
 }
 
 export const useAuth = () => {

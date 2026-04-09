@@ -103,24 +103,35 @@ class SolicitacaoResponse(BaseModel):
 
 
 class LoteCreate(BaseModel):
-    nome: str
     descricao: Optional[str] = None
     foto: Optional[str] = None
+    status_lote: Optional[str] = None
 
 
 class LoteUpdate(BaseModel):
-    nome: Optional[str] = None
     descricao: Optional[str] = None
     foto: Optional[str] = None
+    status_lote: Optional[str] = None
+    arquivado: Optional[bool] = None
 
 
 class LoteResponse(BaseModel):
     id: int
-    nome: str
+    numero_lote: str
+    nome: Optional[str] = None
     descricao: Optional[str]
     foto: Optional[str] = None
     data_criacao: datetime
-    total_vendas: Optional[int] = 0
+    status_lote: Optional[str]
+    arquivado: bool
+    total_vendas: int
+    vendas_pagas: int
+    vendas_nao_pagas: int
+    valor_total: float
+    valor_pago: float
+    percentual_pago: float
+    vendas_entregues: int
+    percentual_entregue: float
 
     class Config:
         from_attributes = True

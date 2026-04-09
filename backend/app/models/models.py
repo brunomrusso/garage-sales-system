@@ -72,10 +72,46 @@ class Lote(Base):
     __tablename__ = "lotes"
 
     id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String(255), nullable=False)
+    numero_lote = Column(String(10), nullable=False, unique=True)  # #001, #002, etc.
+    nome = Column(String(255), nullable=True)  # Mantido para compatibilidade com dados existentes
     descricao = Column(Text, nullable=True)
     foto = Column(LargeBinary, nullable=True)
     data_criacao = Column(DateTime, default=datetime.utcnow)
+    status_lote = Column(String(50), nullable=True)  # Chegou EUA, Importado Brasil, Alfandega/Tributação, Centro Distribuição
+    arquivado = Column(Boolean, default=False)
+    
+    # Campos calculados (não armazenados no banco, calculados em tempo real)
+    @property
+    def total_vendas(self):
+        return len(self.vendas) if self.vendas else 0
+    
+    @property
+    def vendas_pagas(self):
+        return sum(1 for v in self.vendas if v.pago) if self.vendas else 0
+    
+    @property
+    def vendas_nao_pagas(self):
+        return self.total_vendas - self.vendas_pagas
+    
+    @property
+    def valor_total(self):
+        return sum(float(v.preco) for v in self.vendas) if self.vendas else 0
+    
+    @property
+    def valor_pago(self):
+        return sum(float(v.preco) for v in self.vendas if v.pago) if self.vendas else 0
+    
+    @property
+    def percentual_pago(self):
+        return (self.valor_pago / self.valor_total * 100) if self.valor_total > 0 else 0
+    
+    @property
+    def vendas_entregues(self):
+        return sum(1 for v in self.vendas if v.status_entrega == "entregue") if self.vendas else 0
+    
+    @property
+    def percentual_entregue(self):
+        return (self.vendas_entregues / self.total_vendas * 100) if self.total_vendas > 0 else 0
 
     vendas = relationship("VendaLote", back_populates="lote", cascade="all, delete-orphan")
 

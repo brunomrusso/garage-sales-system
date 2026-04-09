@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -12,15 +12,19 @@ export const AdminDashboard = () => {
   const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '' });
 
   const [lotes, setLotes] = useState<any[]>([]);
+  const [lotesArquivados, setLotesArquivados] = useState<any[]>([]);
   const [selectedLote, setSelectedLote] = useState<any>(null);
   const [vendasLote, setVendasLote] = useState<any[]>([]);
   const [showLoteForm, setShowLoteForm] = useState(false);
   const [showVendaForm, setShowVendaForm] = useState(false);
-  const [loteFormData, setLoteFormData] = useState({ nome: '', descricao: '', foto: '' });
+  const [loteFormData, setLoteFormData] = useState({ descricao: '', foto: '', status_lote: '' });
   const [vendaFormData, setVendaFormData] = useState({
     cliente_id: '', carrinhos_comprados: '', preco: '', pago: false,
     comprovante_pagamento: '', data_pagamento: '', observacoes: ''
   });
+  const [buscaCliente, setBuscaCliente] = useState('');
+  const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
+  const [showMigrarButton, setShowMigrarButton] = useState(false);
 
   const [selectedClienteGaragem, setSelectedClienteGaragem] = useState<any>(null);
   const [fotosGaragem, setFotosGaragem] = useState<any[]>([]);
@@ -73,7 +77,16 @@ export const AdminDashboard = () => {
   const loadLotes = async () => {
     try {
       const response = await loteService.listar();
-      setLotes(response.data);
+      const lotesAtivos = response.data.filter((lote: any) => !lote.arquivado);
+      setLotes(lotesAtivos);
+      
+      // Verificar se algum lote não tem número (precisa migrar)
+      const precisaMigrar = response.data.some((lote: any) => !lote.numero_lote || !lote.numero_lote.startsWith('#'));
+      setShowMigrarButton(precisaMigrar);
+      
+      // Carregar lotes arquivados
+      const arquivadosResponse = await loteService.listarArquivados();
+      setLotesArquivados(arquivadosResponse.data);
     } catch (error) {
       console.error('Erro ao carregar lotes:', error);
     }
@@ -97,11 +110,48 @@ export const AdminDashboard = () => {
     e.preventDefault();
     try {
       await loteService.criar(loteFormData);
-      setLoteFormData({ nome: '', descricao: '', foto: '' });
+      setLoteFormData({ descricao: '', foto: '', status_lote: '' });
       setShowLoteForm(false);
       loadLotes();
     } catch (error) {
       console.error('Erro ao criar lote:', error);
+    }
+  };
+
+  const handleMigrarLotes = async () => {
+    if (window.confirm('Tem certeza que deseja migrar todos os lotes existentes para numeração automática?')) {
+      try {
+        await loteService.migrar();
+        loadLotes();
+        alert('Lotes migrados com sucesso!');
+      } catch (error) {
+        console.error('Erro ao migrar lotes:', error);
+        alert('Erro ao migrar lotes');
+      }
+    }
+  };
+
+  const handleDesarquivarLote = async (loteId: number) => {
+    try {
+      await loteService.desarquivar(loteId);
+      loadLotes();
+      alert('Lote desarquivado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao desarquivar lote:', error);
+    }
+  };
+
+  const handleBuscaClientes = async (termo: string) => {
+    setBuscaCliente(termo);
+    if (termo.length > 2) {
+      try {
+        const response = await loteService.buscarClientes(termo);
+        setResultadosBusca(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar clientes:', error);
+      }
+    } else {
+      setResultadosBusca([]);
     }
   };
 
@@ -378,7 +428,38 @@ export const AdminDashboard = () => {
                     {clientes.length} cadastrado{clientes.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Buscar por nome, email ou telefone..."
+                      value={buscaCliente}
+                      onChange={(e) => handleBuscaClientes(e.target.value)}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 pl-10 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none w-80"
+                    />
+                    <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+                    {resultadosBusca.length > 0 && buscaCliente.length > 2 && (
+                      <div className="absolute top-full mt-1 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                        {resultadosBusca.map((cliente) => (
+                          <div
+                            key={cliente.id}
+                            className="p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-600 last:border-b-0"
+                            onClick={() => {
+                              setBuscaCliente('');
+                              setResultadosBusca([]);
+                              // Opcional: selecionar cliente ou fazer alguma ação
+                            }}
+                          >
+                            <div className="text-white font-medium">{cliente.nome}</div>
+                            <div className="text-gray-400 text-sm">{cliente.email}</div>
+                            {cliente.telefone && (
+                              <div className="text-gray-500 text-xs">{cliente.telefone}</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={loadClientes}
                     disabled={loading}
@@ -505,16 +586,32 @@ export const AdminDashboard = () => {
                     <Plus size={18} />
                     {showLoteForm ? 'Cancelar' : 'Novo Lote'}
                   </button>
+                  {showMigrarButton && (
+                    <button onClick={handleMigrarLotes} className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 font-semibold transition">
+                      <RefreshCw size={18} />
+                      Migrar Lotes
+                    </button>
+                  )}
                 </div>
               </div>
 
               {showLoteForm && (
                 <form onSubmit={handleCreateLote} className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
                   <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Lote</h3>
+                  <p className="text-sm text-gray-400 mb-4">O número do lote será gerado automaticamente (#001, #002, etc.)</p>
                   <div className="grid grid-cols-2 gap-4">
-                    <input type="text" placeholder="Nome do Lote (ex: Lote Janeiro 2026)" value={loteFormData.nome}
-                      onChange={(e) => setLoteFormData({ ...loteFormData, nome: e.target.value })}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Status do Lote (opcional)</label>
+                      <select value={loteFormData.status_lote}
+                        onChange={(e) => setLoteFormData({ ...loteFormData, status_lote: e.target.value })}
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-red-500 focus:outline-none">
+                        <option value="">Selecione um status</option>
+                        <option value="Chegou EUA">Chegou EUA</option>
+                        <option value="Importado Brasil">Importado Brasil</option>
+                        <option value="Alfandega/Tributação">Alfandega/Tributação</option>
+                        <option value="Centro Distribuição">Centro Distribuição</option>
+                      </select>
+                    </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
                       <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300" />
@@ -545,13 +642,51 @@ export const AdminDashboard = () => {
                       </div>
                     )}
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold text-lg text-white">{lote.nome}</h3>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-bold text-lg text-white">{lote.numero_lote || lote.nome}</h3>
+                          {lote.status_lote && (
+                            <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30">
+                              {lote.status_lote}
+                            </span>
+                          )}
+                        </div>
                         {lote.descricao && <p className="text-sm text-gray-400 mt-1">{lote.descricao}</p>}
-                        <p className="text-sm text-gray-500 mt-1">{new Date(lote.data_criacao).toLocaleString('pt-BR')}</p>
-                        <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded mt-2 inline-block border border-orange-600/30">
-                          {lote.total_vendas} venda{lote.total_vendas !== 1 ? 's' : ''}
-                        </span>
+                        <p className="text-sm text-gray-500 mt-1">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
+                        
+                        {/* Indicadores Financeiros */}
+                        <div className="mt-2 space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-400">Pagamentos:</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-green-400">{lote.vendas_pagas || 0} pago</span>
+                              <span className="text-xs text-red-400">{lote.vendas_nao_pagas || lote.total_vendas || 0} pendente</span>
+                            </div>
+                          </div>
+                          {lote.percentual_pago === 100 && (
+                            <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30 inline-block">
+                              100% PAGO
+                            </span>
+                          )}
+                          
+                          {/* Indicadores de Entrega */}
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-400">Entregas:</span>
+                            <span className="text-xs text-blue-400">{lote.vendas_entregues || 0}/{lote.total_vendas || 0}</span>
+                          </div>
+                          {lote.percentual_entregue === 100 && (
+                            <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30 inline-block">
+                              100% ENTREGUE
+                            </span>
+                          )}
+                          
+                          {/* Se 100% pago e 100% entregue, mostrar badge de arquivável */}
+                          {lote.percentual_pago === 100 && lote.percentual_entregue === 100 && (
+                            <span className="text-xs bg-yellow-600/20 text-yellow-400 px-2 py-1 rounded border border-yellow-600/30 inline-block">
+                              PRONTO PARA ARQUIVAR
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <button onClick={(e) => { e.stopPropagation(); handleDeleteLote(lote.id); }}
                         className="text-red-500 hover:text-red-400 p-1 transition">
@@ -561,6 +696,58 @@ export const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Seção de Lotes Arquivados */}
+              {lotesArquivados.length > 0 && (
+                <div className="mt-8">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                      <Archive size={24} className="text-gray-400" />
+                      Lotes Arquivados
+                    </h2>
+                    <span className="bg-gray-600/20 text-gray-400 px-3 py-1 rounded-full text-sm font-semibold border border-gray-600/30">
+                      {lotesArquivados.length} arquivado{lotesArquivados.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    {lotesArquivados.map((lote) => (
+                      <div key={lote.id} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 opacity-75">
+                        {lote.foto ? (
+                          <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.numero_lote}
+                            className="w-full h-32 object-cover rounded mb-3 grayscale" />
+                        ) : (
+                          <div className="w-full h-32 bg-gray-800 rounded mb-3 flex items-center justify-center">
+                            <Archive size={32} className="text-gray-600" />
+                          </div>
+                        )}
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-bold text-lg text-gray-300">{lote.numero_lote}</h3>
+                              <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30">
+                                100% PAGO
+                              </span>
+                              <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30">
+                                100% ENTREGUE
+                              </span>
+                            </div>
+                            {lote.descricao && <p className="text-sm text-gray-500 mt-1">{lote.descricao}</p>}
+                            <p className="text-sm text-gray-600 mt-1">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
+                            <div className="mt-2">
+                              <span className="text-xs text-gray-500">{lote.total_vendas} vendas concluídas</span>
+                            </div>
+                          </div>
+                          <button onClick={() => handleDesarquivarLote(lote.id)}
+                            className="text-yellow-500 hover:text-yellow-400 p-1 transition"
+                            title="Desarquivar lote">
+                            <RefreshCw size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {selectedLote && (
                 <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">

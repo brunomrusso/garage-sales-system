@@ -3,6 +3,54 @@ from fastapi import HTTPException, status
 from app.models.models import Lote, VendaLote, Cliente
 from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate
 import base64
+from datetime import datetime
+
+
+def gerar_numero_lote(db: Session) -> str:
+    """Gera próximo número sequencial de lote (#001, #002, etc.)"""
+    ultimo_lote = db.query(Lote).filter(Lote.numero_lote.like("#%")).order_by(Lote.numero_lote.desc()).first()
+    if not ultimo_lote:
+        return "#001"
+    
+    # Extrair número do último lote
+    ultimo_numero = int(ultimo_lote.numero_lote.replace("#", ""))
+    novo_numero = ultimo_numero + 1
+    return f"#{novo_numero:03d}"
+
+
+def migrar_lotes_existentes(db: Session) -> dict:
+    """Migra lotes existentes para numeração automática"""
+    lotes = db.query(Lote).all()
+    migrados = 0
+    
+    for i, lote in enumerate(lotes, 1):
+        # Se já tem número, pular
+        if lote.numero_lote and lote.numero_lote.startswith("#"):
+            continue
+        
+        # Gerar número sequencial
+        lote.numero_lote = f"#{i:03d}"
+        migrados += 1
+    
+    db.commit()
+    return {"migrados": migrados, "total": len(lotes)}
+
+
+def buscar_clientes(db: Session, termo: str) -> list:
+    """Busca clientes por nome, email ou telefone"""
+    termo = f"%{termo.lower()}%"
+    clientes = db.query(Cliente).filter(
+        (Cliente.nome.ilike(termo)) |
+        (Cliente.email.ilike(termo)) |
+        (Cliente.telefone.ilike(termo))
+    ).all()
+    
+    return [{
+        "id": c.id,
+        "nome": c.nome,
+        "email": c.email,
+        "telefone": c.telefone
+    } for c in clientes]
 
 
 def criar_lote(db: Session, lote_data: LoteCreate) -> dict:
@@ -10,10 +58,13 @@ def criar_lote(db: Session, lote_data: LoteCreate) -> dict:
     if lote_data.foto:
         foto_bytes = base64.b64decode(lote_data.foto)
 
+    numero_gerado = gerar_numero_lote(db)
+    
     novo_lote = Lote(
-        nome=lote_data.nome,
+        numero_lote=numero_gerado,
         descricao=lote_data.descricao,
-        foto=foto_bytes
+        foto=foto_bytes,
+        status_lote=lote_data.status_lote
     )
     db.add(novo_lote)
     db.commit()
@@ -38,13 +89,33 @@ def atualizar_lote(db: Session, lote_id: int, lote_data: LoteUpdate) -> dict:
     if not lote:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote não encontrado")
 
-    if lote_data.nome is not None:
-        lote.nome = lote_data.nome
     if lote_data.descricao is not None:
         lote.descricao = lote_data.descricao
     if lote_data.foto is not None:
         lote.foto = base64.b64decode(lote_data.foto)
+    if lote_data.status_lote is not None:
+        lote.status_lote = lote_data.status_lote
+    if lote_data.arquivado is not None:
+        lote.arquivado = lote_data.arquivado
 
+    db.commit()
+    db.refresh(lote)
+    return _lote_to_response(lote)
+
+
+def listar_lotes_arquivados(db: Session) -> list:
+    """Lista apenas lotes arquivados"""
+    lotes = db.query(Lote).filter(Lote.arquivado == True).all()
+    return [_lote_to_response(lote) for lote in lotes]
+
+
+def desarquivar_lote(db: Session, lote_id: int) -> dict:
+    """Desarquiva um lote"""
+    lote = db.query(Lote).filter(Lote.id == lote_id).first()
+    if not lote:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote não encontrado")
+    
+    lote.arquivado = False
     db.commit()
     db.refresh(lote)
     return _lote_to_response(lote)
@@ -123,6 +194,15 @@ def atualizar_venda(db: Session, venda_id: int, venda_data: VendaLoteUpdate) -> 
 
     db.commit()
     db.refresh(venda)
+    
+    # Verificar arquivamento automático do lote
+    lote = db.query(Lote).filter(Lote.id == venda.lote_id).first()
+    if lote and not lote.arquivado:
+        if lote.percentual_pago == 100 and lote.percentual_entregue == 100:
+            lote.arquivado = True
+            db.commit()
+            db.refresh(lote)
+    
     return _venda_to_response(venda)
 
 
@@ -138,15 +218,30 @@ def deletar_venda(db: Session, venda_id: int) -> dict:
 def _lote_to_response(lote: Lote) -> dict:
     return {
         "id": lote.id,
+        "numero_lote": lote.numero_lote,
         "nome": lote.nome,
         "descricao": lote.descricao,
         "foto": base64.b64encode(lote.foto).decode() if lote.foto else None,
         "data_criacao": lote.data_criacao,
-        "total_vendas": len(lote.vendas) if lote.vendas else 0
+        "status_lote": lote.status_lote,
+        "arquivado": lote.arquivado,
+        "total_vendas": lote.total_vendas,
+        "vendas_pagas": lote.vendas_pagas,
+        "vendas_nao_pagas": lote.vendas_nao_pagas,
+        "valor_total": lote.valor_total,
+        "valor_pago": lote.valor_pago,
+        "percentual_pago": lote.percentual_pago,
+        "vendas_entregues": lote.vendas_entregues,
+        "percentual_entregue": lote.percentual_entregue
     }
 
 
 def _venda_to_response(venda: VendaLote) -> dict:
+    # Formatar data de pagamento para DD/MM/YYYY
+    data_pagamento_formatada = None
+    if venda.data_pagamento:
+        data_pagamento_formatada = venda.data_pagamento.strftime("%d/%m/%Y")
+    
     return {
         "id": venda.id,
         "lote_id": venda.lote_id,
@@ -155,11 +250,11 @@ def _venda_to_response(venda: VendaLote) -> dict:
         "preco": float(venda.preco),
         "pago": venda.pago,
         "comprovante_pagamento": base64.b64encode(venda.comprovante_pagamento).decode() if venda.comprovante_pagamento else None,
-        "data_pagamento": venda.data_pagamento,
+        "data_pagamento": data_pagamento_formatada,
         "data_venda": venda.data_venda,
         "observacoes": venda.observacoes,
         "status_entrega": venda.status_entrega,
         "cliente_nome": venda.cliente.nome if venda.cliente else None,
-        "lote_nome": venda.lote.nome if venda.lote else None,
+        "lote_numero": venda.lote.numero_lote if venda.lote else None,
         "lote_foto": base64.b64encode(venda.lote.foto).decode() if venda.lote and venda.lote.foto else None
     }
