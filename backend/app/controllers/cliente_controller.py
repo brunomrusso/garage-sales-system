@@ -119,6 +119,8 @@ def alterar_senha_cliente(db: Session, cliente_id: int, senha_atual: str, nova_s
 
 
 def aprovar_admin(db: Session, cliente_id: int) -> dict:
+    from app.core.permissions import initialize_admin_permissions
+    
     cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
     if not cliente:
         raise HTTPException(
@@ -141,6 +143,11 @@ def aprovar_admin(db: Session, cliente_id: int) -> dict:
     cliente.ativo = True
     db.commit()
     db.refresh(cliente)
+    
+    # Inicializar permissões para o novo admin
+    is_master = cliente.role == 'admin_master'
+    initialize_admin_permissions(db, cliente_id, is_master=is_master)
+    
     return {"message": "Admin aprovado com sucesso"}
 
 

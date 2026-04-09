@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Numeric, LargeBinary, ForeignKey, Text, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Numeric, LargeBinary, ForeignKey, Text, Boolean, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.db.database import Base
@@ -147,3 +147,79 @@ class FotoGaragem(Base):
     data_upload = Column(DateTime, default=datetime.utcnow)
 
     cliente = relationship("Cliente", back_populates="fotos_garagem")
+
+
+class AdminPermission(Base):
+    __tablename__ = "admin_permissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"), nullable=False)
+    
+    # Permissões de Cliente
+    cliente_view = Column(Boolean, default=True)
+    cliente_create = Column(Boolean, default=False)
+    cliente_edit = Column(Boolean, default=False)
+    cliente_delete = Column(Boolean, default=False)
+    cliente_reset_pwd = Column(Boolean, default=False)
+    
+    # Permissões de Lote
+    lote_view = Column(Boolean, default=True)
+    lote_create = Column(Boolean, default=False)
+    lote_edit = Column(Boolean, default=False)
+    lote_delete = Column(Boolean, default=False)
+    lote_archive = Column(Boolean, default=False)
+    
+    # Permissões de Venda
+    venda_view = Column(Boolean, default=True)
+    venda_create = Column(Boolean, default=False)
+    venda_edit = Column(Boolean, default=False)
+    venda_delete = Column(Boolean, default=False)
+    venda_change_status = Column(Boolean, default=False)
+    venda_mark_paid = Column(Boolean, default=False)
+    
+    # Permissões de Admin
+    admin_manage_perms = Column(Boolean, default=False)
+    admin_view_audit = Column(Boolean, default=False)
+    
+    # Limite de ações por dia
+    max_deletes_per_day = Column(Integer, default=0)  # 0 = sem limite
+    
+    data_criacao = Column(DateTime, default=datetime.utcnow)
+    data_atualizacao = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    admin = relationship("Cliente", foreign_keys=[admin_id])
+
+
+class LotePermission(Base):
+    __tablename__ = "lote_permissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lote_id = Column(Integer, ForeignKey("lotes.id", ondelete="CASCADE"), nullable=False)
+    admin_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"), nullable=False)
+    criador = Column(Boolean, default=False)  # True se é o criador do lote
+    pode_editar = Column(Boolean, default=False)  # Permissão delegada para editar
+    
+    data_criacao = Column(DateTime, default=datetime.utcnow)
+
+    lote = relationship("Lote")
+    admin = relationship("Cliente")
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(Integer, ForeignKey("clientes.id", ondelete="SET NULL"), nullable=True)
+    acao = Column(String(100), nullable=False)  # cliente.delete, lote.create, venda.mark_paid, etc
+    entidade = Column(String(50), nullable=False)  # cliente, lote, venda
+    entidade_id = Column(Integer, nullable=True)
+    descricao = Column(Text, nullable=True)
+    dados_antes = Column(JSON, nullable=True)  # Dados antes da alteração
+    dados_depois = Column(JSON, nullable=True)  # Dados depois da alteração
+    ip_address = Column(String(45), nullable=True)  # IPv4 ou IPv6
+    user_agent = Column(String(255), nullable=True)
+    resultado = Column(String(20), default="sucesso")  # sucesso, erro
+    mensagem_erro = Column(Text, nullable=True)
+    data_acao = Column(DateTime, default=datetime.utcnow, index=True)
+
+    admin = relationship("Cliente", foreign_keys=[admin_id])

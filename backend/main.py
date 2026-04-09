@@ -4,8 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import Base, engine, SessionLocal
 from app.core.config import settings
 from app.core.security import hash_password
-from app.models.models import UsuarioAdmin
-from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes
+from app.models.models import UsuarioAdmin, Cliente
+from app.core.permissions import initialize_admin_permissions
+from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes, permission_routes
 
 Base.metadata.create_all(bind=engine)
 
@@ -33,8 +34,37 @@ def seed_admin():
     finally:
         db.close()
 
+def initialize_admin_perms():
+    """Inicializar permissões para admins aprovados sem permissões"""
+    db = SessionLocal()
+    try:
+        from app.models.models import AdminPermission
+        
+        # Encontrar todos os admins sem permissões
+        admins = db.query(Cliente).filter(
+            Cliente.role.in_(['admin', 'admin_master']),
+            Cliente.ativo == True
+        ).all()
+        
+        for admin in admins:
+            existing_perms = db.query(AdminPermission).filter(
+                AdminPermission.admin_id == admin.id
+            ).first()
+            
+            if not existing_perms:
+                is_master = admin.role == 'admin_master'
+                initialize_admin_permissions(db, admin.id, is_master=is_master)
+                role_name = "Admin Master" if is_master else "Admin"
+                print(f"[PERMISSIONS] Permissões inicializadas para {role_name}: {admin.email}")
+    
+    except Exception as e:
+        print(f"[PERMISSIONS] Error: {str(e)}")
+    finally:
+        db.close()
+
 run_migrations()
 seed_admin()
+initialize_admin_perms()
 
 app = FastAPI(
     title="GarageSales API",
@@ -65,6 +95,7 @@ app.include_router(pagamento_routes.router)
 app.include_router(solicitacao_routes.router)
 app.include_router(lote_routes.router)
 app.include_router(garagem_routes.router)
+app.include_router(permission_routes.router)
 
 
 @app.get("/health")
