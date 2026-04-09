@@ -72,7 +72,7 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
     """Verifica se há fotos não solicitadas na garagem do cliente e se pode solicitar envio"""
     from app.models.models import FotoGaragem, SolicitacaoEnvio, VendaLote
     
-    # Contar fotos não solicitadas
+    # Contar fotos não solicitadas (mantido para compatibilidade)
     fotos_nao_solicitadas = db.query(FotoGaragem).filter(
         FotoGaragem.cliente_id == cliente_id,
         FotoGaragem.solicitado == False
@@ -117,6 +117,7 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
         novos_itens = itens_garagem_ids - ids_solicitacao
         print(f"  - Novos itens: {novos_itens}")
         
+        # Lógica correta: só pode solicitar se há NOVOS itens
         if novos_itens:
             pode_solicitar = True
             motivo = f"Há {len(novos_itens)} novos itens na garagem"
