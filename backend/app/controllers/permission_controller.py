@@ -36,73 +36,42 @@ def require_permission(db: Session, admin_id: int, permission_key: str, action_n
 
 def get_admin_permissions(db: Session, admin_id: int) -> dict:
     """Obter permissões de um admin"""
-    try:
-        perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
-        if not perms:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Permissões não encontradas para este admin"
-            )
-        
-        # Converter para dict para evitar erro de coluna faltante
-        perms_dict = {
-            'id': perms.id,
-            'admin_id': perms.admin_id,
-            'cliente_view': perms.cliente_view,
-            'cliente_create': perms.cliente_create,
-            'cliente_edit': perms.cliente_edit,
-            'cliente_delete': perms.cliente_delete,
-            'cliente_reset_pwd': perms.cliente_reset_pwd,
-            'lote_view': perms.lote_view,
-            'lote_create': perms.lote_create,
-            'lote_edit': perms.lote_edit,
-            'lote_delete': perms.lote_delete,
-            'lote_archive': perms.lote_archive,
-            'venda_view': perms.venda_view,
-            'venda_create': perms.venda_create,
-            'venda_edit': perms.venda_edit,
-            'venda_delete': perms.venda_delete,
-            'venda_change_status': perms.venda_change_status,
-            'venda_mark_paid': perms.venda_mark_paid,
-            'garagem_view': getattr(perms, 'garagem_view', False),
-            'garagem_edit': getattr(perms, 'garagem_edit', False),
-            'garagem_foto_upload': getattr(perms, 'garagem_foto_upload', False),
-            'admin_manage_perms': perms.admin_manage_perms,
-            'admin_approve_admins': getattr(perms, 'admin_approve_admins', False),
-            'admin_view_audit': perms.admin_view_audit,
-            'max_deletes_per_day': perms.max_deletes_per_day,
-        }
-        return perms_dict
-    except Exception as e:
-        logger.error(f"[PERMISSIONS] Error: {str(e)}")
-        # Retornar permissões padrão se houver erro
-        return {
-            'id': None,
-            'admin_id': admin_id,
-            'cliente_view': True,
-            'cliente_create': False,
-            'cliente_edit': False,
-            'cliente_delete': False,
-            'cliente_reset_pwd': False,
-            'lote_view': True,
-            'lote_create': False,
-            'lote_edit': False,
-            'lote_delete': False,
-            'lote_archive': False,
-            'venda_view': True,
-            'venda_create': False,
-            'venda_edit': False,
-            'venda_delete': False,
-            'venda_change_status': False,
-            'venda_mark_paid': False,
-            'garagem_view': False,
-            'garagem_edit': False,
-            'garagem_foto_upload': False,
-            'admin_manage_perms': False,
-            'admin_approve_admins': False,
-            'admin_view_audit': False,
-            'max_deletes_per_day': 0,
-        }
+    perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
+    if not perms:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Permissões não encontradas para este admin"
+        )
+    
+    # Converter para dict
+    perms_dict = {
+        'id': perms.id,
+        'admin_id': perms.admin_id,
+        'cliente_view': perms.cliente_view,
+        'cliente_create': perms.cliente_create,
+        'cliente_edit': perms.cliente_edit,
+        'cliente_delete': perms.cliente_delete,
+        'cliente_reset_pwd': perms.cliente_reset_pwd,
+        'lote_view': perms.lote_view,
+        'lote_create': perms.lote_create,
+        'lote_edit': perms.lote_edit,
+        'lote_delete': perms.lote_delete,
+        'lote_archive': perms.lote_archive,
+        'venda_view': perms.venda_view,
+        'venda_create': perms.venda_create,
+        'venda_edit': perms.venda_edit,
+        'venda_delete': perms.venda_delete,
+        'venda_change_status': perms.venda_change_status,
+        'venda_mark_paid': perms.venda_mark_paid,
+        'garagem_view': False,
+        'garagem_edit': False,
+        'garagem_foto_upload': False,
+        'admin_manage_perms': perms.admin_manage_perms,
+        'admin_approve_admins': False,
+        'admin_view_audit': perms.admin_view_audit,
+        'max_deletes_per_day': perms.max_deletes_per_day,
+    }
+    return perms_dict
 
 
 def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict) -> AdminPermission:
