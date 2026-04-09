@@ -942,42 +942,62 @@ export const AdminDashboard = () => {
                   {showVendaForm && (
                     <form onSubmit={handleCreateVenda} className="bg-gray-900/50 p-4 rounded-lg mb-4 border border-gray-600">
                       <h4 className="font-semibold mb-3 text-white">Nova Venda</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <select value={vendaFormData.cliente_id}
-                          onChange={(e) => setVendaFormData({ ...vendaFormData, cliente_id: e.target.value })}
-                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-red-500 focus:outline-none" required>
-                          <option value="">Selecione o Cliente</option>
-                          {clientes.map((c) => (
-                            <option key={c.id} value={c.id}>{c.nome} ({c.email})</option>
-                          ))}
-                        </select>
-                        <input type="number" step="0.01" placeholder="Preço (R$)" value={vendaFormData.preco}
-                          onChange={(e) => setVendaFormData({ ...vendaFormData, preco: e.target.value })}
-                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
-                        <textarea placeholder="Carrinhos comprados (ex: Hot Wheels Camaro, Matchbox Fusca)" value={vendaFormData.carrinhos_comprados}
-                          onChange={(e) => setVendaFormData({ ...vendaFormData, carrinhos_comprados: e.target.value })}
-                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 col-span-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} required />
-                        <div className="flex items-center gap-2">
-                          <input type="checkbox" id="pago" checked={vendaFormData.pago}
-                            onChange={(e) => setVendaFormData({ ...vendaFormData, pago: e.target.checked })}
-                            className="w-4 h-4 accent-red-600" />
-                          <label htmlFor="pago" className="text-sm text-gray-300">Já foi pago?</label>
-                        </div>
+                      <div className="space-y-4">
                         <div>
-                          <label className="block text-sm text-gray-400 mb-1">Data do Pagamento</label>
-                          <input type="datetime-local" value={vendaFormData.data_pagamento}
-                            onChange={(e) => setVendaFormData({ ...vendaFormData, data_pagamento: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                          <label className="block text-sm text-gray-400 mb-1">Cliente</label>
+                          <select value={vendaFormData.cliente_id}
+                            onChange={(e) => setVendaFormData({ ...vendaFormData, cliente_id: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" required>
+                            <option value="">Selecione o Cliente</option>
+                            {clientes.map((c) => (
+                              <option key={c.id} value={c.id}>{c.nome} ({c.email})</option>
+                            ))}
+                          </select>
                         </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-1">Preço (R$)</label>
+                            <input type="number" step="0.01" placeholder="0.00" value={vendaFormData.preco}
+                              onChange={(e) => setVendaFormData({ ...vendaFormData, preco: e.target.value })}
+                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                          </div>
+                          <div className="flex items-center gap-2 mt-6">
+                            <input type="checkbox" id="pago" checked={vendaFormData.pago}
+                              onChange={(e) => setVendaFormData({ ...vendaFormData, pago: e.target.checked })}
+                              className="w-4 h-4 accent-red-600" />
+                            <label htmlFor="pago" className="text-sm text-gray-300">Já foi pago?</label>
+                          </div>
+                        </div>
+                        
                         <div>
-                          <label className="block text-sm text-gray-400 mb-1">Comprovante de Pagamento</label>
-                          <input type="file" accept="image/*" onChange={handleComprovante} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300" />
+                          <label className="block text-sm text-gray-400 mb-1">Carrinhos comprados</label>
+                          <textarea placeholder="Ex: Hot Wheels Camaro, Matchbox Fusca" value={vendaFormData.carrinhos_comprados}
+                            onChange={(e) => setVendaFormData({ ...vendaFormData, carrinhos_comprados: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} required />
                         </div>
-                        <textarea placeholder="Observações" value={vendaFormData.observacoes}
-                          onChange={(e) => setVendaFormData({ ...vendaFormData, observacoes: e.target.value })}
-                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-1">Data do Pagamento</label>
+                            <input type="datetime-local" value={vendaFormData.data_pagamento}
+                              onChange={(e) => setVendaFormData({ ...vendaFormData, data_pagamento: e.target.value })}
+                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-1">Comprovante de Pagamento</label>
+                            <input type="file" accept="image/*" onChange={handleComprovante} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700" />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Observações</label>
+                          <textarea placeholder="Informações adicionais (opcional)" value={vendaFormData.observacoes}
+                            onChange={(e) => setVendaFormData({ ...vendaFormData, observacoes: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                        </div>
                       </div>
-                      <button type="submit" className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                      <button type="submit" className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition w-full sm:w-auto">
                         Salvar Venda
                       </button>
                     </form>
