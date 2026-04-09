@@ -635,7 +635,7 @@ export const AdminDashboard = () => {
                     }`}>
                     {lote.foto ? (
                       <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
-                        className="w-full h-32 object-cover rounded mb-3" />
+                        className="w-full h-48 object-contain rounded mb-3 bg-gray-900" />
                     ) : (
                       <div className="w-full h-32 bg-gray-700 rounded mb-3 flex items-center justify-center">
                         <Image size={32} className="text-gray-500" />
@@ -711,10 +711,14 @@ export const AdminDashboard = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     {lotesArquivados.map((lote) => (
-                      <div key={lote.id} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 opacity-75">
+                      <div key={lote.id} 
+                        onClick={() => handleSelectLote(lote)}
+                        className={`bg-gray-900/50 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 opacity-75 ${
+                          selectedLote?.id === lote.id ? 'border-yellow-500 shadow-yellow-500/20 shadow-lg' : 'border-gray-700 hover:border-gray-500'
+                        }`}>
                         {lote.foto ? (
                           <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.numero_lote}
-                            className="w-full h-32 object-cover rounded mb-3 grayscale" />
+                            className="w-full h-48 object-contain rounded mb-3 grayscale bg-gray-900" />
                         ) : (
                           <div className="w-full h-32 bg-gray-800 rounded mb-3 flex items-center justify-center">
                             <Archive size={32} className="text-gray-600" />
@@ -750,9 +754,17 @@ export const AdminDashboard = () => {
               )}
 
               {selectedLote && (
-                <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700 mt-8">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">Vendas - {selectedLote.nome}</h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-xl font-bold text-white">Vendas - {selectedLote.nome}</h3>
+                      {selectedLote.arquivado && (
+                        <span className="bg-yellow-600/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-600/30">
+                          <Archive size={16} className="inline mr-1" />
+                          Arquivado
+                        </span>
+                      )}
+                    </div>
                     <button onClick={() => setShowVendaForm(!showVendaForm)}
                       className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
                       <Plus size={18} />
