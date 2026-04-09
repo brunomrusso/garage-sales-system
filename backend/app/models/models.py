@@ -181,6 +181,9 @@ class AdminPermission(Base):
     admin_manage_perms = Column(Boolean, default=False)
     admin_view_audit = Column(Boolean, default=False)
     
+    # Permissões extras em JSON (garagem, admin_approve_admins, etc)
+    extra_permissions = Column(JSON, default={})
+    
     # Limite de ações por dia
     max_deletes_per_day = Column(Integer, default=0)  # 0 = sem limite
     

@@ -43,6 +43,9 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
             detail="Permissões não encontradas para este admin"
         )
     
+    # Obter permissões extras do JSON
+    extra_perms = perms.extra_permissions or {}
+    
     # Converter para dict
     perms_dict = {
         'id': perms.id,
@@ -63,11 +66,11 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
         'venda_delete': perms.venda_delete,
         'venda_change_status': perms.venda_change_status,
         'venda_mark_paid': perms.venda_mark_paid,
-        'garagem_view': False,
-        'garagem_edit': False,
-        'garagem_foto_upload': False,
+        'garagem_view': extra_perms.get('garagem_view', False),
+        'garagem_edit': extra_perms.get('garagem_edit', False),
+        'garagem_foto_upload': extra_perms.get('garagem_foto_upload', False),
         'admin_manage_perms': perms.admin_manage_perms,
-        'admin_approve_admins': False,
+        'admin_approve_admins': extra_perms.get('admin_approve_admins', False),
         'admin_view_audit': perms.admin_view_audit,
         'max_deletes_per_day': perms.max_deletes_per_day,
     }
@@ -97,14 +100,27 @@ def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict)
         'max_deletes_per_day'
     }
     
+    # Permissões extras que vão no JSON
+    extra_perms_keys = {'garagem_view', 'garagem_edit', 'garagem_foto_upload', 'admin_approve_admins'}
+    
+    # Inicializar extra_permissions se não existir
+    if not perms.extra_permissions:
+        perms.extra_permissions = {}
+    
     # Atualizar apenas os campos fornecidos que existem no modelo
     for key, value in permissions_data.items():
         if key in valid_columns and hasattr(perms, key):
             setattr(perms, key, value)
+        elif key in extra_perms_keys:
+            # Salvar no JSON
+            perms.extra_permissions[key] = value
     
     perms.data_atualizacao = datetime.utcnow()
     db.commit()
     db.refresh(perms)
+    
+    # Obter permissões extras do JSON
+    extra_perms = perms.extra_permissions or {}
     
     # Retornar como dict
     return {
@@ -126,11 +142,11 @@ def update_admin_permissions(db: Session, admin_id: int, permissions_data: dict)
         'venda_delete': perms.venda_delete,
         'venda_change_status': perms.venda_change_status,
         'venda_mark_paid': perms.venda_mark_paid,
-        'garagem_view': False,
-        'garagem_edit': False,
-        'garagem_foto_upload': False,
+        'garagem_view': extra_perms.get('garagem_view', False),
+        'garagem_edit': extra_perms.get('garagem_edit', False),
+        'garagem_foto_upload': extra_perms.get('garagem_foto_upload', False),
         'admin_manage_perms': perms.admin_manage_perms,
-        'admin_approve_admins': False,
+        'admin_approve_admins': extra_perms.get('admin_approve_admins', False),
         'admin_view_audit': perms.admin_view_audit,
         'max_deletes_per_day': perms.max_deletes_per_day,
     }
