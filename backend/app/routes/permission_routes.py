@@ -38,12 +38,13 @@ def get_admin_permissions(
     db: Session = Depends(get_db),
     current_user: dict = Depends(verify_admin_token)
 ):
-    """Obter permissões de um admin (apenas Admin Master)"""
-    # Verificar se é Admin Master
-    if current_user.get("role") != "admin_master":
+    """Obter permissões de um admin (Admin Master ou o próprio admin)"""
+    # Verificar se é Admin Master ou o próprio admin
+    current_user_id = int(current_user.get("sub"))
+    if current_user.get("role") != "admin_master" and current_user_id != admin_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Apenas Admin Master pode gerenciar permissões"
+            detail="Você não tem permissão para visualizar essas permissões"
         )
     
     return permission_controller.get_admin_permissions(db, admin_id)

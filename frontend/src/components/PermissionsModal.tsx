@@ -29,7 +29,8 @@ export const PermissionsModal = ({ adminId, adminNome, isOpen, onClose, onSave }
       setPermissions(response.data);
       setError('');
     } catch (err: any) {
-      setError('Erro ao carregar permissões');
+      const errorMsg = err.response?.data?.detail || 'Erro ao carregar permissões';
+      setError(errorMsg);
       console.error(err);
     } finally {
       setLoading(false);
@@ -50,7 +51,8 @@ export const PermissionsModal = ({ adminId, adminNome, isOpen, onClose, onSave }
       onSave();
       onClose();
     } catch (err: any) {
-      setError('Erro ao salvar permissões');
+      const errorMsg = err.response?.data?.detail || 'Erro ao salvar permissões';
+      setError(errorMsg);
       console.error(err);
     } finally {
       setSaving(false);
