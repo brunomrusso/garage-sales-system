@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Request
-from app.models.models import AdminPermission, AuditLog, Cliente
+from app.models.models import AdminPermission, AdminExtraPermission, AuditLog, Cliente
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -68,6 +68,32 @@ def initialize_admin_permissions(db: Session, admin_id: int, is_master: bool = F
     db.add(perms)
     db.commit()
     db.refresh(perms)
+    
+    # Criar permissões extras
+    extra_perms = db.query(AdminExtraPermission).filter(AdminExtraPermission.admin_id == admin_id).first()
+    if not extra_perms:
+        if is_master:
+            # Admin Master tem todas as permissões extras
+            extra_perms = AdminExtraPermission(
+                admin_id=admin_id,
+                garagem_view=True,
+                garagem_edit=True,
+                garagem_foto_upload=True,
+                admin_approve_admins=True
+            )
+        else:
+            # Admin novo sem permissões extras
+            extra_perms = AdminExtraPermission(
+                admin_id=admin_id,
+                garagem_view=False,
+                garagem_edit=False,
+                garagem_foto_upload=False,
+                admin_approve_admins=False
+            )
+        db.add(extra_perms)
+        db.commit()
+        db.refresh(extra_perms)
+    
     return perms
 
 

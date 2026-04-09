@@ -50,6 +50,14 @@ def login_admin(db: Session, request: LoginRequest) -> TokenResponse:
             detail="Admin inativo - aguardando aprovação"
         )
     
+    # Garantir que permissões existem
+    from app.models.models import AdminPermission
+    from app.core.permissions import initialize_admin_permissions
+    existing = db.query(AdminPermission).filter(AdminPermission.admin_id == cliente_admin.id).first()
+    if not existing:
+        is_master = cliente_admin.role == 'admin_master'
+        initialize_admin_permissions(db, cliente_admin.id, is_master=is_master)
+    
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": str(cliente_admin.id), "role": cliente_admin.role, "ativo": cliente_admin.ativo},
