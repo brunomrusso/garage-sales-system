@@ -5,7 +5,7 @@ import { authService } from '../services/api';
 export interface User {
   id: number;
   email: string;
-  role: 'admin' | 'cliente';
+  role: 'admin' | 'admin_master' | 'cliente';
   nome?: string;
   telefone?: string;
 }

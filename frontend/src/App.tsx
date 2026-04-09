@@ -13,7 +13,11 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode;
     return <Navigate to="/" replace />;
   }
 
-  if (user.role !== requiredRole) {
+  if (requiredRole === 'admin' && !['admin', 'admin_master'].includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requiredRole === 'cliente' && user.role !== 'cliente') {
     return <Navigate to="/" replace />;
   }
 
