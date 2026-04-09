@@ -18,6 +18,11 @@ def listar_lotes(db: Session = Depends(get_db), current_user: dict = Depends(ver
     return lote_controller.listar_lotes(db)
 
 
+@router.get("/arquivados/")
+def listar_lotes_arquivados(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.listar_lotes_arquivados(db)
+
+
 @router.get("/{lote_id}/")
 def obter_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return lote_controller.obter_lote(db, lote_id)
