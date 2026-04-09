@@ -7,7 +7,7 @@ import { PermissionsModal } from '../components/PermissionsModal';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
-  const { canCreateLote } = usePermissions(user?.id || 0);
+  const { canCreateLote, canDeleteLote } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins'>('clientes');
@@ -795,8 +795,15 @@ export const AdminDashboard = () => {
                           )}
                         </div>
                       </div>
-                      <button onClick={(e) => { e.stopPropagation(); handleDeleteLote(lote.id); }}
-                        className="text-red-500 hover:text-red-400 p-1 transition">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); canDeleteLote() && handleDeleteLote(lote.id); }}
+                        disabled={!canDeleteLote()}
+                        title={!canDeleteLote() ? 'Você não tem permissão para deletar lotes' : ''}
+                        className={`p-1 transition ${
+                          canDeleteLote() 
+                            ? 'text-red-500 hover:text-red-400 cursor-pointer' 
+                            : 'text-gray-600 cursor-not-allowed opacity-50'
+                        }`}>
                         <Trash2 size={16} />
                       </button>
                     </div>
