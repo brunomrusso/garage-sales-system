@@ -58,10 +58,12 @@ def criar_lote(db: Session, lote_data: LoteCreate) -> dict:
     if lote_data.foto:
         foto_bytes = base64.b64decode(lote_data.foto)
 
-    numero_gerado = gerar_numero_lote(db)
-    
+    # Gerar número automático do lote
+    numero_lote = gerar_numero_lote(db)
+
     novo_lote = Lote(
-        numero_lote=numero_gerado,
+        numero_lote=numero_lote,
+        nome=numero_lote,  # Hotfix: usar numero_lote como nome para evitar NOT NULL
         descricao=lote_data.descricao,
         foto=foto_bytes,
         status_lote=lote_data.status_lote
