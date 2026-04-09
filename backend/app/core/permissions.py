@@ -105,6 +105,12 @@ def check_permission(db: Session, admin_id: int, permission: str) -> bool:
     if admin and admin.role == 'admin_master':
         return True
     
+    # Verificar na tabela UsuarioAdmin (admins originais são sempre admin_master)
+    from app.models.models import UsuarioAdmin
+    usuario_admin = db.query(UsuarioAdmin).filter(UsuarioAdmin.id == admin_id).first()
+    if usuario_admin:
+        return True
+    
     perms = get_admin_permissions(db, admin_id)
     if not perms:
         return False

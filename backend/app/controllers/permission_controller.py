@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from fastapi import HTTPException, status
-from app.models.models import AdminPermission, AdminExtraPermission, Cliente, AuditLog
+from app.models.models import AdminPermission, AdminExtraPermission, Cliente, UsuarioAdmin, AuditLog
 from app.core.permissions import initialize_admin_permissions, log_action
 from typing import Optional
 from datetime import datetime, timedelta
@@ -10,11 +10,23 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def is_admin_master(db: Session, admin_id: int) -> bool:
+    """Verificar se o admin_id pertence a um admin_master (verifica ambas as tabelas)"""
+    # Verificar na tabela Cliente
+    admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
+    if admin and admin.role == 'admin_master':
+        return True
+    # Verificar na tabela UsuarioAdmin (admins originais são sempre admin_master)
+    usuario_admin = db.query(UsuarioAdmin).filter(UsuarioAdmin.id == admin_id).first()
+    if usuario_admin:
+        return True
+    return False
+
+
 def check_permission(db: Session, admin_id: int, permission_key: str) -> bool:
     """Verificar se um admin tem uma permissão específica"""
     # Admin Master tem todas as permissões
-    admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
-    if admin and admin.role == 'admin_master':
+    if is_admin_master(db, admin_id):
         return True
     
     # Verificar permissões extras (garagem, admin_approve_admins)
@@ -44,8 +56,7 @@ def require_permission(db: Session, admin_id: int, permission_key: str, action_n
 def get_admin_permissions(db: Session, admin_id: int) -> dict:
     """Obter permissões de um admin"""
     # Verificar se é admin_master
-    admin = db.query(Cliente).filter(Cliente.id == admin_id).first()
-    is_master = admin and admin.role == 'admin_master'
+    is_master = is_admin_master(db, admin_id)
     
     perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
     if not perms:
