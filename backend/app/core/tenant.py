@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from fastapi import Request, HTTPException, Depends
 from app.db.database import get_db
 from app.models.models import Empresa, EmpresaModulo, Modulo
+from jose import jwt, JWTError
+from app.core.config import settings
 
 
 class TenantContext:
@@ -103,18 +105,33 @@ async def tenant_middleware(request: Request, call_next):
     try:
         empresa = None
         
-        # 1. Tentar pelo header
-        empresa_id = request.headers.get("X-Empresa-ID")
-        empresa_slug = request.headers.get("X-Empresa-Slug")
-        
-        if empresa_id:
+        # 0. Tentar extrair empresa_id do token JWT
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header.replace("Bearer ", "")
             try:
-                empresa = TenantService.get_empresa_by_id(db, int(empresa_id))
-            except ValueError:
-                pass
+                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+                token_empresa_id = payload.get("empresa_id")
+                if token_empresa_id:
+                    empresa = TenantService.get_empresa_by_id(db, int(token_empresa_id))
+                    if empresa:
+                        print(f"[TENANT] Empresa {empresa.slug} extraída do token JWT")
+            except JWTError:
+                pass  # Token inválido, continuar com outros métodos
         
-        if not empresa and empresa_slug:
-            empresa = TenantService.get_empresa_by_slug(db, empresa_slug)
+        # 1. Tentar pelo header (se ainda não encontrou)
+        if not empresa:
+            empresa_id = request.headers.get("X-Empresa-ID")
+            empresa_slug = request.headers.get("X-Empresa-Slug")
+            
+            if empresa_id:
+                try:
+                    empresa = TenantService.get_empresa_by_id(db, int(empresa_id))
+                except ValueError:
+                    pass
+            
+            if not empresa and empresa_slug:
+                empresa = TenantService.get_empresa_by_slug(db, empresa_slug)
         
         # 2. Tentar pelo subdomain
         if not empresa:
