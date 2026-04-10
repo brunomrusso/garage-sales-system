@@ -19,6 +19,63 @@ def run_migrations():
     except Exception as e:
         print(f"[MIGRATIONS] Error: {str(e)}")
 
+def run_schema_migration():
+    """Adiciona colunas empresa_id às tabelas existentes via SQL direto"""
+    print("[SCHEMA-MIGRATE] Verificando/criando colunas empresa_id...")
+    
+    db = SessionLocal()
+    try:
+        from sqlalchemy import text, inspect
+        
+        inspector = inspect(db.bind)
+        
+        # Tabelas que precisam da coluna empresa_id
+        tabelas_colunas = [
+            ("clientes", "empresa_id"),
+            ("compras", "empresa_id"),
+            ("pagamentos", "empresa_id"),
+            ("solicitacoes_envio", "empresa_id"),
+            ("lotes", "empresa_id"),
+            ("vendas_lote", "empresa_id"),
+            ("fotos_garagem", "empresa_id"),
+        ]
+        
+        colunas_criadas = 0
+        
+        for tabela, coluna in tabelas_colunas:
+            try:
+                # Verificar se coluna já existe
+                colunas = [c['name'] for c in inspector.get_columns(tabela)]
+                
+                if coluna not in colunas:
+                    print(f"[SCHEMA-MIGRATE] Adicionando {coluna} à tabela {tabela}...")
+                    
+                    # Adicionar coluna via SQL
+                    sql = text(f"ALTER TABLE {tabela} ADD COLUMN {coluna} INTEGER REFERENCES empresas(id) ON DELETE CASCADE")
+                    db.execute(sql)
+                    colunas_criadas += 1
+                    print(f"[SCHEMA-MIGRATE] ✅ Coluna {coluna} adicionada em {tabela}")
+                else:
+                    print(f"[SCHEMA-MIGRATE] Coluna {coluna} já existe em {tabela}")
+                    
+            except Exception as e:
+                print(f"[SCHEMA-MIGRATE] ⚠️ Erro ao processar {tabela}.{coluna}: {e}")
+                # Continuar mesmo com erro
+        
+        if colunas_criadas > 0:
+            db.commit()
+            print(f"[SCHEMA-MIGRATE] ✅ {colunas_criadas} colunas criadas com sucesso!")
+        else:
+            print("[SCHEMA-MIGRATE] ✅ Todas as colunas já existem")
+            
+    except Exception as e:
+        print(f"[SCHEMA-MIGRATE] ❌ Erro: {e}")
+        db.rollback()
+        import traceback
+        traceback.print_exc()
+    finally:
+        db.close()
+
 def auto_migrate_tenant():
     """Auto-migração para multi-tenant - cria empresa padrão e migra dados"""
     print("[AUTO-MIGRATE] Iniciando auto-migração multi-tenant...")
@@ -195,7 +252,8 @@ run_migrations()
 seed_admin()
 fix_admin_master_role()
 initialize_admin_perms()
-auto_migrate_tenant()  # Auto-migração multi-tenant
+run_schema_migration()  # Adiciona colunas empresa_id se não existirem
+auto_migrate_tenant()   # Auto-migração multi-tenant
 
 app = FastAPI(
     title="GarageSales API",
