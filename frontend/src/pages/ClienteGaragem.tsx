@@ -362,10 +362,10 @@ export const ClienteGaragem = () => {
                       <div key={venda.id} className={`flex items-center gap-4 border rounded-lg p-3 relative ${
                         venda.pago ? 'bg-green-600/10 border-green-600/30' : 'bg-red-600/10 border-red-600/30'
                       } ${jaEnviado ? 'opacity-75' : ''}`}>
-                        {jaEnviado && (
+                        {!jaEnviado && (
                           <div className="absolute top-2 right-2">
-                            <span className="flex items-center gap-1 text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded-full border border-blue-600/30">
-                              <Package size={10} /> Já enviado
+                            <span className="flex items-center gap-1 text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded-full border border-green-600/30">
+                              <Package size={10} /> Novo
                             </span>
                           </div>
                         )}

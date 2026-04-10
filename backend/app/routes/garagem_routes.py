@@ -131,10 +131,10 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
         # Se não existe solicitação pendente, verificar se há solicitações anteriores
         solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
             SolicitacaoEnvio.cliente_id == cliente_id,
-            SolicitacaoEnvio.status.in_(["enviado", "entregue"])
+            SolicitacaoEnvio.status.in_(["enviado", "entregue", "aguardando", "pendente"])
         ).all()
         
-        print(f"  - Query executada: cliente_id={cliente_id}, status in ['enviado', 'entregue']")
+        print(f"  - Query executada: cliente_id={cliente_id}, status in ['enviado', 'entregue', 'aguardando', 'pendente']")
         print(f"  - Solicitações encontradas: {len(solicitacoes_anteriores)}")
         for sol in solicitacoes_anteriores:
             print(f"    - Solicitação #{sol.id}: status='{sol.status}', itens={sol.vendas_ids}")
