@@ -60,27 +60,47 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const carregarTenant = async (slug: string) => {
     try {
       setLoading(true);
-      // Aqui você pode fazer uma requisição para buscar dados da empresa
-      // Por enquanto, vamos usar dados mockados ou do token
       setEmpresaSlug(slug);
       
-      // Buscar módulos da empresa (endpoint que precisamos criar)
-      // const response = await api.get(`/api/empresas/${slug}/modulos`);
-      // setModulos(response.data);
+      // Buscar dados reais da empresa da API pública
+      try {
+        const response = await api.get(`/empresas/publicas/listar`);
+        const empresas = response.data;
+        const empresaEncontrada = empresas.find((e: any) => e.slug === slug);
+        
+        if (empresaEncontrada) {
+          setEmpresa({
+            id: empresaEncontrada.id,
+            nome: empresaEncontrada.nome,
+            slug: empresaEncontrada.slug,
+            corPrimaria: empresaEncontrada.cor_primaria || '#3B82F6'
+          });
+          console.log('[TENANT] Empresa carregada:', empresaEncontrada.nome);
+        } else {
+          console.log('[TENANT] Empresa não encontrada na lista, usando defaults');
+          setEmpresa({
+            id: 1,
+            nome: 'Minha Empresa',
+            slug: slug,
+            corPrimaria: '#3B82F6'
+          });
+        }
+      } catch (err) {
+        console.error('[TENANT] Erro ao buscar empresa:', err);
+        setEmpresa({
+          id: 1,
+          nome: 'Minha Empresa',
+          slug: slug,
+          corPrimaria: '#3B82F6'
+        });
+      }
       
-      // Por enquanto, mock:
+      // Por enquanto, mock dos módulos:
       setModulos([
         { id: 1, codigo: 'core', nome: 'Core', descricao: 'Funcionalidades básicas', icone: 'LayoutDashboard', habilitado: true },
         { id: 2, codigo: 'garagem', nome: 'Garagem', descricao: 'Gestão de garagem', icone: 'Warehouse', habilitado: true },
         { id: 3, codigo: 'relatorios', nome: 'Relatórios', descricao: 'Relatórios avançados', icone: 'BarChart3', habilitado: false },
       ]);
-      
-      setEmpresa({
-        id: 1,
-        nome: 'Minha Empresa',
-        slug: slug,
-        corPrimaria: '#3B82F6'
-      });
     } catch (error) {
       console.error('Erro ao carregar tenant:', error);
     } finally {
