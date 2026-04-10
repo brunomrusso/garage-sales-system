@@ -355,6 +355,9 @@ export const ClienteGaragem = () => {
                     const itemStatus = itensStatus[venda.id];
                     const jaEnviado = itemStatus?.ja_enviado || false;
                     
+                    // Debug: mostrar o que está chegando do backend
+                    console.log(`Item ${venda.id}: itemStatus=`, itemStatus, `jaEnviado=`, jaEnviado);
+                    
                     return (
                       <div key={venda.id} className={`flex items-center gap-4 border rounded-lg p-3 relative ${
                         venda.pago ? 'bg-green-600/10 border-green-600/30' : 'bg-red-600/10 border-red-600/30'
