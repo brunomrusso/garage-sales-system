@@ -25,10 +25,14 @@ api.interceptors.request.use((config) => {
 });
 
 export const authService = {
-  loginAdmin: (email: string, senha: string) =>
-    api.post('/auth/admin/login', { email, senha }),
-  loginCliente: (email: string, senha: string) =>
-    api.post('/auth/cliente/login', { email, senha }),
+  loginAdmin: (email: string, senha: string, empresaSlug?: string) =>
+    api.post('/auth/admin/login', { email, senha }, {
+      headers: empresaSlug ? { 'X-Empresa-Slug': empresaSlug } : {}
+    }),
+  loginCliente: (email: string, senha: string, empresaSlug?: string) =>
+    api.post('/auth/cliente/login', { email, senha }, {
+      headers: empresaSlug ? { 'X-Empresa-Slug': empresaSlug } : {}
+    }),
 };
 
 export const clienteService = {

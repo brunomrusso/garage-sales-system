@@ -19,14 +19,17 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const loginAdmin = useCallback(async (email: string, senha: string) => {
+  const loginAdmin = useCallback(async (email: string, senha: string, empresaSlug?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await authService.loginAdmin(email, senha);
+      const response = await authService.loginAdmin(email, senha, empresaSlug);
       const { token, user: userData } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
+      // Salvar empresa_slug se retornado ou usar o fornecido
+      const slugToSave = userData.empresa_slug || empresaSlug || 'principal';
+      localStorage.setItem('empresa_slug', slugToSave);
       setUser(userData);
       navigate('/admin/dashboard');
     } catch (err: any) {
@@ -37,14 +40,17 @@ export const useAuth = () => {
     }
   }, [navigate]);
 
-  const loginCliente = useCallback(async (email: string, senha: string) => {
+  const loginCliente = useCallback(async (email: string, senha: string, empresaSlug?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await authService.loginCliente(email, senha);
+      const response = await authService.loginCliente(email, senha, empresaSlug);
       const { token, user: userData } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
+      // Salvar empresa_slug se retornado ou usar o fornecido
+      const slugToSave = userData.empresa_slug || empresaSlug || 'principal';
+      localStorage.setItem('empresa_slug', slugToSave);
       setUser(userData);
       navigate('/cliente/garagem');
     } catch (err: any) {
