@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useTenant } from '../contexts/TenantContext';
 import { loteService, garagemService } from '../services/api';
 import { LogOut, ShoppingBag, Check, X, Eye, Image as ImageIcon, RefreshCw, Warehouse, Send, Package } from 'lucide-react';
 
 export const ClienteGaragem = () => {
   const { user, logout } = useAuth();
+  const { empresa } = useTenant();
   const [vendas, setVendas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'compras' | 'garagem'>('compras');
@@ -120,7 +122,14 @@ export const ClienteGaragem = () => {
       <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
           <span className="text-2xl md:text-3xl">🏎️</span>
-          <h1 className="text-lg md:text-2xl font-extrabold tracking-wider uppercase">Minha Garagem</h1>
+          <div className="flex flex-col">
+            <h1 className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">GarageSales</h1>
+            {empresa && (
+              <span className="text-xs md:text-sm font-medium text-white/90 leading-tight">
+                {empresa.nome}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
           <div className="text-right hidden sm:block">

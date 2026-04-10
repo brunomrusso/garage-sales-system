@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
+import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
 import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const { empresa } = useTenant();
   const { 
     canCreateLote, canDeleteLote,
     canCreateCliente, canDeleteCliente,
@@ -426,7 +428,14 @@ export const AdminDashboard = () => {
       <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
           <span className="text-2xl md:text-3xl">🏎️</span>
-          <h1 className="text-lg md:text-2xl font-extrabold tracking-wider uppercase">GarageSales</h1>
+          <div className="flex flex-col">
+            <h1 className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">GarageSales</h1>
+            {empresa && (
+              <span className="text-xs md:text-sm font-medium text-white/90 leading-tight">
+                {empresa.nome}
+              </span>
+            )}
+          </div>
           <span className="text-xs bg-black/30 px-2 py-1 rounded font-mono hidden sm:inline">ADMIN</span>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
