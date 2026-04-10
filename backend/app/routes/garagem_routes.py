@@ -192,6 +192,18 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
                 except:
                     continue
     
+    # Se há solicitação pendente, marcar seus itens como ja_enviado também
+    if solicitacao_pendente and solicitacao_pendente.vendas_ids:
+        try:
+            ids_pendentes = json.loads(solicitacao_pendente.vendas_ids)
+            print(f"  - Marcando itens da solicitação pendente {solicitacao_pendente.id}: {ids_pendentes}")
+            for item_id in ids_pendentes:
+                if item_id in itens_status:
+                    itens_status[item_id]["ja_enviado"] = True
+                    print(f"    - Item {item_id} marcado como ja_enviado=True (pendente)")
+        except:
+            print(f"  - Erro ao parsear vendas_ids da solicitação pendente")
+    
     print(f"  - Itens status final: {[(k, v['ja_enviado']) for k, v in itens_status.items()]}")
     
     return {
