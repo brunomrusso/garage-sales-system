@@ -16,8 +16,9 @@ api.interceptors.request.use((config) => {
   }
   
   // Adicionar header X-Empresa-Slug se existir no localStorage
+  // Mas NÃO sobrescrever se já foi definido na requisição
   const empresaSlug = localStorage.getItem('empresa_slug');
-  if (empresaSlug) {
+  if (empresaSlug && !config.headers['X-Empresa-Slug']) {
     config.headers['X-Empresa-Slug'] = empresaSlug;
   }
   
