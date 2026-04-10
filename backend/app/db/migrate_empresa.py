@@ -134,10 +134,52 @@ def verificar_migracao():
         db.close()
 
 
+def remover_unique_constraint_email():
+    """Remove a constraint UNIQUE global do campo email - permite email em múltiplas empresas"""
+    db = SessionLocal()
+    
+    try:
+        print("=" * 60)
+        print("REMOVENDO CONSTRAINT UNIQUE DO EMAIL")
+        print("=" * 60)
+        
+        # Verificar se a constraint existe
+        check_sql = """
+        SELECT indexname FROM pg_indexes 
+        WHERE tablename = 'clientes' AND indexname = 'ix_clientes_email'
+        """
+        result = db.execute(text(check_sql)).fetchone()
+        
+        if result:
+            print(f"\n⚠️  Constraint ix_clientes_email encontrada. Removendo...")
+            
+            # Remover o índice UNIQUE
+            drop_sql = "DROP INDEX IF EXISTS ix_clientes_email"
+            db.execute(text(drop_sql))
+            
+            # Criar novo índice sem UNIQUE
+            create_sql = "CREATE INDEX ix_clientes_email ON clientes (email)"
+            db.execute(text(create_sql))
+            
+            db.commit()
+            print("✅ Constraint UNIQUE removida. Índice normal criado.")
+            print("   Agora emails podem ser duplicados entre empresas diferentes!")
+        else:
+            print("\n✓ Constraint ix_clientes_email não existe. Nada a fazer.")
+        
+    except Exception as e:
+        print(f"❌ Erro: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+
 if __name__ == "__main__":
     import sys
     
     if len(sys.argv) > 1 and sys.argv[1] == "--verify":
         verificar_migracao()
+    elif len(sys.argv) > 1 and sys.argv[1] == "--fix-email":
+        remover_unique_constraint_email()
     else:
         migrar_dados_existentes()

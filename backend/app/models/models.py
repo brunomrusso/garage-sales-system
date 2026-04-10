@@ -19,7 +19,7 @@ class Cliente(Base):
     id = Column(Integer, primary_key=True, index=True)
     empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     nome = Column(String(255))
-    email = Column(String(255), unique=True, index=True)
+    email = Column(String(255), index=True)  # Removido unique=True - validação por empresa no controller
     senha_hash = Column(String(255))
     telefone = Column(String(20), nullable=True)
     data_cadastro = Column(DateTime, default=datetime.utcnow)
