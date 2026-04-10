@@ -38,10 +38,18 @@ export const useAuth = () => {
       const { token, user: userData } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
-      // Buscar slug da empresa automaticamente
+      setUser(userData);
+      
+      // Se for admin master, ir para seleção de empresa
+      if (userData.role === 'admin_master') {
+        console.log('[AUTH] Admin master detectado, redirecionando para seleção de empresa');
+        navigate('/admin/selecionar-empresa');
+        return;
+      }
+      
+      // Admin comum - buscar slug da empresa automaticamente
       const slug = await fetchEmpresaSlug(userData.empresa_id || 1);
       localStorage.setItem('empresa_slug', slug);
-      setUser(userData);
       navigate('/admin/dashboard');
     } catch (err: any) {
       const message = err.response?.data?.error || 'Erro ao fazer login';

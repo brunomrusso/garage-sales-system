@@ -5,6 +5,7 @@ import { RegistroPage } from './pages/RegistroPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ClienteGaragem } from './pages/ClienteGaragem';
 import CadastroAdminPage from './pages/CadastroAdminPage';
+import { MasterEmpresaSelect } from './pages/MasterEmpresaSelect';
 
 const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole: 'admin' | 'cliente' }) => {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/registro" element={<RegistroPage />} />
         <Route path="/cadastro-admin" element={<CadastroAdminPage />} />
+        <Route path="/admin/selecionar-empresa" element={<MasterEmpresaSelect />} />
         <Route
           path="/admin/dashboard"
           element={
