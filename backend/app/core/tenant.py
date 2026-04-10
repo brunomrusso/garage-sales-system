@@ -22,6 +22,10 @@ class TenantContext:
     
     @classmethod
     def get_tenant_id(cls) -> Optional[int]:
+        # Fallback para empresa padrão (ID=1) se não houver tenant definido
+        # Isso garante compatibilidade durante migração e para requisições sem header
+        if cls._empresa_id is None:
+            return 1  # Empresa padrão
         return cls._empresa_id
     
     @classmethod
