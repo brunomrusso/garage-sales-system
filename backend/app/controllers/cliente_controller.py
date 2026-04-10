@@ -7,12 +7,16 @@ from app.core.tenant import TenantContext
 
 
 def criar_cliente(db: Session, cliente_data: ClienteCreate, empresa_id: int = None, empresa_slug: str = None) -> ClienteResponse:
+    print(f"[CRIAR-CLIENTE] Email: {cliente_data.email}, empresa_slug recebido: {empresa_slug}, empresa_id recebido: {empresa_id}")
+    
     # Se recebeu empresa_slug, buscar o ID
     if empresa_slug:
         empresa = db.query(Empresa).filter(Empresa.slug == empresa_slug, Empresa.ativa == True).first()
         if empresa:
             empresa_id = empresa.id
+            print(f"[CRIAR-CLIENTE] Empresa encontrada por slug: {empresa.nome} (ID: {empresa_id})")
         else:
+            print(f"[CRIAR-CLIENTE] ERRO: Empresa com slug '{empresa_slug}' não encontrada")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Empresa '{empresa_slug}' não encontrada"
@@ -21,6 +25,7 @@ def criar_cliente(db: Session, cliente_data: ClienteCreate, empresa_id: int = No
     # Obter empresa_id do contexto se ainda não tem
     if empresa_id is None:
         empresa_id = TenantContext.get_tenant_id()
+        print(f"[CRIAR-CLIENTE] Usando empresa_id do contexto: {empresa_id}")
     
     if not empresa_id:
         raise HTTPException(
@@ -28,15 +33,19 @@ def criar_cliente(db: Session, cliente_data: ClienteCreate, empresa_id: int = No
             detail="Empresa não especificado"
         )
     
+    print(f"[CRIAR-CLIENTE] Verificando duplicidade na empresa_id: {empresa_id}")
+    
     # Verificar email duplicado (apenas na mesma empresa)
     cliente_existente = db.query(Cliente).filter(
         Cliente.email == cliente_data.email,
         Cliente.empresa_id == empresa_id
     ).first()
+    
     if cliente_existente:
+        print(f"[CRIAR-CLIENTE] ERRO: Email {cliente_data.email} já existe na empresa {empresa_id} (Cliente ID: {cliente_existente.id})")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email já cadastrado"
+            detail="Email já cadastrado nesta empresa"
         )
     
     # Verificar telefone duplicado (se fornecido) - apenas na mesma empresa
