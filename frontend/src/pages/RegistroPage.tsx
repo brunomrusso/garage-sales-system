@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clienteService } from '../services/api';
-import { Car } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 export const RegistroPage = () => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
   const [telefone, setTelefone] = useState('');
+  const [empresaSlug, setEmpresaSlug] = useState('principal');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -15,15 +17,21 @@ export const RegistroPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (senha !== confirmarSenha) {
+      setError('As senhas não coincidem');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
 
     try {
-      await clienteService.criar({ nome, email, senha, telefone });
+      await clienteService.criar({ nome, email, senha, telefone }, empresaSlug);
       setSuccess(true);
       setTimeout(() => navigate('/'), 2000);
     } catch (err: any) {
-      const message = err.response?.data?.error || 'Erro ao registrar';
+      const message = err.response?.data?.detail || err.response?.data?.error || 'Erro ao registrar';
       setError(message);
     } finally {
       setLoading(false);
@@ -99,6 +107,34 @@ export const RegistroPage = () => {
               placeholder="••••••••"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">Confirmar Senha</label>
+            <input
+              type="password"
+              value={confirmarSenha}
+              onChange={(e) => setConfirmarSenha(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">
+              <Building2 className="inline w-4 h-4 mr-1" />
+              Empresa (Slug)
+            </label>
+            <input
+              type="text"
+              value={empresaSlug}
+              onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              placeholder="principal"
+              required
+            />
+            <p className="text-gray-500 text-xs mt-1">Digite o slug da empresa fornecido</p>
           </div>
 
           {error && (
