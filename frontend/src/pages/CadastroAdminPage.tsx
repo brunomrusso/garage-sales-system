@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Phone, Shield, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, Phone, Shield, AlertCircle, Building2 } from 'lucide-react';
 import { clienteService } from '../services/api';
 
 const CadastroAdminPage: React.FC = () => {
@@ -12,6 +12,7 @@ const CadastroAdminPage: React.FC = () => {
     telefone: '',
     role: 'admin' as 'admin' | 'admin_master'
   });
+  const [empresaSlug, setEmpresaSlug] = useState('principal'); // Empresa padrão
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -41,7 +42,7 @@ const CadastroAdminPage: React.FC = () => {
         senha: formData.senha,
         telefone: formData.telefone || undefined,
         role: formData.role
-      });
+      }, empresaSlug);
       
       setSuccess(true);
       setTimeout(() => {
@@ -128,6 +129,26 @@ const CadastroAdminPage: React.FC = () => {
               <option value="admin">Admin</option>
               <option value="admin_master">Admin Master</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Empresa (Slug)
+            </label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                value={empresaSlug}
+                onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
+                className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="principal"
+                required
+              />
+            </div>
+            <p className="text-gray-500 text-xs mt-1">
+              Digite o slug da empresa (ex: principal)
+            </p>
           </div>
 
           <div>

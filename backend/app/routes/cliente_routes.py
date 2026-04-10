@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, Query
+from typing import Optional
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.schemas import ClienteCreate, ClienteUpdate, ClienteResponse
@@ -19,8 +20,15 @@ class SenhaAlteracao(BaseModel):
 
 
 @router.post("/", response_model=ClienteResponse)
-def criar_cliente(cliente_data: ClienteCreate, db: Session = Depends(get_db)):
-    return cliente_controller.criar_cliente(db, cliente_data)
+def criar_cliente(
+    cliente_data: ClienteCreate, 
+    db: Session = Depends(get_db),
+    empresa_slug: Optional[str] = Query(None, description="Slug da empresa (opcional)"),
+    x_empresa_slug: Optional[str] = Header(None, alias="X-Empresa-Slug")
+):
+    # Prioridade: Header > Query param
+    slug = x_empresa_slug or empresa_slug
+    return cliente_controller.criar_cliente(db, cliente_data, empresa_slug=slug)
 
 
 @router.get("/", response_model=list[ClienteResponse])

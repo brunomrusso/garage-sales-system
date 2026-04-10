@@ -1,13 +1,24 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.models.models import Cliente
+from app.models.models import Cliente, Empresa
 from app.schemas.schemas import ClienteCreate, ClienteUpdate, ClienteResponse
 from app.core.security import hash_password
 from app.core.tenant import TenantContext
 
 
-def criar_cliente(db: Session, cliente_data: ClienteCreate, empresa_id: int = None) -> ClienteResponse:
-    # Obter empresa_id do contexto se não fornecido
+def criar_cliente(db: Session, cliente_data: ClienteCreate, empresa_id: int = None, empresa_slug: str = None) -> ClienteResponse:
+    # Se recebeu empresa_slug, buscar o ID
+    if empresa_slug:
+        empresa = db.query(Empresa).filter(Empresa.slug == empresa_slug, Empresa.ativa == True).first()
+        if empresa:
+            empresa_id = empresa.id
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Empresa '{empresa_slug}' não encontrada"
+            )
+    
+    # Obter empresa_id do contexto se ainda não tem
     if empresa_id is None:
         empresa_id = TenantContext.get_tenant_id()
     
