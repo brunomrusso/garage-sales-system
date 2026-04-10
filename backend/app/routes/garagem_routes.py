@@ -133,10 +133,15 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
         for sol in solicitacoes_anteriores:
             try:
                 if sol.vendas_ids:
-                    itens_enviados = set(sol.vendas_ids)
+                    # Parsear como JSON string para obter a lista
+                    if isinstance(sol.vendas_ids, str):
+                        itens_enviados = set(json.loads(sol.vendas_ids))
+                    else:
+                        itens_enviados = set(sol.vendas_ids)
                     todos_itens_enviados.update(itens_enviados)
-            except:
-                print(f"  - Erro ao parsear vendas_ids da solicitação #{sol.id}")
+            except Exception as e:
+                print(f"  - Erro ao parsear vendas_ids da solicitação #{sol.id}: {e}")
+                print(f"  - vendas_ids tipo: {type(sol.vendas_ids)}, valor: {sol.vendas_ids}")
         
         print(f"  - Todos os itens já enviados: {todos_itens_enviados}")
         
