@@ -120,6 +120,17 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
         novos_itens = itens_garagem_ids - ids_solicitacao
         print(f"  - Novos itens: {novos_itens}")
         
+        # Buscar TODAS as solicitações anteriores para marcar itens como ja_enviado
+        solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
+            SolicitacaoEnvio.cliente_id == cliente_id,
+            SolicitacaoEnvio.status.in_(["enviado", "entregue", "aguardando", "pendente"])
+        ).all()
+        
+        print(f"  - Query executada para itens_status: cliente_id={cliente_id}, status in ['enviado', 'entregue', 'aguardando', 'pendente']")
+        print(f"  - Solicitações encontradas: {len(solicitacoes_anteriores)}")
+        for sol in solicitacoes_anteriores:
+            print(f"    - Solicitação #{sol.id}: status='{sol.status}', itens={sol.vendas_ids}")
+        
         # Lógica correta: só pode solicitar se há NOVOS itens
         if novos_itens:
             pode_solicitar = True
