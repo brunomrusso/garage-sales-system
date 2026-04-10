@@ -123,12 +123,14 @@ export const ClienteGaragem = () => {
         <div className="flex items-center gap-2 md:gap-3">
           <span className="text-2xl md:text-3xl">🏎️</span>
           <div className="flex flex-col">
-            <h1 className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">GarageSales</h1>
             {empresa && (
-              <span className="text-xs md:text-sm font-medium text-white/90 leading-tight">
+              <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">
                 {empresa.nome}
               </span>
             )}
+            <span className="text-xs md:text-sm font-medium text-white/70 leading-tight">
+              GarageSales
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2 md:gap-4">

@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Building2 } from 'lucide-react';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [empresaSlug, setEmpresaSlug] = useState('principal');
   const [userType, setUserType] = useState<'admin' | 'cliente'>('cliente');
   const { loginAdmin, loginCliente, loading, error } = useAuth();
   const navigate = useNavigate();
@@ -14,9 +12,9 @@ export const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (userType === 'admin') {
-      await loginAdmin(email, senha, empresaSlug);
+      await loginAdmin(email, senha);
     } else {
-      await loginCliente(email, senha, empresaSlug);
+      await loginCliente(email, senha);
     }
   };
 
@@ -82,22 +80,6 @@ export const LoginPage = () => {
               placeholder="••••••••"
               required
             />
-          </div>
-
-          <div>
-            <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">
-              <Building2 className="inline w-4 h-4 mr-1" />
-              Empresa (Slug)
-            </label>
-            <input
-              type="text"
-              value={empresaSlug}
-              onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
-              placeholder="principal"
-              required
-            />
-            <p className="text-gray-500 text-xs mt-1">Digite o slug da empresa</p>
           </div>
 
           {error && (

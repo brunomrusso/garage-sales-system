@@ -6,7 +6,7 @@ from app.core.config import settings
 from app.core.security import hash_password
 from app.models.models import UsuarioAdmin, Cliente
 from app.core.permissions import initialize_admin_permissions
-from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes, permission_routes, admin_routes
+from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes, permission_routes, admin_routes, empresa_routes
 from app.core.tenant import tenant_middleware
 
 Base.metadata.create_all(bind=engine)
@@ -289,6 +289,7 @@ app.include_router(lote_routes.router)
 app.include_router(garagem_routes.router)
 app.include_router(permission_routes.router)
 app.include_router(admin_routes.router)
+app.include_router(empresa_routes.router)
 
 
 @app.get("/health")
