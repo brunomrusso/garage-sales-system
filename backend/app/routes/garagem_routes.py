@@ -117,19 +117,19 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
             ids_solicitacao = set()
             print(f"  - Sem vendas_ids na solicitação")
         
-        # Buscar TODAS as solicitações anteriores para marcar itens como ja_enviado
+        # Buscar solicitações que realmente já foram enviadas (enviado/entregue)
         solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
             SolicitacaoEnvio.cliente_id == cliente_id,
-            SolicitacaoEnvio.status.in_(["enviado", "entregue", "aguardando", "pendente"])
+            SolicitacaoEnvio.status.in_(["enviado", "entregue"])
         ).all()
         
-        print(f"  - Query executada para itens_status: cliente_id={cliente_id}, status in ['enviado', 'entregue', 'aguardando', 'pendente']")
+        print(f"  - Query executada para itens_status: cliente_id={cliente_id}, status in ['enviado', 'entregue']")
         print(f"  - Solicitações encontradas: {len(solicitacoes_anteriores)}")
         for sol in solicitacoes_anteriores:
             print(f"    - Solicitação #{sol.id}: status='{sol.status}', itens={sol.vendas_ids}")
         
-        # Coletar todos os itens já enviados em QUALQUER solicitação
-        todos_itens_enviados = set()
+        # Coletar itens já enviados (apenas de solicitações enviado/entregue)
+        itens_enviados_anteriormente = set()
         for sol in solicitacoes_anteriores:
             try:
                 if sol.vendas_ids:
@@ -138,24 +138,27 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
                         itens_enviados = set(json.loads(sol.vendas_ids))
                     else:
                         itens_enviados = set(sol.vendas_ids)
-                    todos_itens_enviados.update(itens_enviados)
+                    itens_enviados_anteriormente.update(itens_enviados)
             except Exception as e:
                 print(f"  - Erro ao parsear vendas_ids da solicitação #{sol.id}: {e}")
                 print(f"  - vendas_ids tipo: {type(sol.vendas_ids)}, valor: {sol.vendas_ids}")
         
-        print(f"  - Todos os itens já enviados: {todos_itens_enviados}")
+        print(f"  - Itens já enviados: {itens_enviados_anteriormente}")
         
-        # Calcular itens que realmente NUNCA foram solicitados
-        itens_nunca_solicitados = itens_garagem_ids - todos_itens_enviados
-        print(f"  - Itens nunca solicitados: {itens_nunca_solicitados}")
+        # Calcular itens que ainda não foram enviados
+        itens_disponiveis = itens_garagem_ids - itens_enviados_anteriormente
+        print(f"  - Itens disponíveis: {itens_disponiveis}")
         
-        # Lógica correta: só pode solicitar se há itens que NUNCA foram solicitados
-        if itens_nunca_solicitados:
+        # Lógica correta: só pode solicitar se há itens disponíveis que não estão na solicitação pendente
+        novos_itens = itens_disponiveis - ids_solicitacao
+        print(f"  - Novos itens (disponíveis - pendente): {novos_itens}")
+        
+        if novos_itens:
             pode_solicitar = True
-            motivo = f"Há {len(itens_nunca_solicitados)} itens nunca solicitados na garagem"
+            motivo = f"Há {len(novos_itens)} novos itens na garagem"
         else:
             pode_solicitar = False
-            motivo = "Todos os itens já foram solicitados anteriormente"
+            motivo = "Todos os itens já estão na solicitação pendente"
     else:
         # Se não existe solicitação pendente, verificar se há solicitações anteriores
         solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
