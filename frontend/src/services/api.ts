@@ -14,6 +14,13 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Adicionar header X-Empresa-Slug se existir no localStorage
+  const empresaSlug = localStorage.getItem('empresa_slug');
+  if (empresaSlug) {
+    config.headers['X-Empresa-Slug'] = empresaSlug;
+  }
+  
   return config;
 });
 
