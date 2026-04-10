@@ -117,9 +117,6 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
             ids_solicitacao = set()
             print(f"  - Sem vendas_ids na solicitação")
         
-        novos_itens = itens_garagem_ids - ids_solicitacao
-        print(f"  - Novos itens: {novos_itens}")
-        
         # Buscar TODAS as solicitações anteriores para marcar itens como ja_enviado
         solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
             SolicitacaoEnvio.cliente_id == cliente_id,
@@ -131,13 +128,29 @@ def verificar_fotos_nao_solicitadas(cliente_id: int, db: Session = Depends(get_d
         for sol in solicitacoes_anteriores:
             print(f"    - Solicitação #{sol.id}: status='{sol.status}', itens={sol.vendas_ids}")
         
-        # Lógica correta: só pode solicitar se há NOVOS itens
-        if novos_itens:
+        # Coletar todos os itens já enviados em QUALQUER solicitação
+        todos_itens_enviados = set()
+        for sol in solicitacoes_anteriores:
+            try:
+                if sol.vendas_ids:
+                    itens_enviados = set(sol.vendas_ids)
+                    todos_itens_enviados.update(itens_enviados)
+            except:
+                print(f"  - Erro ao parsear vendas_ids da solicitação #{sol.id}")
+        
+        print(f"  - Todos os itens já enviados: {todos_itens_enviados}")
+        
+        # Calcular itens que realmente NUNCA foram solicitados
+        itens_nunca_solicitados = itens_garagem_ids - todos_itens_enviados
+        print(f"  - Itens nunca solicitados: {itens_nunca_solicitados}")
+        
+        # Lógica correta: só pode solicitar se há itens que NUNCA foram solicitados
+        if itens_nunca_solicitados:
             pode_solicitar = True
-            motivo = f"Há {len(novos_itens)} novos itens na garagem"
+            motivo = f"Há {len(itens_nunca_solicitados)} itens nunca solicitados na garagem"
         else:
             pode_solicitar = False
-            motivo = "Todos os itens já estão na solicitação pendente"
+            motivo = "Todos os itens já foram solicitados anteriormente"
     else:
         # Se não existe solicitação pendente, verificar se há solicitações anteriores
         solicitacoes_anteriores = db.query(SolicitacaoEnvio).filter(
