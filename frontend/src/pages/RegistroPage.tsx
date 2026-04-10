@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { clienteService } from '../services/api';
+import { clienteService, empresaService } from '../services/api';
 import { Building2 } from 'lucide-react';
+
+interface Empresa {
+  id: number;
+  nome: string;
+  slug: string;
+}
 
 export const RegistroPage = () => {
   const [nome, setNome] = useState('');
@@ -9,11 +15,32 @@ export const RegistroPage = () => {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [empresaSlug, setEmpresaSlug] = useState('principal');
+  const [empresaSlug, setEmpresaSlug] = useState('');
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingEmpresas, setLoadingEmpresas] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+
+  // Buscar empresas ao carregar
+  useEffect(() => {
+    const carregarEmpresas = async () => {
+      try {
+        const response = await empresaService.listarPublicas();
+        setEmpresas(response.data);
+        // Selecionar primeira empresa por padrão
+        if (response.data.length > 0) {
+          setEmpresaSlug(response.data[0].slug);
+        }
+      } catch {
+        // Silencioso - fallback para input manual
+      } finally {
+        setLoadingEmpresas(false);
+      }
+    };
+    carregarEmpresas();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,17 +151,39 @@ export const RegistroPage = () => {
           <div>
             <label className="block text-gray-400 font-semibold mb-2 text-sm uppercase tracking-wide">
               <Building2 className="inline w-4 h-4 mr-1" />
-              Empresa (Slug)
+              Empresa
             </label>
-            <input
-              type="text"
-              value={empresaSlug}
-              onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
-              placeholder="principal"
-              required
-            />
-            <p className="text-gray-500 text-xs mt-1">Digite o slug da empresa fornecido</p>
+            {loadingEmpresas ? (
+              <div className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-400">
+                Carregando empresas...
+              </div>
+            ) : empresas.length > 0 ? (
+              <select
+                value={empresaSlug}
+                onChange={(e) => setEmpresaSlug(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white"
+                required
+              >
+                <option value="" disabled>Selecione uma empresa</option>
+                {empresas.map((empresa) => (
+                  <option key={empresa.id} value={empresa.slug}>
+                    {empresa.nome}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={empresaSlug}
+                onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+                placeholder="principal"
+                required
+              />
+            )}
+            <p className="text-gray-500 text-xs mt-1">
+              {empresas.length > 0 ? 'Selecione a empresa desejada' : 'Digite o slug da empresa'}
+            </p>
           </div>
 
           {error && (

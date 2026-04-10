@@ -8,15 +8,21 @@ from app.core.config import settings
 
 
 def login_admin(db: Session, request: LoginRequest, empresa_slug: str = None) -> TokenResponse:
+    print(f"[LOGIN-ADMIN] Tentativa login: {request.email}, empresa_slug: {empresa_slug}")
+    
     # Buscar empresa se slug fornecido
     empresa_id = None
     if empresa_slug:
         empresa = db.query(Empresa).filter(Empresa.slug == empresa_slug, Empresa.ativa == True).first()
         if empresa:
             empresa_id = empresa.id
+            print(f"[LOGIN-ADMIN] Empresa encontrada: {empresa.slug} (ID: {empresa_id})")
+        else:
+            print(f"[LOGIN-ADMIN] Empresa não encontrada para slug: {empresa_slug}")
     
     # Primeiro tenta encontrar na tabela UsuarioAdmin (admins antigos)
     admin = db.query(UsuarioAdmin).filter(UsuarioAdmin.email == request.email).first()
+    print(f"[LOGIN-ADMIN] UsuarioAdmin encontrado: {admin is not None}")
     
     if admin and verify_password(request.senha, admin.senha_hash):
         # UsuarioAdmin sao os admins originais - tratar como admin_master
@@ -49,7 +55,12 @@ def login_admin(db: Session, request: LoginRequest, empresa_slug: str = None) ->
         Cliente.role.in_(['admin', 'admin_master'])
     ).first()
     
+    print(f"[LOGIN-ADMIN] Cliente admin encontrado: {cliente_admin is not None}")
+    if cliente_admin:
+        print(f"[LOGIN-ADMIN] Cliente ID: {cliente_admin.id}, Role: {cliente_admin.role}, Ativo: {cliente_admin.ativo}, EmpresaID: {cliente_admin.empresa_id}")
+    
     if not cliente_admin or not verify_password(request.senha, cliente_admin.senha_hash):
+        print(f"[LOGIN-ADMIN] Falha na autenticação: cliente não encontrado ou senha incorreta")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciais inválidas"
@@ -57,6 +68,7 @@ def login_admin(db: Session, request: LoginRequest, empresa_slug: str = None) ->
     
     # Verificar se o admin está ativo
     if not cliente_admin.ativo:
+        print(f"[LOGIN-ADMIN] ERRO: Admin {cliente_admin.email} está inativo (aguardando aprovação)")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin inativo - aguardando aprovação"
@@ -71,7 +83,10 @@ def login_admin(db: Session, request: LoginRequest, empresa_slug: str = None) ->
             EmpresaAdmin.ativo == True
         ).first()
         
+        print(f"[LOGIN-ADMIN] Admin associado à empresa {empresa_id}: {admin_empresa is not None}")
+        
         if not admin_empresa and cliente_admin.role != 'admin_master':
+            print(f"[LOGIN-ADMIN] ERRO: Admin não tem acesso à empresa {empresa_id}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Você não tem acesso a esta empresa"
@@ -83,12 +98,15 @@ def login_admin(db: Session, request: LoginRequest, empresa_slug: str = None) ->
             EmpresaAdmin.ativo == True
         ).first()
         
+        print(f"[LOGIN-ADMIN] Primeira empresa do admin: {primeira_empresa.empresa_id if primeira_empresa else 'Nenhuma'}")
+        
         if primeira_empresa:
             empresa_id = primeira_empresa.empresa_id
         else:
             # Usar empresa padrão
             empresa_padrao = db.query(Empresa).filter(Empresa.slug == "principal").first()
             empresa_id = empresa_padrao.id if empresa_padrao else cliente_admin.empresa_id
+            print(f"[LOGIN-ADMIN] Usando empresa padrão: {empresa_id}")
     
     # Garantir que permissões existem
     from app.models.models import AdminPermission

@@ -25,10 +25,10 @@ api.interceptors.request.use((config) => {
 });
 
 export const authService = {
-  loginAdmin: (email: string, senha: string) =>
-    api.post('/auth/admin/login', { email, senha }),
-  loginCliente: (email: string, senha: string) =>
-    api.post('/auth/cliente/login', { email, senha }),
+  loginAdmin: (email: string, senha: string, headers?: any) =>
+    api.post('/auth/admin/login', { email, senha }, headers ? { headers } : undefined),
+  loginCliente: (email: string, senha: string, headers?: any) =>
+    api.post('/auth/cliente/login', { email, senha }, headers ? { headers } : undefined),
 };
 
 export const clienteService = {
@@ -105,6 +105,12 @@ export const permissionService = {
   obterResumoAtividades: (adminId: number, dias?: number) => 
     api.get(`/permissions/activity-summary/${adminId}`, { params: { dias } }),
   verificarAtividadeSuspeita: (adminId: number) => api.get(`/permissions/suspicious-activity/${adminId}`),
+};
+
+export const empresaService = {
+  listarPublicas: () => api.get('/empresas/publicas/listar'),
+  buscarEmpresasUsuario: (email: string) => api.get(`/empresas/usuario/buscar-por-email?email=${email}`),
+  obterPorId: (id: number) => api.get(`/empresas/${id}`),
 };
 
 export default api;
