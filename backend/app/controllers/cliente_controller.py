@@ -3,20 +3,37 @@ from fastapi import HTTPException, status
 from app.models.models import Cliente
 from app.schemas.schemas import ClienteCreate, ClienteUpdate, ClienteResponse
 from app.core.security import hash_password
+from app.core.tenant import TenantContext
 
 
-def criar_cliente(db: Session, cliente_data: ClienteCreate) -> ClienteResponse:
-    # Verificar email duplicado
-    cliente_existente = db.query(Cliente).filter(Cliente.email == cliente_data.email).first()
+def criar_cliente(db: Session, cliente_data: ClienteCreate, empresa_id: int = None) -> ClienteResponse:
+    # Obter empresa_id do contexto se não fornecido
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    # Verificar email duplicado (apenas na mesma empresa)
+    cliente_existente = db.query(Cliente).filter(
+        Cliente.email == cliente_data.email,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if cliente_existente:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email já cadastrado"
         )
     
-    # Verificar telefone duplicado (se fornecido)
+    # Verificar telefone duplicado (se fornecido) - apenas na mesma empresa
     if cliente_data.telefone:
-        telefone_existente = db.query(Cliente).filter(Cliente.telefone == cliente_data.telefone).first()
+        telefone_existente = db.query(Cliente).filter(
+            Cliente.telefone == cliente_data.telefone,
+            Cliente.empresa_id == empresa_id
+        ).first()
         if telefone_existente:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -27,6 +44,7 @@ def criar_cliente(db: Session, cliente_data: ClienteCreate) -> ClienteResponse:
     is_admin = cliente_data.role in ['admin', 'admin_master']
     
     novo_cliente = Cliente(
+        empresa_id=empresa_id,
         nome=cliente_data.nome,
         email=cliente_data.email,
         senha_hash=hash_password(cliente_data.senha),
@@ -40,12 +58,33 @@ def criar_cliente(db: Session, cliente_data: ClienteCreate) -> ClienteResponse:
     return novo_cliente
 
 
-def listar_clientes(db: Session) -> list[ClienteResponse]:
-    return db.query(Cliente).all()
+def listar_clientes(db: Session, empresa_id: int = None) -> list[ClienteResponse]:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    return db.query(Cliente).filter(Cliente.empresa_id == empresa_id).all()
 
 
-def obter_cliente(db: Session, cliente_id: int) -> ClienteResponse:
-    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+def obter_cliente(db: Session, cliente_id: int, empresa_id: int = None) -> ClienteResponse:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -54,8 +93,20 @@ def obter_cliente(db: Session, cliente_id: int) -> ClienteResponse:
     return cliente
 
 
-def atualizar_cliente(db: Session, cliente_id: int, cliente_data: ClienteUpdate) -> ClienteResponse:
-    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+def atualizar_cliente(db: Session, cliente_id: int, cliente_data: ClienteUpdate, empresa_id: int = None) -> ClienteResponse:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -65,10 +116,11 @@ def atualizar_cliente(db: Session, cliente_id: int, cliente_data: ClienteUpdate)
     if cliente_data.nome:
         cliente.nome = cliente_data.nome
     if cliente_data.telefone:
-        # Verificar se o telefone já está em uso por outro cliente
+        # Verificar se o telefone já está em uso por outro cliente (mesma empresa)
         telefone_existente = db.query(Cliente).filter(
             Cliente.telefone == cliente_data.telefone,
-            Cliente.id != cliente_id
+            Cliente.id != cliente_id,
+            Cliente.empresa_id == empresa_id
         ).first()
         if telefone_existente:
             raise HTTPException(
@@ -82,8 +134,14 @@ def atualizar_cliente(db: Session, cliente_id: int, cliente_data: ClienteUpdate)
     return cliente
 
 
-def resetar_senha_cliente(db: Session, cliente_id: int, nova_senha: str) -> dict:
-    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+def resetar_senha_cliente(db: Session, cliente_id: int, nova_senha: str, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -96,8 +154,14 @@ def resetar_senha_cliente(db: Session, cliente_id: int, nova_senha: str) -> dict
     return {"message": "Senha resetada com sucesso"}
 
 
-def alterar_senha_cliente(db: Session, cliente_id: int, senha_atual: str, nova_senha: str) -> dict:
-    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+def alterar_senha_cliente(db: Session, cliente_id: int, senha_atual: str, nova_senha: str, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -118,10 +182,16 @@ def alterar_senha_cliente(db: Session, cliente_id: int, senha_atual: str, nova_s
     return {"message": "Senha alterada com sucesso"}
 
 
-def aprovar_admin(db: Session, cliente_id: int) -> dict:
+def aprovar_admin(db: Session, cliente_id: int, empresa_id: int = None) -> dict:
     from app.core.permissions import initialize_admin_permissions
     
-    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -151,8 +221,14 @@ def aprovar_admin(db: Session, cliente_id: int) -> dict:
     return {"message": "Admin aprovado com sucesso"}
 
 
-def rejeitar_admin(db: Session, cliente_id: int) -> dict:
-    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+def rejeitar_admin(db: Session, cliente_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -176,15 +252,37 @@ def rejeitar_admin(db: Session, cliente_id: int) -> dict:
     return {"message": "Admin rejeitado e deletado com sucesso"}
 
 
-def listar_admins_pendentes(db: Session) -> list[ClienteResponse]:
+def listar_admins_pendentes(db: Session, empresa_id: int = None) -> list[ClienteResponse]:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
     return db.query(Cliente).filter(
+        Cliente.empresa_id == empresa_id,
         Cliente.role.in_(['admin', 'admin_master']),
         Cliente.ativo == False
     ).all()
 
 
-def deletar_cliente(db: Session, cliente_id: int) -> dict:
-    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+def deletar_cliente(db: Session, cliente_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

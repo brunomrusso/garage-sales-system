@@ -2,17 +2,25 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.models import FotoGaragem, SolicitacaoEnvio, Cliente, VendaLote, Lote
 from app.schemas.schemas import FotoGaragemCreate, SolicitacaoEnvioCreate
+from app.core.tenant import TenantContext
 from datetime import datetime
 import base64
 import json
 
 
-def adicionar_foto(db: Session, foto_data: FotoGaragemCreate) -> dict:
-    cliente = db.query(Cliente).filter(Cliente.id == foto_data.cliente_id).first()
+def adicionar_foto(db: Session, foto_data: FotoGaragemCreate, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    cliente = db.query(Cliente).filter(
+        Cliente.id == foto_data.cliente_id,
+        Cliente.empresa_id == empresa_id
+    ).first()
     if not cliente:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cliente não encontrado")
 
     nova_foto = FotoGaragem(
+        empresa_id=empresa_id,
         cliente_id=foto_data.cliente_id,
         foto=base64.b64decode(foto_data.foto),
         descricao=foto_data.descricao
@@ -23,13 +31,37 @@ def adicionar_foto(db: Session, foto_data: FotoGaragemCreate) -> dict:
     return _foto_to_response(nova_foto)
 
 
-def listar_fotos_cliente(db: Session, cliente_id: int) -> list:
-    fotos = db.query(FotoGaragem).filter(FotoGaragem.cliente_id == cliente_id).order_by(FotoGaragem.data_upload.desc()).all()
+def listar_fotos_cliente(db: Session, cliente_id: int, empresa_id: int = None) -> list:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    fotos = db.query(FotoGaragem).filter(
+        FotoGaragem.empresa_id == empresa_id,
+        FotoGaragem.cliente_id == cliente_id
+    ).order_by(FotoGaragem.data_upload.desc()).all()
     return [_foto_to_response(f) for f in fotos]
 
 
-def deletar_foto(db: Session, foto_id: int) -> dict:
-    foto = db.query(FotoGaragem).filter(FotoGaragem.id == foto_id).first()
+def deletar_foto(db: Session, foto_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    foto = db.query(FotoGaragem).filter(
+        FotoGaragem.id == foto_id,
+        FotoGaragem.empresa_id == empresa_id
+    ).first()
     if not foto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Foto não encontrada")
     db.delete(foto)
@@ -37,9 +69,16 @@ def deletar_foto(db: Session, foto_id: int) -> dict:
     return {"message": "Foto deletada com sucesso"}
 
 
-def marcar_fotos_como_solicitadas(db: Session, cliente_id: int) -> int:
+def marcar_fotos_como_solicitadas(db: Session, cliente_id: int, empresa_id: int = None) -> int:
     """Marca todas as fotos não solicitadas da garagem como solicitadas"""
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        return 0
+    
     fotos_nao_solicitadas = db.query(FotoGaragem).filter(
+        FotoGaragem.empresa_id == empresa_id,
         FotoGaragem.cliente_id == cliente_id,
         FotoGaragem.solicitado == False
     ).all()

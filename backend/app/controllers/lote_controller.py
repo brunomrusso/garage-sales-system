@@ -2,13 +2,20 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.models import Lote, VendaLote, Cliente
 from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate
+from app.core.tenant import TenantContext
 import base64
 from datetime import datetime
 
 
-def gerar_numero_lote(db: Session) -> str:
+def gerar_numero_lote(db: Session, empresa_id: int = None) -> str:
     """Gera próximo número sequencial de lote (#001, #002, etc.)"""
-    ultimo_lote = db.query(Lote).filter(Lote.numero_lote.like("#%")).order_by(Lote.numero_lote.desc()).first()
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    ultimo_lote = db.query(Lote).filter(
+        Lote.empresa_id == empresa_id,
+        Lote.numero_lote.like("#%")
+    ).order_by(Lote.numero_lote.desc()).first()
     if not ultimo_lote:
         return "#001"
     
@@ -36,10 +43,17 @@ def migrar_lotes_existentes(db: Session) -> dict:
     return {"migrados": migrados, "total": len(lotes)}
 
 
-def buscar_clientes(db: Session, termo: str) -> list:
-    """Busca clientes por nome, email ou telefone"""
+def buscar_clientes(db: Session, termo: str, empresa_id: int = None) -> list:
+    """Busca clientes por nome, email ou telefone (apenas na empresa)"""
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        return []
+    
     termo = f"%{termo.lower()}%"
     clientes = db.query(Cliente).filter(
+        Cliente.empresa_id == empresa_id,
         (Cliente.nome.ilike(termo)) |
         (Cliente.email.ilike(termo)) |
         (Cliente.telefone.ilike(termo))
@@ -53,17 +67,24 @@ def buscar_clientes(db: Session, termo: str) -> list:
     } for c in clientes]
 
 
-def criar_lote(db: Session, lote_data: LoteCreate) -> dict:
+def criar_lote(db: Session, lote_data: LoteCreate, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
     foto_bytes = None
     if lote_data.foto:
         foto_bytes = base64.b64decode(lote_data.foto)
 
-    # Gerar número automático do lote
-    numero_lote = gerar_numero_lote(db)
-
     novo_lote = Lote(
-        numero_lote=numero_lote,
-        nome=numero_lote,  # Hotfix: usar numero_lote como nome para evitar NOT NULL
+        empresa_id=empresa_id,
+        numero_lote=lote_data.numero_lote,
+        nome=lote_data.nome,
         descricao=lote_data.descricao,
         foto=foto_bytes,
         status_lote=lote_data.status_lote
@@ -74,20 +95,53 @@ def criar_lote(db: Session, lote_data: LoteCreate) -> dict:
     return _lote_to_response(novo_lote)
 
 
-def listar_lotes(db: Session) -> list:
-    lotes = db.query(Lote).all()
+def listar_lotes(db: Session, empresa_id: int = None) -> list:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    lotes = db.query(Lote).filter(Lote.empresa_id == empresa_id).all()
     return [_lote_to_response(lote) for lote in lotes]
 
 
-def obter_lote(db: Session, lote_id: int) -> dict:
-    lote = db.query(Lote).filter(Lote.id == lote_id).first()
+def obter_lote(db: Session, lote_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    lote = db.query(Lote).filter(
+        Lote.id == lote_id,
+        Lote.empresa_id == empresa_id
+    ).first()
     if not lote:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote não encontrado")
     return _lote_to_response(lote)
 
 
-def atualizar_lote(db: Session, lote_id: int, lote_data: LoteUpdate) -> dict:
-    lote = db.query(Lote).filter(Lote.id == lote_id).first()
+def atualizar_lote(db: Session, lote_id: int, lote_data: LoteUpdate, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    lote = db.query(Lote).filter(
+        Lote.id == lote_id,
+        Lote.empresa_id == empresa_id
+    ).first()
     if not lote:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote não encontrado")
 
@@ -105,15 +159,39 @@ def atualizar_lote(db: Session, lote_id: int, lote_data: LoteUpdate) -> dict:
     return _lote_to_response(lote)
 
 
-def listar_lotes_arquivados(db: Session) -> list:
+def listar_lotes_arquivados(db: Session, empresa_id: int = None) -> list:
     """Lista apenas lotes arquivados"""
-    lotes = db.query(Lote).filter(Lote.arquivado == True).all()
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    lotes = db.query(Lote).filter(
+        Lote.empresa_id == empresa_id,
+        Lote.arquivado == True
+    ).all()
     return [_lote_to_response(lote) for lote in lotes]
 
 
-def desarquivar_lote(db: Session, lote_id: int) -> dict:
+def desarquivar_lote(db: Session, lote_id: int, empresa_id: int = None) -> dict:
     """Desarquiva um lote"""
-    lote = db.query(Lote).filter(Lote.id == lote_id).first()
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    if not empresa_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empresa não especificado"
+        )
+    
+    lote = db.query(Lote).filter(
+        Lote.id == lote_id,
+        Lote.empresa_id == empresa_id
+    ).first()
     if not lote:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote não encontrado")
     
