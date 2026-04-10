@@ -19,6 +19,113 @@ def run_migrations():
     except Exception as e:
         print(f"[MIGRATIONS] Error: {str(e)}")
 
+def auto_migrate_tenant():
+    """Auto-migração para multi-tenant - cria empresa padrão e migra dados"""
+    print("[AUTO-MIGRATE] Iniciando auto-migração multi-tenant...")
+    
+    db = SessionLocal()
+    try:
+        from app.models.models import Empresa, EmpresaConfig, Modulo, EmpresaModulo, Cliente, Lote, VendaLote, Compra, Pagamento, SolicitacaoEnvio, FotoGaragem
+        from app.db.seed_modulos import criar_modulos_padrao
+        from sqlalchemy import text
+        
+        # 1. Verificar se já existe empresa padrão
+        empresa = db.query(Empresa).filter(Empresa.slug == "principal").first()
+        
+        if empresa:
+            print(f"[AUTO-MIGRATE] Empresa padrão já existe: {empresa.nome} (ID: {empresa.id})")
+        else:
+            print("[AUTO-MIGRATE] Criando empresa padrão...")
+            
+            # Criar empresa padrão
+            empresa = Empresa(
+                nome="Minha Empresa",
+                slug="principal",
+                cnpj=None,
+                ativa=True,
+                logo_url=None,
+                cor_primaria="#3B82F6"
+            )
+            db.add(empresa)
+            db.flush()  # Para obter o ID
+            
+            # Criar configuração
+            config = EmpresaConfig(
+                empresa_id=empresa.id,
+                campos_custom_cliente=[],
+                campos_custom_venda=[],
+                fluxo_aprovacao={},
+                webhook_url=None,
+                api_key=None
+            )
+            db.add(config)
+            
+            print(f"[AUTO-MIGRATE] Empresa padrão criada: ID {empresa.id}")
+        
+        empresa_id = empresa.id
+        
+        # 2. Criar módulos padrão
+        criar_modulos_padrao(db)
+        
+        # 3. Habilitar módulos para empresa padrão
+        modulos = db.query(Modulo).all()
+        for modulo in modulos:
+            em = db.query(EmpresaModulo).filter(
+                EmpresaModulo.empresa_id == empresa_id,
+                EmpresaModulo.modulo_id == modulo.id
+            ).first()
+            
+            if not em:
+                em = EmpresaModulo(
+                    empresa_id=empresa_id,
+                    modulo_id=modulo.id,
+                    habilitado=True,
+                    config={}
+                )
+                db.add(em)
+        
+        db.commit()
+        print(f"[AUTO-MIGRATE] {len(modulos)} módulos habilitados para empresa padrão")
+        
+        # 4. Migrar dados existentes (adicionar empresa_id = 1)
+        tabelas = [
+            ("clientes", Cliente),
+            ("compras", Compra),
+            ("pagamentos", Pagamento),
+            ("solicitacoes_envio", SolicitacaoEnvio),
+            ("lotes", Lote),
+            ("vendas_lote", VendaLote),
+            ("fotos_garagem", FotoGaragem),
+        ]
+        
+        total_migrado = 0
+        for tabela_nome, modelo in tabelas:
+            try:
+                # Verificar se há registros sem empresa_id
+                registros_sem_empresa = db.query(modelo).filter(modelo.empresa_id.is_(None)).all()
+                
+                if registros_sem_empresa:
+                    for registro in registros_sem_empresa:
+                        registro.empresa_id = empresa_id
+                    total_migrado += len(registros_sem_empresa)
+                    print(f"[AUTO-MIGRATE] {tabela_nome}: {len(registros_sem_empresa)} registros migrados")
+            except Exception as e:
+                print(f"[AUTO-MIGRATE] Erro ao migrar {tabela_nome}: {e}")
+        
+        if total_migrado > 0:
+            db.commit()
+        
+        print(f"[AUTO-MIGRATE] Total de registros migrados: {total_migrado}")
+        print("[AUTO-MIGRATE] ✅ Auto-migração concluída com sucesso!")
+        
+    except Exception as e:
+        print(f"[AUTO-MIGRATE] ❌ Erro na auto-migração: {e}")
+        db.rollback()
+        import traceback
+        traceback.print_exc()
+    finally:
+        db.close()
+
 def seed_admin():
     db = SessionLocal()
     try:
@@ -88,6 +195,7 @@ run_migrations()
 seed_admin()
 fix_admin_master_role()
 initialize_admin_perms()
+auto_migrate_tenant()  # Auto-migração multi-tenant
 
 app = FastAPI(
     title="GarageSales API",

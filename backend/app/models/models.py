@@ -17,7 +17,7 @@ class Cliente(Base):
     __tablename__ = "clientes"
 
     id = Column(Integer, primary_key=True, index=True)
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     nome = Column(String(255))
     email = Column(String(255), unique=True, index=True)
     senha_hash = Column(String(255))
@@ -38,7 +38,7 @@ class Compra(Base):
     __tablename__ = "compras"
 
     id = Column(Integer, primary_key=True, index=True)
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     cliente_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"))
     descricao = Column(String(255))
     preco = Column(Numeric(10, 2))
@@ -52,7 +52,7 @@ class Pagamento(Base):
     __tablename__ = "pagamentos"
 
     id = Column(Integer, primary_key=True, index=True)
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     cliente_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"))
     valor = Column(Numeric(10, 2))
     data_pagamento = Column(DateTime, default=datetime.utcnow)
@@ -65,7 +65,7 @@ class SolicitacaoEnvio(Base):
     __tablename__ = "solicitacoes_envio"
 
     id = Column(Integer, primary_key=True, index=True)
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     cliente_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"))
     data_solicitacao = Column(DateTime, default=datetime.utcnow)
     status = Column(String(50), default="pendente")
@@ -79,7 +79,7 @@ class Lote(Base):
     __tablename__ = "lotes"
 
     id = Column(Integer, primary_key=True, index=True)
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     numero_lote = Column(String(10), nullable=False, unique=True)  # #001, #002, etc.
     nome = Column(String(255), nullable=True)  # Mantido para compatibilidade com dados existentes
     descricao = Column(Text, nullable=True)
@@ -128,7 +128,7 @@ class VendaLote(Base):
     __tablename__ = "vendas_lote"
 
     id = Column(Integer, primary_key=True, index=True)
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     lote_id = Column(Integer, ForeignKey("lotes.id", ondelete="CASCADE"), nullable=False)
     cliente_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"), nullable=False)
     carrinhos_comprados = Column(Text, nullable=False)
@@ -148,7 +148,7 @@ class FotoGaragem(Base):
     __tablename__ = "fotos_garagem"
 
     id = Column(Integer, primary_key=True, index=True)
-    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)  # TEMP: nullable para migração
     cliente_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"), nullable=False)
     foto = Column(LargeBinary, nullable=False)
     descricao = Column(String(255), nullable=True)
