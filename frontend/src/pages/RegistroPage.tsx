@@ -53,6 +53,10 @@ export const RegistroPage = () => {
     setLoading(true);
     setError(null);
 
+    // DEBUG: Verificar valor do empresaSlug
+    console.log('[FRONTEND] Empresa selecionada:', empresaSlug);
+    console.log('[FRONTEND] Empresas disponíveis:', empresas);
+
     try {
       await clienteService.criar({ nome, email, senha, telefone }, empresaSlug);
       setSuccess(true);

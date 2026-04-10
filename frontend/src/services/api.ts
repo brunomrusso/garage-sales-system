@@ -32,10 +32,13 @@ export const authService = {
 };
 
 export const clienteService = {
-  criar: (data: any, empresaSlug?: string) => 
-    api.post('/clientes/', data, {
+  criar: (data: any, empresaSlug?: string) => {
+    console.log('[CLIENTE-SERVICE] empresaSlug:', empresaSlug);
+    console.log('[CLIENTE-SERVICE] headers:', empresaSlug ? { 'X-Empresa-Slug': empresaSlug } : {});
+    return api.post('/clientes/', data, {
       headers: empresaSlug ? { 'X-Empresa-Slug': empresaSlug } : {}
-    }),
+    });
+  },
   listar: () => api.get('/clientes/'),
   obter: (id: number) => api.get(`/clientes/${id}/`),
   atualizar: (id: number, data: any) => api.put(`/clientes/${id}`, data),
