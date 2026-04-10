@@ -7,6 +7,7 @@ from app.core.security import hash_password
 from app.models.models import UsuarioAdmin, Cliente
 from app.core.permissions import initialize_admin_permissions
 from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes, permission_routes, admin_routes
+from app.core.tenant import tenant_middleware
 
 Base.metadata.create_all(bind=engine)
 
@@ -109,6 +110,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Middleware de Multi-Tenant
+app.middleware("http")(tenant_middleware)
 
 app.include_router(auth_routes.router)
 app.include_router(cliente_routes.router)
