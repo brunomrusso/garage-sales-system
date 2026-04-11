@@ -40,5 +40,5 @@ def trocar_empresa_admin_master(
     current_user: dict = Depends(verify_token)
 ):
     """Para admin master: troca de empresa e gera novo token JWT"""
-    # JWT usa 'sub' para o ID do usuário
-    return auth_controller.trocar_empresa_admin_master(db, int(current_user["sub"]), empresa_slug)
+    # verify_token retorna {"user_id": ..., "role": ..., "ativo": ...}
+    return auth_controller.trocar_empresa_admin_master(db, current_user["user_id"], empresa_slug)
