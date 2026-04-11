@@ -30,6 +30,8 @@ export const authService = {
     api.post('/auth/admin/login', { email, senha }, headers ? { headers } : undefined),
   loginCliente: (email: string, senha: string, headers?: any) =>
     api.post('/auth/cliente/login', { email, senha }, headers ? { headers } : undefined),
+  trocarEmpresa: (empresaSlug: string) =>
+    api.post('/auth/admin/trocar-empresa', null, { params: { empresa_slug: empresaSlug } }),
 };
 
 export const clienteService = {

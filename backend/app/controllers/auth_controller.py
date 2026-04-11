@@ -165,3 +165,38 @@ def login_cliente(db: Session, request: LoginRequest, empresa_slug: str = None) 
         token=access_token,
         user={"id": cliente.id, "email": cliente.email, "role": "cliente", "empresa_id": empresa_id}
     )
+
+
+def trocar_empresa_admin_master(db: Session, admin_id: int, empresa_slug: str) -> TokenResponse:
+    """Para admin master: troca de empresa e gera novo token JWT"""
+    from app.models.models import Cliente, Empresa
+    
+    # Buscar admin
+    admin = db.query(Cliente).filter(Cliente.id == admin_id, Cliente.role == 'admin_master').first()
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Apenas admin master pode trocar de empresa"
+        )
+    
+    # Buscar nova empresa
+    empresa = db.query(Empresa).filter(Empresa.slug == empresa_slug, Empresa.ativa == True).first()
+    if not empresa:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Empresa não encontrada ou inativa"
+        )
+    
+    print(f"[TROCAR-EMPRESA] Admin {admin.email} trocando para empresa {empresa.nome} (ID: {empresa.id})")
+    
+    # Gerar novo token com novo empresa_id
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(admin.id), "role": admin.role, "ativo": admin.ativo, "empresa_id": empresa.id},
+        expires_delta=access_token_expires
+    )
+    
+    return TokenResponse(
+        token=access_token,
+        user={"id": admin.id, "email": admin.email, "role": admin.role, "empresa_id": empresa.id}
+    )

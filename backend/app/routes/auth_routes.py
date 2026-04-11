@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Header, Query
+from fastapi import APIRouter, Depends, Header, Query, status
 from typing import Optional
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.schemas import LoginRequest, TokenResponse
 from app.controllers import auth_controller
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -30,3 +31,13 @@ def login_cliente(
     # Prioridade: Header > Query param
     slug = x_empresa_slug or empresa_slug
     return auth_controller.login_cliente(db, request, empresa_slug=slug)
+
+
+@router.post("/admin/trocar-empresa", response_model=TokenResponse)
+def trocar_empresa_admin_master(
+    empresa_slug: str = Query(..., description="Slug da nova empresa"),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Para admin master: troca de empresa e gera novo token JWT"""
+    return auth_controller.trocar_empresa_admin_master(db, current_user.id, empresa_slug)

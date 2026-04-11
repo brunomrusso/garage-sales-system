@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Crown, LogOut } from 'lucide-react';
-import { empresaService } from '../services/api';
+import { empresaService, authService } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 
@@ -53,21 +53,37 @@ export const MasterEmpresaSelect = () => {
     }
   };
 
-  const selecionarEmpresa = () => {
+  const selecionarEmpresa = async () => {
     if (!empresaSelecionada) return;
     
     const empresa = empresas.find(e => e.slug === empresaSelecionada);
-    if (empresa) {
-      // Salvar empresa selecionada
+    if (!empresa) return;
+    
+    setLoading(true);
+    try {
+      console.log('[MASTER] Trocando para empresa:', empresa.nome);
+      
+      // Chamar API para trocar empresa e gerar novo token
+      const response = await authService.trocarEmpresa(empresa.slug);
+      
+      // Atualizar token no localStorage
+      localStorage.setItem('token', response.data.token);
       localStorage.setItem('empresa_slug', empresa.slug);
       localStorage.setItem('empresa_master_id', empresa.id.toString());
       
       // Atualizar header do axios imediatamente
       api.defaults.headers.common['X-Empresa-Slug'] = empresa.slug;
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       
-      console.log('[MASTER] Empresa selecionada:', empresa.nome, 'Slug:', empresa.slug);
-      console.log('[MASTER] localStorage empresa_slug:', localStorage.getItem('empresa_slug'));
+      console.log('[MASTER] Token atualizado com nova empresa:', response.data.user.empresa_id);
+      console.log('[MASTER] Redirecionando para dashboard');
+      
       navigate('/admin/dashboard');
+    } catch (err: any) {
+      console.error('[MASTER] Erro ao trocar empresa:', err);
+      setError(err.response?.data?.detail || 'Erro ao trocar empresa');
+    } finally {
+      setLoading(false);
     }
   };
 
