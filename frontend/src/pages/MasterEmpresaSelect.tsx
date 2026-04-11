@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Crown, LogOut } from 'lucide-react';
 import { empresaService } from '../services/api';
+import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 
 interface Empresa {
@@ -61,7 +62,11 @@ export const MasterEmpresaSelect = () => {
       localStorage.setItem('empresa_slug', empresa.slug);
       localStorage.setItem('empresa_master_id', empresa.id.toString());
       
-      console.log('[MASTER] Empresa selecionada:', empresa.nome);
+      // Atualizar header do axios imediatamente
+      api.defaults.headers.common['X-Empresa-Slug'] = empresa.slug;
+      
+      console.log('[MASTER] Empresa selecionada:', empresa.nome, 'Slug:', empresa.slug);
+      console.log('[MASTER] localStorage empresa_slug:', localStorage.getItem('empresa_slug'));
       navigate('/admin/dashboard');
     }
   };
