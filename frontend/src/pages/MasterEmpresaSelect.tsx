@@ -15,6 +15,7 @@ interface Empresa {
 export const MasterEmpresaSelect = () => {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -30,11 +31,21 @@ export const MasterEmpresaSelect = () => {
   }, [user, navigate]);
 
   const carregarEmpresas = async () => {
+    setLoading(true);
+    setError(null);
     try {
+      console.log('[MASTER] Carregando empresas...');
       const response = await empresaService.listarPublicas();
-      setEmpresas(response.data.filter((e: Empresa) => e.ativa));
-    } catch (error) {
-      console.error('Erro ao carregar empresas:', error);
+      console.log('[MASTER] Empresas recebidas:', response.data);
+      const empresasAtivas = response.data.filter((e: Empresa) => e.ativa);
+      console.log('[MASTER] Empresas ativas:', empresasAtivas);
+      setEmpresas(empresasAtivas);
+      if (empresasAtivas.length === 0) {
+        setError('Nenhuma empresa ativa encontrada');
+      }
+    } catch (err: any) {
+      console.error('[MASTER] Erro ao carregar empresas:', err);
+      setError(err.response?.data?.detail || 'Erro ao carregar empresas');
     } finally {
       setLoading(false);
     }
@@ -85,6 +96,24 @@ export const MasterEmpresaSelect = () => {
           <br />
           Selecione a empresa que deseja gerenciar:
         </p>
+
+        {error && (
+          <div className="bg-red-600/20 border border-red-600/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-center">
+            {error}
+            <button 
+              onClick={carregarEmpresas}
+              className="ml-2 text-red-300 hover:text-red-200 underline"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
+
+        {empresas.length === 0 && !loading && !error && (
+          <div className="text-center text-gray-400 py-8">
+            Nenhuma empresa cadastrada
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {empresas.map((empresa) => (
