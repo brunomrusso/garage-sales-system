@@ -169,15 +169,31 @@ def login_cliente(db: Session, request: LoginRequest, empresa_slug: str = None) 
 
 def trocar_empresa_admin_master(db: Session, admin_id: int, empresa_slug: str) -> TokenResponse:
     """Para admin master: troca de empresa e gera novo token JWT"""
-    from app.models.models import Cliente, Empresa
+    from app.models.models import Cliente, Empresa, UsuarioAdmin
     
-    # Buscar admin
+    print(f"[TROCAR-EMPRESA] Buscando admin ID: {admin_id}")
+    
+    # Buscar admin (tabela Cliente primeiro)
     admin = db.query(Cliente).filter(Cliente.id == admin_id, Cliente.role == 'admin_master').first()
     if not admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Apenas admin master pode trocar de empresa"
-        )
+        # Se não encontrou, verificar UsuarioAdmin (admins antigos)
+        admin_old = db.query(UsuarioAdmin).filter(UsuarioAdmin.id == admin_id).first()
+        if admin_old and admin_old.is_master:
+            print(f"[TROCAR-EMPRESA] Admin master encontrado em UsuarioAdmin: {admin_old.email}")
+            # Criar objeto compatível
+            class AdminCompat:
+                def __init__(self, user):
+                    self.id = user.id
+                    self.email = user.email
+                    self.role = 'admin_master'
+                    self.ativo = True
+            admin = AdminCompat(admin_old)
+        else:
+            print(f"[TROCAR-EMPRESA] Admin master não encontrado para ID: {admin_id}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Apenas admin master pode trocar de empresa"
+            )
     
     # Buscar nova empresa
     empresa = db.query(Empresa).filter(Empresa.slug == empresa_slug, Empresa.ativa == True).first()
