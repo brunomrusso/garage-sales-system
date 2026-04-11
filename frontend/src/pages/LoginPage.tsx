@@ -78,6 +78,9 @@ export const LoginPage = () => {
     // Redirecionar
     if (user.role === 'cliente') {
       navigate('/cliente/garagem');
+    } else if (user.role === 'admin_master') {
+      // Admin master vai para seleção de empresa
+      navigate('/admin/selecionar-empresa');
     } else {
       navigate('/admin/dashboard');
     }
