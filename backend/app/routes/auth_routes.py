@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.schemas import LoginRequest, TokenResponse
 from app.controllers import auth_controller
-from app.core.security import get_current_user
+from app.core.security import verify_token
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -37,7 +37,7 @@ def login_cliente(
 def trocar_empresa_admin_master(
     empresa_slug: str = Query(..., description="Slug da nova empresa"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user: dict = Depends(verify_token)
 ):
     """Para admin master: troca de empresa e gera novo token JWT"""
-    return auth_controller.trocar_empresa_admin_master(db, current_user.id, empresa_slug)
+    return auth_controller.trocar_empresa_admin_master(db, current_user["id"], empresa_slug)
