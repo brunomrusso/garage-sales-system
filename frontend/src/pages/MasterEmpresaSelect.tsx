@@ -37,7 +37,8 @@ export const MasterEmpresaSelect = () => {
       console.log('[MASTER] Carregando empresas...');
       const response = await empresaService.listarPublicas();
       console.log('[MASTER] Empresas recebidas:', response.data);
-      const empresasAtivas = response.data.filter((e: Empresa) => e.ativa);
+      // API pública já retorna apenas empresas ativas, mas filtramos por segurança
+      const empresasAtivas = response.data.filter((e: Empresa) => e.ativa !== false);
       console.log('[MASTER] Empresas ativas:', empresasAtivas);
       setEmpresas(empresasAtivas);
       if (empresasAtivas.length === 0) {
