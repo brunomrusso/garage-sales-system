@@ -176,9 +176,9 @@ def trocar_empresa_admin_master(db: Session, admin_id: int, empresa_slug: str) -
     # Buscar admin (tabela Cliente primeiro)
     admin = db.query(Cliente).filter(Cliente.id == admin_id, Cliente.role == 'admin_master').first()
     if not admin:
-        # Se não encontrou, verificar UsuarioAdmin (admins antigos)
+        # Se não encontrou, verificar UsuarioAdmin (admins antigos - assumir que é master)
         admin_old = db.query(UsuarioAdmin).filter(UsuarioAdmin.id == admin_id).first()
-        if admin_old and admin_old.is_master:
+        if admin_old:
             print(f"[TROCAR-EMPRESA] Admin master encontrado em UsuarioAdmin: {admin_old.email}")
             # Criar objeto compatível
             class AdminCompat:
