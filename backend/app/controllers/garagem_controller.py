@@ -169,15 +169,20 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
 
 def listar_solicitacoes_cliente(db: Session, cliente_id: int, empresa_id: int = None) -> list:
     from app.core.tenant import TenantContext
+    from sqlalchemy import or_
     
     if empresa_id is None:
         empresa_id = TenantContext.get_tenant_id()
     
     print(f"[GARAGEM] Listando solicitações - cliente_id: {cliente_id}, empresa_id: {empresa_id}")
     
+    # Filtrar por cliente_id E (empresa_id correto OU empresa_id NULL para dados antigos)
     sols = db.query(SolicitacaoEnvio).filter(
         SolicitacaoEnvio.cliente_id == cliente_id,
-        SolicitacaoEnvio.empresa_id == empresa_id
+        or_(
+            SolicitacaoEnvio.empresa_id == empresa_id,
+            SolicitacaoEnvio.empresa_id == None  # Dados antigos sem empresa_id
+        )
     ).order_by(SolicitacaoEnvio.data_solicitacao.desc()).all()
     
     print(f"[GARAGEM] Solicitações encontradas: {len(sols)}")
