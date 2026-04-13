@@ -173,10 +173,17 @@ def listar_solicitacoes_cliente(db: Session, cliente_id: int, empresa_id: int = 
     if empresa_id is None:
         empresa_id = TenantContext.get_tenant_id()
     
+    print(f"[GARAGEM] Listando solicitações - cliente_id: {cliente_id}, empresa_id: {empresa_id}")
+    
     sols = db.query(SolicitacaoEnvio).filter(
         SolicitacaoEnvio.cliente_id == cliente_id,
         SolicitacaoEnvio.empresa_id == empresa_id
     ).order_by(SolicitacaoEnvio.data_solicitacao.desc()).all()
+    
+    print(f"[GARAGEM] Solicitações encontradas: {len(sols)}")
+    for sol in sols:
+        print(f"[GARAGEM] Solicitação ID: {sol.id}, empresa_id: {sol.empresa_id}, cliente_id: {sol.cliente_id}")
+    
     return [_solicitacao_to_response(s, db) for s in sols]
 
 
