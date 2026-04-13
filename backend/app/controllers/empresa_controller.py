@@ -150,38 +150,34 @@ def obter_modulos_empresa(db: Session, empresa_id: int) -> List[dict]:
     """Obtém módulos habilitados para uma empresa"""
     from app.models.models import EmpresaModulo, Modulo
     
-    print(f"[MODULOS] Buscando módulos para empresa_id: {empresa_id}")
-    
-    # Buscar todos os módulos desta empresa
-    empresa_modulos = db.query(EmpresaModulo).filter(
-        EmpresaModulo.empresa_id == empresa_id
-    ).all()
-    
-    print(f"[MODULOS] Total de registros EmpresaModulo: {len(empresa_modulos)}")
-    for em in empresa_modulos:
-        print(f"[MODULOS] modulo_id: {em.modulo_id}, habilitado: {em.habilitado} (type: {type(em.habilitado)})")
-    
-    # Filtrar apenas habilitados
-    modulos = db.query(Modulo).join(
-        EmpresaModulo,
-        EmpresaModulo.modulo_id == Modulo.id
-    ).filter(
-        EmpresaModulo.empresa_id == empresa_id,
-        EmpresaModulo.habilitado == True
-    ).all()
-    
-    print(f"[MODULOS] Módulos habilitados encontrados: {len(modulos)}")
-    for m in modulos:
-        print(f"[MODULOS] Módulo: {m.codigo} (id: {m.id})")
-    
-    return [
-        {
-            "id": m.id,
-            "codigo": m.codigo,
-            "nome": m.nome,
-            "descricao": m.descricao,
-            "icone": m.icone,
-            "habilitado": True
-        }
-        for m in modulos
-    ]
+    try:
+        print(f"[MODULOS] Buscando módulos para empresa_id: {empresa_id}")
+        
+        # Buscar registros EmpresaModulo habilitados
+        empresa_modulos = db.query(EmpresaModulo).filter(
+            EmpresaModulo.empresa_id == empresa_id,
+            EmpresaModulo.habilitado == True
+        ).all()
+        
+        print(f"[MODULOS] Total de EmpresaModulo habilitados: {len(empresa_modulos)}")
+        
+        # Buscar os módulos correspondentes
+        modulos_result = []
+        for em in empresa_modulos:
+            modulo = db.query(Modulo).filter(Modulo.id == em.modulo_id).first()
+            if modulo:
+                print(f"[MODULOS] Módulo encontrado: {modulo.codigo} (id: {modulo.id})")
+                modulos_result.append({
+                    "id": modulo.id,
+                    "codigo": modulo.codigo,
+                    "nome": modulo.nome,
+                    "descricao": modulo.descricao,
+                    "icone": modulo.icone,
+                    "habilitado": True
+                })
+        
+        print(f"[MODULOS] Total de módulos retornados: {len(modulos_result)}")
+        return modulos_result
+    except Exception as e:
+        print(f"[MODULOS] ERRO ao buscar módulos: {str(e)}")
+        raise

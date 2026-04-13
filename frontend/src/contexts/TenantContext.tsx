@@ -63,12 +63,14 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [empresaSlug]);
 
-  // Salvar slug no localStorage quando mudar
+  // Salvar slug no localStorage e recarregar tenant quando mudar
   useEffect(() => {
     if (empresaSlug) {
       localStorage.setItem('empresa_slug', empresaSlug);
       // Atualizar header do API
       api.defaults.headers.common['X-Empresa-Slug'] = empresaSlug;
+      // Recarregar dados da empresa quando slug mudar
+      carregarTenant(empresaSlug);
     }
   }, [empresaSlug]);
 
