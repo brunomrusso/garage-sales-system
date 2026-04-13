@@ -4,6 +4,7 @@ import { Building2, Crown, LogOut } from 'lucide-react';
 import { empresaService, authService } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useTenant } from '../contexts/TenantContext';
 
 interface Empresa {
   id: number;
@@ -20,6 +21,7 @@ export const MasterEmpresaSelect = () => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { carregarTenant, setEmpresaSlug: setTenantSlug } = useTenant();
 
   useEffect(() => {
     // Verificar se é admin master
@@ -68,12 +70,14 @@ export const MasterEmpresaSelect = () => {
       
       // Atualizar token no localStorage
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('empresa_slug', empresa.slug);
       localStorage.setItem('empresa_master_id', empresa.id.toString());
       
       // Atualizar header do axios imediatamente
-      api.defaults.headers.common['X-Empresa-Slug'] = empresa.slug;
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      
+      // Atualizar TenantContext com a nova empresa
+      setTenantSlug(empresa.slug);
+      await carregarTenant(empresa.slug);
       
       console.log('[MASTER] Token atualizado com nova empresa:', response.data.user.empresa_id);
       console.log('[MASTER] Redirecionando para dashboard');

@@ -8,7 +8,7 @@ import { PermissionsModal } from '../components/PermissionsModal';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
-  const { empresa } = useTenant();
+  const { empresa, isModuloHabilitado } = useTenant();
   const { 
     canCreateLote, canDeleteLote,
     canCreateCliente, canDeleteCliente,
@@ -474,6 +474,7 @@ export const AdminDashboard = () => {
               <ShoppingBag size={18} />
               Vendas
             </button>
+            {isModuloHabilitado('garagem') && (
             <button
               onClick={() => { if (canViewGaragem()) { setActiveTab('garagem'); loadSolicitacoes(); } }}
               disabled={!canViewGaragem()}
@@ -487,6 +488,7 @@ export const AdminDashboard = () => {
               <Warehouse size={18} />
               Garagem
             </button>
+            )}
             <button
               onClick={() => { setActiveTab('admins'); loadAdminsPendentes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${

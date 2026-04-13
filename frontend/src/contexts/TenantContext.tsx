@@ -36,26 +36,34 @@ const TenantContext = createContext<TenantContextData>({} as TenantContextData);
 export function TenantProvider({ children }: { children: ReactNode }) {
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
   const [modulos, setModulos] = useState<Modulo[]>([]);
-  const [empresaSlug, setEmpresaSlug] = useState<string | null>(null);
+  const [empresaSlug, setEmpresaSlugState] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Wrapper para setEmpresaSlug que também salva no localStorage e atualiza header
+  const setEmpresaSlug = (slug: string) => {
+    localStorage.setItem('empresa_slug', slug);
+    api.defaults.headers.common['X-Empresa-Slug'] = slug;
+    setEmpresaSlugState(slug);
+  };
 
   // Carregar slug do localStorage ao iniciar
   useEffect(() => {
     const slugSalvo = localStorage.getItem('empresa_slug');
     if (slugSalvo) {
-      setEmpresaSlug(slugSalvo);
+      api.defaults.headers.common['X-Empresa-Slug'] = slugSalvo;
+      setEmpresaSlugState(slugSalvo);
       carregarTenant(slugSalvo);
     }
   }, []);
 
-  // Monitorar mudanças no localStorage (quando admin master troca de empresa)
+  // Monitorar mudanças no localStorage de outras abas
   useEffect(() => {
-    const handleStorageChange = () => {
-      const novoSlug = localStorage.getItem('empresa_slug');
-      if (novoSlug && novoSlug !== empresaSlug) {
-        console.log('[TENANT] Slug mudou no localStorage:', novoSlug);
-        setEmpresaSlug(novoSlug);
-        carregarTenant(novoSlug);
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'empresa_slug' && e.newValue && e.newValue !== empresaSlug) {
+        console.log('[TENANT] Slug mudou em outra aba:', e.newValue);
+        setEmpresaSlugState(e.newValue);
+        api.defaults.headers.common['X-Empresa-Slug'] = e.newValue;
+        carregarTenant(e.newValue);
       }
     };
 
@@ -63,21 +71,10 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [empresaSlug]);
 
-  // Salvar slug no localStorage e recarregar tenant quando mudar
-  useEffect(() => {
-    if (empresaSlug) {
-      localStorage.setItem('empresa_slug', empresaSlug);
-      // Atualizar header do API
-      api.defaults.headers.common['X-Empresa-Slug'] = empresaSlug;
-      // Recarregar dados da empresa quando slug mudar
-      carregarTenant(empresaSlug);
-    }
-  }, [empresaSlug]);
-
   const carregarTenant = async (slug: string) => {
     try {
       setLoading(true);
-      setEmpresaSlug(slug);
+      console.log('[TENANT] Carregando tenant para slug:', slug);
       
       // Buscar dados reais da empresa da API pública
       let empresaId = 1;
@@ -94,7 +91,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
             slug: empresaEncontrada.slug,
             corPrimaria: empresaEncontrada.cor_primaria || '#3B82F6'
           });
-          console.log('[TENANT] Empresa carregada:', empresaEncontrada.nome);
+          console.log('[TENANT] Empresa carregada:', empresaEncontrada.nome, 'ID:', empresaEncontrada.id);
         } else {
           console.log('[TENANT] Empresa não encontrada na lista, usando defaults');
           setEmpresa({
@@ -116,10 +113,11 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       
       // Buscar módulos habilitados da API
       try {
+        console.log('[TENANT] Buscando módulos para empresa_id:', empresaId);
         const modulosResponse = await api.get(`/empresas/${empresaId}/modulos`);
-        const modulosHabilitados = modulosResponse.data;
-        console.log('[TENANT] Módulos carregados:', modulosHabilitados);
-        setModulos(modulosHabilitados);
+        const modulosData = modulosResponse.data;
+        console.log('[TENANT] Módulos carregados:', modulosData);
+        setModulos(modulosData);
       } catch (err) {
         console.error('[TENANT] Erro ao buscar módulos:', err);
         // Fallback: apenas core habilitado
