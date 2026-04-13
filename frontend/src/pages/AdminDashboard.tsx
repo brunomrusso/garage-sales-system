@@ -33,7 +33,7 @@ export const AdminDashboard = () => {
   const [vendasLote, setVendasLote] = useState<any[]>([]);
   const [showLoteForm, setShowLoteForm] = useState(false);
   const [showVendaForm, setShowVendaForm] = useState(false);
-  const [loteFormData, setLoteFormData] = useState({ descricao: '', foto: '', status_lote: '' });
+  const [loteFormData, setLoteFormData] = useState({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '' });
   const [vendaFormData, setVendaFormData] = useState({
     cliente_id: '', carrinhos_comprados: '', preco: '', pago: false,
     comprovante_pagamento: '', data_pagamento: '', observacoes: ''
@@ -163,7 +163,7 @@ export const AdminDashboard = () => {
     e.preventDefault();
     try {
       await loteService.criar(loteFormData);
-      setLoteFormData({ descricao: '', foto: '', status_lote: '' });
+      setLoteFormData({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '' });
       setShowLoteForm(false);
       loadLotes();
     } catch (error) {
@@ -743,8 +743,19 @@ export const AdminDashboard = () => {
               {showLoteForm && (
                 <form onSubmit={handleCreateLote} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
                   <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Lote</h3>
-                  <p className="text-sm text-gray-400 mb-4">O número do lote será gerado automaticamente (#001, #002, etc.)</p>
                   <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Número do Lote (opcional)</label>
+                      <input type="text" placeholder="#001, #002, etc." value={loteFormData.numero_lote}
+                        onChange={(e) => setLoteFormData({ ...loteFormData, numero_lote: e.target.value })}
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Nome do Lote</label>
+                      <input type="text" placeholder="Nome do lote" value={loteFormData.nome}
+                        onChange={(e) => setLoteFormData({ ...loteFormData, nome: e.target.value })}
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                    </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Status do Lote (opcional)</label>
                       <select value={loteFormData.status_lote}
