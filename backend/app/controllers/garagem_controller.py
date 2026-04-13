@@ -167,9 +167,15 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
         return response
 
 
-def listar_solicitacoes_cliente(db: Session, cliente_id: int) -> list:
+def listar_solicitacoes_cliente(db: Session, cliente_id: int, empresa_id: int = None) -> list:
+    from app.core.tenant import TenantContext
+    
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
     sols = db.query(SolicitacaoEnvio).filter(
-        SolicitacaoEnvio.cliente_id == cliente_id
+        SolicitacaoEnvio.cliente_id == cliente_id,
+        SolicitacaoEnvio.empresa_id == empresa_id
     ).order_by(SolicitacaoEnvio.data_solicitacao.desc()).all()
     return [_solicitacao_to_response(s, db) for s in sols]
 

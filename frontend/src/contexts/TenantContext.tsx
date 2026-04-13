@@ -48,6 +48,21 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Monitorar mudanças no localStorage (quando admin master troca de empresa)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const novoSlug = localStorage.getItem('empresa_slug');
+      if (novoSlug && novoSlug !== empresaSlug) {
+        console.log('[TENANT] Slug mudou no localStorage:', novoSlug);
+        setEmpresaSlug(novoSlug);
+        carregarTenant(novoSlug);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [empresaSlug]);
+
   // Salvar slug no localStorage quando mudar
   useEffect(() => {
     if (empresaSlug) {
