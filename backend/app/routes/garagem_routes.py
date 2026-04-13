@@ -47,7 +47,9 @@ def criar_solicitacao(data: SolicitacaoEnvioCreate, db: Session = Depends(get_db
 
 @router.get("/solicitacoes/cliente/{cliente_id}/")
 def listar_solicitacoes_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
-    return garagem_controller.listar_solicitacoes_cliente(db, cliente_id)
+    from app.core.tenant import TenantContext
+    empresa_id = TenantContext.get_tenant_id()
+    return garagem_controller.listar_solicitacoes_cliente(db, cliente_id, empresa_id)
 
 
 @router.get("/solicitacoes/")
