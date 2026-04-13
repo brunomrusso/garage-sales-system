@@ -150,6 +150,18 @@ def obter_modulos_empresa(db: Session, empresa_id: int) -> List[dict]:
     """Obtém módulos habilitados para uma empresa"""
     from app.models.models import EmpresaModulo, Modulo
     
+    print(f"[MODULOS] Buscando módulos para empresa_id: {empresa_id}")
+    
+    # Buscar todos os módulos desta empresa
+    empresa_modulos = db.query(EmpresaModulo).filter(
+        EmpresaModulo.empresa_id == empresa_id
+    ).all()
+    
+    print(f"[MODULOS] Total de registros EmpresaModulo: {len(empresa_modulos)}")
+    for em in empresa_modulos:
+        print(f"[MODULOS] modulo_id: {em.modulo_id}, habilitado: {em.habilitado} (type: {type(em.habilitado)})")
+    
+    # Filtrar apenas habilitados
     modulos = db.query(Modulo).join(
         EmpresaModulo,
         EmpresaModulo.modulo_id == Modulo.id
@@ -157,6 +169,10 @@ def obter_modulos_empresa(db: Session, empresa_id: int) -> List[dict]:
         EmpresaModulo.empresa_id == empresa_id,
         EmpresaModulo.habilitado == True
     ).all()
+    
+    print(f"[MODULOS] Módulos habilitados encontrados: {len(modulos)}")
+    for m in modulos:
+        print(f"[MODULOS] Módulo: {m.codigo} (id: {m.id})")
     
     return [
         {

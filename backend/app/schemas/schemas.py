@@ -106,6 +106,8 @@ class SolicitacaoResponse(BaseModel):
 
 
 class LoteCreate(BaseModel):
+    numero_lote: Optional[str] = None
+    nome: Optional[str] = None
     descricao: Optional[str] = None
     foto: Optional[str] = None
     status_lote: Optional[str] = None
