@@ -192,8 +192,22 @@ def listar_solicitacoes_cliente(db: Session, cliente_id: int, empresa_id: int = 
     return [_solicitacao_to_response(s, db) for s in sols]
 
 
-def listar_todas_solicitacoes(db: Session) -> list:
-    sols = db.query(SolicitacaoEnvio).order_by(SolicitacaoEnvio.data_solicitacao.desc()).all()
+def listar_todas_solicitacoes(db: Session, empresa_id: int = None) -> list:
+    from app.core.tenant import TenantContext
+    
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    print(f"[GARAGEM] Listando TODAS solicitações - empresa_id: {empresa_id}")
+    
+    sols = db.query(SolicitacaoEnvio).filter(
+        SolicitacaoEnvio.empresa_id == empresa_id
+    ).order_by(SolicitacaoEnvio.data_solicitacao.desc()).all()
+    
+    print(f"[GARAGEM] Total de solicitações encontradas: {len(sols)}")
+    for sol in sols:
+        print(f"[GARAGEM] Solicitação ID: {sol.id}, empresa_id: {sol.empresa_id}, cliente_id: {sol.cliente_id}")
+    
     return [_solicitacao_to_response(s, db) for s in sols]
 
 

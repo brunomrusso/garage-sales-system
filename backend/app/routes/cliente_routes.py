@@ -33,12 +33,16 @@ def criar_cliente(
 
 @router.get("/", response_model=list[ClienteResponse])
 def listar_clientes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return cliente_controller.listar_clientes(db)
+    from app.core.tenant import TenantContext
+    empresa_id = TenantContext.get_tenant_id()
+    return cliente_controller.listar_clientes(db, empresa_id)
 
 
 @router.get("/admins-pendentes", response_model=list[ClienteResponse])
 def listar_admins_pendentes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return cliente_controller.listar_admins_pendentes(db)
+    from app.core.tenant import TenantContext
+    empresa_id = TenantContext.get_tenant_id()
+    return cliente_controller.listar_admins_pendentes(db, empresa_id)
 
 
 @router.get("/{cliente_id}", response_model=ClienteResponse)

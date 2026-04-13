@@ -18,12 +18,16 @@ def criar_lote(lote_data: LoteCreate, db: Session = Depends(get_db), current_use
 
 @router.get("/")
 def listar_lotes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.listar_lotes(db)
+    from app.core.tenant import TenantContext
+    empresa_id = TenantContext.get_tenant_id()
+    return lote_controller.listar_lotes(db, empresa_id)
 
 
 @router.get("/arquivados/")
 def listar_lotes_arquivados(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.listar_lotes_arquivados(db)
+    from app.core.tenant import TenantContext
+    empresa_id = TenantContext.get_tenant_id()
+    return lote_controller.listar_lotes_arquivados(db, empresa_id)
 
 
 @router.get("/{lote_id}/")

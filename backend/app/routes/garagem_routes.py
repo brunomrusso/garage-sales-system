@@ -54,6 +54,8 @@ def listar_solicitacoes_cliente(cliente_id: int, db: Session = Depends(get_db), 
 
 @router.get("/solicitacoes/")
 def listar_todas_solicitacoes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    from app.core.tenant import TenantContext
+    
     # Verificar permissão garagem_view
     admin_id = current_user.get("user_id")
     if not permission_controller.check_permission(db, admin_id, "garagem_view"):
@@ -61,7 +63,8 @@ def listar_todas_solicitacoes(db: Session = Depends(get_db), current_user: dict 
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Você não tem permissão para visualizar solicitações"
         )
-    return garagem_controller.listar_todas_solicitacoes(db)
+    empresa_id = TenantContext.get_tenant_id()
+    return garagem_controller.listar_todas_solicitacoes(db, empresa_id)
 
 
 class SolicitacaoUpdate(BaseModel):
