@@ -78,12 +78,14 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       setEmpresaSlug(slug);
       
       // Buscar dados reais da empresa da API pública
+      let empresaId = 1;
       try {
         const response = await api.get(`/empresas/publicas/listar`);
         const empresas = response.data;
         const empresaEncontrada = empresas.find((e: any) => e.slug === slug);
         
         if (empresaEncontrada) {
+          empresaId = empresaEncontrada.id;
           setEmpresa({
             id: empresaEncontrada.id,
             nome: empresaEncontrada.nome,
@@ -110,12 +112,19 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         });
       }
       
-      // Por enquanto, mock dos módulos:
-      setModulos([
-        { id: 1, codigo: 'core', nome: 'Core', descricao: 'Funcionalidades básicas', icone: 'LayoutDashboard', habilitado: true },
-        { id: 2, codigo: 'garagem', nome: 'Garagem', descricao: 'Gestão de garagem', icone: 'Warehouse', habilitado: true },
-        { id: 3, codigo: 'relatorios', nome: 'Relatórios', descricao: 'Relatórios avançados', icone: 'BarChart3', habilitado: false },
-      ]);
+      // Buscar módulos habilitados da API
+      try {
+        const modulosResponse = await api.get(`/empresas/${empresaId}/modulos`);
+        const modulosHabilitados = modulosResponse.data;
+        console.log('[TENANT] Módulos carregados:', modulosHabilitados);
+        setModulos(modulosHabilitados);
+      } catch (err) {
+        console.error('[TENANT] Erro ao buscar módulos:', err);
+        // Fallback: apenas core habilitado
+        setModulos([
+          { id: 1, codigo: 'core', nome: 'Core', descricao: 'Funcionalidades básicas', icone: 'LayoutDashboard', habilitado: true }
+        ]);
+      }
     } catch (error) {
       console.error('Erro ao carregar tenant:', error);
     } finally {

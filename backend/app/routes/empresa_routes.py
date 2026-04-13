@@ -59,6 +59,17 @@ def buscar_empresas_usuario(
     }
 
 
+@router.get("/{empresa_id}/modulos")
+def obter_modulos_empresa(
+    empresa_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_token)
+):
+    """Obtém módulos habilitados para uma empresa"""
+    from app.controllers import empresa_controller
+    return empresa_controller.obter_modulos_empresa(db, empresa_id)
+
+
 @router.get("/{empresa_id}")
 def obter_empresa(
     empresa_id: int,

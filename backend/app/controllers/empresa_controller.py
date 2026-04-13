@@ -144,3 +144,28 @@ def deletar_empresa(db: Session, empresa_id: int) -> dict:
     db.commit()
     
     return {"message": "Empresa desativada com sucesso"}
+
+
+def obter_modulos_empresa(db: Session, empresa_id: int) -> List[dict]:
+    """Obtém módulos habilitados para uma empresa"""
+    from app.models.models import EmpresaModulo, Modulo
+    
+    modulos = db.query(Modulo).join(
+        EmpresaModulo,
+        EmpresaModulo.modulo_id == Modulo.id
+    ).filter(
+        EmpresaModulo.empresa_id == empresa_id,
+        EmpresaModulo.habilitado == True
+    ).all()
+    
+    return [
+        {
+            "id": m.id,
+            "codigo": m.codigo,
+            "nome": m.nome,
+            "descricao": m.descricao,
+            "icone": m.icone,
+            "habilitado": True
+        }
+        for m in modulos
+    ]
