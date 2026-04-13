@@ -4,6 +4,23 @@ from datetime import datetime
 from decimal import Decimal
 
 
+class EmpresaCreate(BaseModel):
+    nome: str
+    slug: str
+    cor_primaria: Optional[str] = '#3B82F6'
+
+
+class EmpresaResponse(BaseModel):
+    id: int
+    nome: str
+    slug: str
+    ativa: bool
+    cor_primaria: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     senha: str
