@@ -78,8 +78,8 @@ export const RegistroPage = () => {
       </div>
 
       <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-700 relative z-10">
-        <div className="flex items-center justify-center mb-4">
-          <Garage95Logo size="xl" />
+        <div className="flex items-center justify-center mb-8">
+          <Garage95Logo size="xl" showText={false} />
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-6">Criar Conta</h2>

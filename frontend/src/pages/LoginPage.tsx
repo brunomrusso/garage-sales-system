@@ -120,8 +120,8 @@ export const LoginPage = () => {
       </div>
 
       <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-700 relative z-10">
-        <div className="flex items-center justify-center mb-2">
-          <Garage95Logo size="xl" />
+        <div className="flex items-center justify-center mb-8">
+          <Garage95Logo size="xl" showText={false} />
         </div>
         <div className="text-center mb-8">
           <p className="text-gray-500 text-sm mt-1">Ka-chow! Bem-vindo de volta.</p>
