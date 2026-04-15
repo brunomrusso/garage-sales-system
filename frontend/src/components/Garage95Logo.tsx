@@ -79,15 +79,15 @@ const LogoV2 = ({ w }: { w: number }) => (
     {/* Farol */}
     <circle cx="43" cy="41" r="1" fill="#FCD34D" opacity="0.9" />
 
-    {/* 95 bold no teto da garagem */}
+    {/* 95 na lateral/porta do carro */}
     <text
-      x="32" y="28"
+      x="32" y="43"
       textAnchor="middle"
       fontFamily="Arial Black, Arial, sans-serif"
-      fontSize="14" fontWeight="900"
+      fontSize="8" fontWeight="900"
       fill="#FCD34D"
-      stroke="#000"
-      strokeWidth="0.5"
+      stroke="#B45309"
+      strokeWidth="0.3"
     >95</text>
 
     <defs>
