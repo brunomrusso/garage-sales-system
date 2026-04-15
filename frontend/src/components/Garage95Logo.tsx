@@ -5,10 +5,10 @@ interface Garage95LogoProps {
 }
 
 const sizeMap = {
-  sm: { icon: 32, text: 'text-sm' },
-  md: { icon: 40, text: 'text-lg' },
-  lg: { icon: 56, text: 'text-2xl' },
-  xl: { icon: 72, text: 'text-4xl' },
+  sm: { h: 36, text: 'text-sm' },
+  md: { h: 48, text: 'text-lg' },
+  lg: { h: 64, text: 'text-2xl' },
+  xl: { h: 90, text: 'text-4xl' },
 };
 
 export const Garage95Logo = ({ size = 'md', showText = true, className = '' }: Garage95LogoProps) => {
@@ -19,9 +19,8 @@ export const Garage95Logo = ({ size = 'md', showText = true, className = '' }: G
       <img
         src="/logo-garage95.png"
         alt="Garage95"
-        width={s.icon}
-        height={s.icon}
-        style={{ objectFit: 'contain' }}
+        height={s.h}
+        style={{ height: s.h, width: 'auto', objectFit: 'contain' }}
       />
       {showText && (
         <span className={`font-extrabold tracking-wider uppercase ${s.text}`}
