@@ -96,7 +96,7 @@ export const RegistroPage = () => {
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
               placeholder="Seu nome"
               required
             />
@@ -108,7 +108,7 @@ export const RegistroPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
               placeholder="seu@email.com"
               required
             />
@@ -120,7 +120,7 @@ export const RegistroPage = () => {
               type="tel"
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
               placeholder="(11) 99999-9999"
             />
           </div>
@@ -131,7 +131,7 @@ export const RegistroPage = () => {
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
               placeholder="••••••••"
               required
             />
@@ -143,7 +143,7 @@ export const RegistroPage = () => {
               type="password"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
               placeholder="••••••••"
               required
             />
@@ -155,14 +155,14 @@ export const RegistroPage = () => {
               Empresa
             </label>
             {loadingEmpresas ? (
-              <div className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-400">
+              <div className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-stone-400">
                 Carregando empresas...
               </div>
             ) : empresas.length > 0 ? (
               <select
                 value={empresaSlug}
                 onChange={(e) => setEmpresaSlug(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white"
+                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white"
                 required
               >
                 <option value="" disabled>Selecione uma empresa</option>
@@ -177,7 +177,7 @@ export const RegistroPage = () => {
                 type="text"
                 value={empresaSlug}
                 onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
                 placeholder="principal"
                 required
               />
