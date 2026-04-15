@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { empresaService, authService } from '../services/api';
 import { Building2 } from 'lucide-react';
+import { Garage95Logo } from '../components/Garage95Logo';
 
 interface Empresa {
   id: number;
@@ -120,10 +121,9 @@ export const LoginPage = () => {
 
       <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-700 relative z-10">
         <div className="flex items-center justify-center mb-2">
-          <span className="text-5xl mr-3">🏎️</span>
+          <Garage95Logo size="xl" />
         </div>
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-white uppercase tracking-wider">GarageSales</h1>
           <p className="text-gray-500 text-sm mt-1">Ka-chow! Bem-vindo de volta.</p>
         </div>
 

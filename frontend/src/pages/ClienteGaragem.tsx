@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useTenant } from '../contexts/TenantContext';
 import { loteService, garagemService } from '../services/api';
 import { LogOut, ShoppingBag, Check, X, Eye, Image as ImageIcon, RefreshCw, Warehouse, Send, Package } from 'lucide-react';
+import { Garage95Logo } from '../components/Garage95Logo';
 
 export const ClienteGaragem = () => {
   const { user, logout } = useAuth();
@@ -121,7 +122,7 @@ export const ClienteGaragem = () => {
     <div className="min-h-screen bg-gray-900">
       <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
-          <span className="text-2xl md:text-3xl">🏎️</span>
+          <Garage95Logo size="sm" showText={false} />
           <div className="flex flex-col">
             {empresa && (
               <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">
@@ -129,7 +130,7 @@ export const ClienteGaragem = () => {
               </span>
             )}
             <span className="text-xs md:text-sm font-medium text-white/70 leading-tight">
-              GarageSales
+              Garage95
             </span>
           </div>
         </div>

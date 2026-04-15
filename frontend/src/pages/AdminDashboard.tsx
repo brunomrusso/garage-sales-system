@@ -5,6 +5,7 @@ import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
 import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
+import { Garage95Logo } from '../components/Garage95Logo';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -427,7 +428,7 @@ export const AdminDashboard = () => {
     <div className="min-h-screen bg-gray-900">
       <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
-          <span className="text-2xl md:text-3xl">🏎️</span>
+          <Garage95Logo size="sm" showText={false} />
           <div className="flex flex-col">
             {empresa && (
               <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">
@@ -435,7 +436,7 @@ export const AdminDashboard = () => {
               </span>
             )}
             <span className="text-xs md:text-sm font-medium text-white/70 leading-tight">
-              GarageSales
+              Garage95
             </span>
           </div>
           <span className="text-xs bg-black/30 px-2 py-1 rounded font-mono hidden sm:inline">ADMIN</span>
