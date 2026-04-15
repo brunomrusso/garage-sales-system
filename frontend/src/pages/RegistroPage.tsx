@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clienteService, empresaService } from '../services/api';
 import { Building2 } from 'lucide-react';
-import { Garage95Logo } from '../components/Garage95Logo';
 
 interface Empresa {
   id: number;
@@ -78,8 +77,8 @@ export const RegistroPage = () => {
       </div>
 
       <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-700 relative z-10">
-        <div className="flex items-center justify-center mb-8">
-          <Garage95Logo size="xl" showText={false} />
+        <div className="flex items-center justify-center mb-4">
+          <img src="/logo-garage95.svg" alt="Garage95" style={{ height: 120, width: 'auto' }} />
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-6">Criar Conta</h2>
