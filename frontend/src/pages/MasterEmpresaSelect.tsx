@@ -94,14 +94,14 @@ export const MasterEmpresaSelect = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-red-950 flex items-center justify-center">
         <div className="text-white">Carregando empresas...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-red-950 flex flex-col items-center justify-center p-4">
       <div className="absolute top-4 right-4">
         <button
           onClick={logout}
@@ -112,7 +112,7 @@ export const MasterEmpresaSelect = () => {
         </button>
       </div>
 
-      <div className="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-slate-700">
+      <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-amber-700">
         <div className="flex flex-col items-center gap-3 mb-2">
           <Garage95Logo size="lg" showText={false} />
           <div className="flex items-center gap-2">

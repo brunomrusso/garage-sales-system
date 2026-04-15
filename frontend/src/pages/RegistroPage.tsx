@@ -70,13 +70,13 @@ export const RegistroPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-red-950 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
         <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
       </div>
 
-      <div className="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-700 relative z-10">
+      <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-amber-700 relative z-10">
         <div className="flex items-center justify-center mb-6">
           <img src="/logo-garage95.png" alt="Garage95" style={{ height: 180, width: 'auto' }} />
         </div>
