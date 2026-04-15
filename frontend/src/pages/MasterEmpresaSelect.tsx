@@ -112,7 +112,7 @@ export const MasterEmpresaSelect = () => {
         </button>
       </div>
 
-      <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-amber-700">
+      <div className="bg-stone-900 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-amber-700">
         <div className="flex flex-col items-center gap-3 mb-2">
           <Garage95Logo size="lg" showText={false} />
           <div className="flex items-center gap-2">
