@@ -15,12 +15,12 @@ export const Garage95Logo = ({ size = 'md', showText = true, className = '' }: G
   const s = sizeMap[size];
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-0 ${className}`}>
       <img
         src="/logo-garage95.svg"
         alt="Garage95"
         height={s.h}
-        style={{ height: s.h, width: 'auto', objectFit: 'contain' }}
+        style={{ height: s.h, width: 'auto', objectFit: 'contain', marginRight: -s.h * 0.3 }}
       />
       {showText && (
         <span className={`font-extrabold tracking-wider uppercase ${s.text}`}
