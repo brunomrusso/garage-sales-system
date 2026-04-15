@@ -109,7 +109,7 @@ export const ClienteGaragem = () => {
   const comprasEntregues = vendas.filter(venda => venda.status_entrega === 'entregue');
 
   const statusLabels: Record<string, { label: string; color: string }> = {
-    aguardando_pagamento: { label: 'Aguardando Pagamento', color: 'bg-gray-700 text-gray-300' },
+    aguardando_pagamento: { label: 'Aguardando Pagamento', color: 'bg-stone-700 text-stone-300' },
     pago: { label: 'Pago', color: 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30' },
     chegou_eua: { label: 'Chegou nos EUA', color: 'bg-blue-600/20 text-blue-400 border border-blue-600/30' },
     importado_brasil: { label: 'Importado p/ Brasil', color: 'bg-indigo-600/20 text-indigo-400 border border-indigo-600/30' },
@@ -153,20 +153,20 @@ export const ClienteGaragem = () => {
 
       <div className="max-w-6xl mx-auto p-4 md:p-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
-            <p className="text-xs md:text-sm text-gray-400 mb-1">Total de Compras</p>
+          <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-stone-700">
+            <p className="text-xs md:text-sm text-stone-400 mb-1">Total de Compras</p>
             <p className="text-2xl md:text-3xl font-extrabold text-white">{vendas.length}</p>
           </div>
-          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
-            <p className="text-xs md:text-sm text-gray-400 mb-1">Total Pago</p>
+          <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-stone-700">
+            <p className="text-xs md:text-sm text-stone-400 mb-1">Total Pago</p>
             <p className="text-xl md:text-3xl font-extrabold text-green-400">R$ {totalPago.toFixed(2)}</p>
           </div>
-          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
-            <p className="text-xs md:text-sm text-gray-400 mb-1">Pendente</p>
+          <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-stone-700">
+            <p className="text-xs md:text-sm text-stone-400 mb-1">Pendente</p>
             <p className="text-xl md:text-3xl font-extrabold text-red-400">R$ {totalPendente.toFixed(2)}</p>
           </div>
-          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-gray-700">
-            <p className="text-xs md:text-sm text-gray-400 mb-1">Na Garagem</p>
+          <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-stone-700">
+            <p className="text-xs md:text-sm text-stone-400 mb-1">Na Garagem</p>
             <p className="text-2xl md:text-3xl font-extrabold text-orange-400">{itensRecebidos.length}</p>
           </div>
         </div>
@@ -174,24 +174,24 @@ export const ClienteGaragem = () => {
         <div className="flex gap-2 md:gap-4 mb-6">
           <button onClick={() => setActiveTab('compras')}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide text-sm md:text-base ${
-              activeTab === 'compras' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white border border-gray-700'
+              activeTab === 'compras' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white border border-stone-700'
             }`}>
             <ShoppingBag size={18} /> Compras
           </button>
           <button onClick={() => { setActiveTab('garagem'); loadFotos(); loadSolicitacoes(); loadFotosNaoSolicitadas(); }}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide text-sm md:text-base ${
-              activeTab === 'garagem' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white border border-gray-700'
+              activeTab === 'garagem' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white border border-stone-700'
             }`}>
             <Warehouse size={18} /> Garagem
           </button>
         </div>
 
         {activeTab === 'compras' && (
-          <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 border border-gray-700">
+          <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 border border-stone-700">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
               <h2 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">Minhas Compras</h2>
               <button onClick={loadVendas} disabled={loading}
-                className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition">
+                className="flex items-center gap-2 bg-stone-700 text-stone-200 px-4 py-2 rounded hover:bg-stone-600 disabled:opacity-50 transition">
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                 Atualizar
               </button>
@@ -265,7 +265,7 @@ export const ClienteGaragem = () => {
                 {(comprasTab === 'andamento' ? comprasEmAndamento : comprasEntregues).length > 0 && (
                   <div className="space-y-4">
                     {(comprasTab === 'andamento' ? comprasEmAndamento : comprasEntregues).map((venda) => (
-                  <div key={venda.id} className="border border-gray-700 rounded-lg overflow-hidden hover:shadow-xl hover:border-gray-600 transition bg-gray-900/50">
+                  <div key={venda.id} className="border border-stone-700 rounded-lg overflow-hidden hover:shadow-xl hover:border-stone-600 transition bg-stone-900/50">
                     <div className="flex flex-col sm:flex-row">
                       {venda.lote_foto && (
                         <div className="w-full sm:w-48 flex-shrink-0">
@@ -330,7 +330,7 @@ export const ClienteGaragem = () => {
 
         {activeTab === 'garagem' && (
           <div>
-            <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 mb-6 border border-gray-700">
+            <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 mb-6 border border-stone-700">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                 <h2 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">Minha Garagem</h2>
                 <div className="flex items-center gap-3 flex-wrap">
@@ -344,7 +344,7 @@ export const ClienteGaragem = () => {
                     disabled={!podeEnviar}
                     className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition ${
                       !podeEnviar
-                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                        ? 'bg-stone-700 text-stone-500 cursor-not-allowed'
                         : 'bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-600/30'
                     }`}>
                     <Send size={18} /> Solicitar Envio
@@ -405,7 +405,7 @@ export const ClienteGaragem = () => {
             </div>
 
             {fotosGaragem.length > 0 && (
-              <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-6 border border-gray-700">
+              <div className="bg-stone-800 rounded-lg shadow-lg p-6 mb-6 border border-stone-700">
                 <h3 className="text-xl font-bold mb-4 text-white">Fotos da Garagem</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {fotosGaragem.map((foto) => (
@@ -423,8 +423,8 @@ export const ClienteGaragem = () => {
                       <img src={`data:image/jpeg;base64,${foto.foto}`} alt={foto.descricao || 'Foto garagem'}
                         className="w-full h-40 object-cover" />
                       {foto.descricao && (
-                        <div className="p-2 bg-gray-900/50">
-                          <p className="text-sm text-gray-300">{foto.descricao}</p>
+                        <div className="p-2 bg-stone-900/50">
+                          <p className="text-sm text-stone-300">{foto.descricao}</p>
                         </div>
                       )}
                     </div>
@@ -434,14 +434,14 @@ export const ClienteGaragem = () => {
             )}
 
             {solicitacoes.length > 0 && (
-              <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+              <div className="bg-stone-800 rounded-lg shadow-lg p-6 border border-stone-700">
                 <h3 className="text-xl font-bold mb-4 text-white">Minhas Solicitações de Envio</h3>
                 <div className="space-y-4">
                   {solicitacoes.map((sol) => (
-                    <div key={sol.id} className="border border-gray-700 rounded-lg p-4 bg-gray-900/50">
+                    <div key={sol.id} className="border border-stone-700 rounded-lg p-4 bg-stone-900/50">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm text-gray-400">
-                          Solicitado em: <strong className="text-gray-300">{new Date(sol.data_solicitacao).toLocaleString('pt-BR')}</strong>
+                        <span className="text-sm text-stone-400">
+                          Solicitado em: <strong className="text-stone-300">{new Date(sol.data_solicitacao).toLocaleString('pt-BR')}</strong>
                         </span>
                         <span className={`px-3 py-1 rounded text-xs font-semibold ${
                           sol.status === 'pendente' ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30' :

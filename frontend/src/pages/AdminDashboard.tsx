@@ -454,13 +454,13 @@ export const AdminDashboard = () => {
       </nav>
 
       <div className="flex flex-col md:flex-row">
-        <div className="md:w-52 bg-gray-800 shadow-lg md:min-h-screen border-b md:border-b-0 md:border-r border-gray-700">
+        <div className="md:w-52 bg-stone-800 shadow-lg md:min-h-screen border-b md:border-b-0 md:border-r border-stone-700">
           <div className="p-2 md:p-4 flex md:flex-col md:space-y-2 gap-1 md:gap-0 overflow-x-auto">
             <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-0 md:mb-3 px-3 hidden md:block">Navegação</p>
             <button
               onClick={() => setActiveTab('clientes')}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'clientes' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                activeTab === 'clientes' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
               }`}
             >
               <Users size={18} />
@@ -469,7 +469,7 @@ export const AdminDashboard = () => {
             <button
               onClick={() => { setActiveTab('vendas'); loadLotes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'vendas' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                activeTab === 'vendas' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
               }`}
             >
               <ShoppingBag size={18} />
@@ -482,8 +482,8 @@ export const AdminDashboard = () => {
               title={!canViewGaragem() ? 'Você não tem permissão para acessar garagem' : ''}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
                 !canViewGaragem() 
-                  ? 'text-gray-600 cursor-not-allowed opacity-50' 
-                  : activeTab === 'garagem' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  ? 'text-stone-600 cursor-not-allowed opacity-50' 
+                  : activeTab === 'garagem' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
               }`}
             >
               <Warehouse size={18} />
@@ -493,7 +493,7 @@ export const AdminDashboard = () => {
             <button
               onClick={() => { setActiveTab('admins'); loadAdminsPendentes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'admins' ? 'bg-red-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                activeTab === 'admins' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
               }`}
             >
               <Shield size={18} />
