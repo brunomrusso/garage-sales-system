@@ -42,15 +42,15 @@ const LogoV1 = ({ w }: { w: number }) => (
 const LogoV2 = ({ w }: { w: number }) => (
   <svg width={w} height={w} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="32" cy="32" r="30" fill="url(#g95v2)" stroke="#fff" strokeWidth="2" />
-    {/* Raio atrás do número, mais sutil */}
+    {/* Raio atrás do número */}
     <path
-      d="M38 6 L28 28 L35 28 L26 58"
+      d="M40 4 L27 30 L36 30 L24 60"
       fill="none"
       stroke="#FCD34D"
-      strokeWidth="4"
+      strokeWidth="5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      opacity="0.5"
+      opacity="0.85"
     />
     {/* 95 grande e centralizado */}
     <text
