@@ -132,7 +132,7 @@ export const LoginPage = () => {
             className={`flex-1 py-2 px-4 rounded-lg font-bold uppercase tracking-wide transition ${
               userType === 'cliente'
                 ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'
+                : 'bg-stone-700 text-stone-400 hover:bg-stone-600 hover:text-white'
             }`}
           >
             Cliente
@@ -142,7 +142,7 @@ export const LoginPage = () => {
             className={`flex-1 py-2 px-4 rounded-lg font-bold uppercase tracking-wide transition ${
               userType === 'admin'
                 ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'
+                : 'bg-stone-700 text-stone-400 hover:bg-stone-600 hover:text-white'
             }`}
           >
             Admin
@@ -156,7 +156,7 @@ export const LoginPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
               placeholder="seu@email.com"
               required
             />
@@ -168,7 +168,7 @@ export const LoginPage = () => {
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
               placeholder="••••••••"
               required
             />
@@ -217,7 +217,7 @@ export const LoginPage = () => {
       {/* Modal de Seleção de Empresa */}
       {showEmpresaModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-700">
+          <div className="bg-stone-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-stone-700">
             <div className="flex items-center gap-3 mb-4">
               <Building2 className="text-red-500 w-8 h-8" />
               <h2 className="text-xl font-bold text-white">Selecione a Empresa</h2>
@@ -234,7 +234,7 @@ export const LoginPage = () => {
                   className={`w-full p-4 rounded-lg border-2 text-left transition ${
                     empresaSelecionada === empresa.slug
                       ? 'border-red-500 bg-red-500/10 text-white'
-                      : 'border-gray-600 bg-gray-700 text-gray-300 hover:border-gray-500'
+                      : 'border-stone-600 bg-stone-700 text-stone-300 hover:border-stone-500'
                   }`}
                 >
                   <div className="font-semibold">{empresa.nome}</div>
@@ -252,7 +252,7 @@ export const LoginPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowEmpresaModal(false)}
-                className="flex-1 py-3 px-4 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition"
+                className="flex-1 py-3 px-4 bg-stone-700 text-white rounded-lg font-semibold hover:bg-stone-600 transition"
               >
                 Cancelar
               </button>
