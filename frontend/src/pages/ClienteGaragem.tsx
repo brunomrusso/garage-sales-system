@@ -122,7 +122,7 @@ export const ClienteGaragem = () => {
     <div className="min-h-screen bg-gray-900">
       <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
-          <Garage95Logo size="sm" showText={false} />
+          <Garage95Logo size="md" showText={false} />
           <div className="flex flex-col">
             {empresa && (
               <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">

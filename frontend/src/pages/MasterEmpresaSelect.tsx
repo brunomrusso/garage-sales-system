@@ -114,7 +114,7 @@ export const MasterEmpresaSelect = () => {
 
       <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-gray-700">
         <div className="flex flex-col items-center gap-3 mb-2">
-          <Garage95Logo size="lg" />
+          <Garage95Logo size="lg" showText={false} />
           <div className="flex items-center gap-2">
             <Crown className="text-yellow-500 w-6 h-6" />
             <h1 className="text-xl font-bold text-white">Admin Master</h1>
