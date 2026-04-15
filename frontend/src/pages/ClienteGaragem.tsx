@@ -198,7 +198,7 @@ export const ClienteGaragem = () => {
             </div>
 
             {/* Tabs internas para separar compras */}
-            <div className="flex gap-2 mb-6 border-b border-gray-700">
+            <div className="flex gap-2 mb-6 border-b border-stone-700">
               <button
                 onClick={() => setComprasTab('andamento')}
                 className={`flex items-center gap-2 px-4 py-2 font-semibold transition border-b-2 -mb-px ${
@@ -411,8 +411,8 @@ export const ClienteGaragem = () => {
                   {fotosGaragem.map((foto) => (
                     <div key={foto.id} className={`rounded-lg border overflow-hidden cursor-pointer hover:shadow-xl transition relative ${
                       foto.solicitado 
-                        ? 'border-gray-600 opacity-75' 
-                        : 'border-gray-700 hover:border-gray-500'
+                        ? 'border-stone-600 opacity-75' 
+                        : 'border-stone-700 hover:border-stone-500'
                     }`}
                       onClick={() => setSelectedFoto(foto)}>
                       {foto.solicitado && (
@@ -455,18 +455,18 @@ export const ClienteGaragem = () => {
                         </span>
                       </div>
                       {sol.codigo_rastreio && (
-                        <div className="mb-3 bg-gray-800 rounded p-3 flex items-center gap-2 border border-gray-700">
+                        <div className="mb-3 bg-stone-800 rounded p-3 flex items-center gap-2 border border-stone-700">
                           <Package size={16} className="text-orange-400" />
                           <span className="text-sm text-gray-400">Código de rastreio:</span>
                           <span className="font-mono font-semibold text-orange-400">{sol.codigo_rastreio}</span>
                         </div>
                       )}
                       {sol.itens && sol.itens.length > 0 && (
-                        <div className="mt-3 border-t border-gray-700 pt-3">
-                          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Itens neste envio</p>
+                        <div className="mt-3 border-t border-stone-700 pt-3">
+                          <p className="text-xs text-stone-500 uppercase font-bold tracking-wider mb-2">Itens neste envio</p>
                           <div className="space-y-2">
                             {sol.itens.map((item: any) => (
-                              <div key={item.id} className="flex items-center gap-3 bg-gray-800 rounded p-2 border border-gray-700">
+                              <div key={item.id} className="flex items-center gap-3 bg-stone-800 rounded p-2 border border-stone-700">
                                 {item.lote_foto && (
                                   <img src={`data:image/jpeg;base64,${item.lote_foto}`} alt={item.lote_nome}
                                     className="w-10 h-10 object-cover rounded" />
@@ -493,7 +493,7 @@ export const ClienteGaragem = () => {
       {selectedFoto && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
           onClick={() => setSelectedFoto(null)}>
-          <div className="max-w-3xl w-full bg-gray-800 rounded-lg shadow-2xl overflow-hidden border border-gray-700" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-3xl w-full bg-stone-800 rounded-lg shadow-2xl overflow-hidden border border-stone-700" onClick={(e) => e.stopPropagation()}>
             <img src={`data:image/jpeg;base64,${selectedFoto.foto}`} alt={selectedFoto.descricao || 'Foto'}
               className="w-full max-h-[70vh] object-contain" />
             <div className="p-4 flex justify-between items-center">
