@@ -38,38 +38,58 @@ const LogoV1 = ({ w }: { w: number }) => (
   </svg>
 );
 
-// Variante 2: 95 grande e bold com raio cortando ao lado
+// Variante 2: Garagem + carro + 95
 const LogoV2 = ({ w }: { w: number }) => (
   <svg width={w} height={w} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="32" cy="32" r="30" fill="url(#g95v2)" stroke="#fff" strokeWidth="2" />
-    {/* Raio atrás do número */}
+
+    {/* Teto da garagem */}
+    <path d="M10 26 L32 10 L54 26" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+    {/* Paredes da garagem */}
+    <line x1="12" y1="26" x2="12" y2="48" stroke="#fff" strokeWidth="2" />
+    <line x1="52" y1="26" x2="52" y2="48" stroke="#fff" strokeWidth="2" />
+
+    {/* Chão da garagem */}
+    <line x1="10" y1="48" x2="54" y2="48" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+
+    {/* Porta da garagem (linhas horizontais) */}
+    <line x1="16" y1="32" x2="48" y2="32" stroke="#fff" strokeWidth="0.6" opacity="0.3" />
+    <line x1="16" y1="36" x2="48" y2="36" stroke="#fff" strokeWidth="0.6" opacity="0.3" />
+
+    {/* Carro silhueta dentro da garagem */}
     <path
-      d="M40 4 L27 30 L36 30 L24 60"
-      fill="none"
+      d="M20 44 L22 39 L28 37 L36 37 L42 39 L44 44"
+      fill="#1a1a2e"
       stroke="#FCD34D"
-      strokeWidth="5"
-      strokeLinecap="round"
+      strokeWidth="1.2"
       strokeLinejoin="round"
-      opacity="0.85"
     />
-    {/* 95 grande e centralizado */}
-    <text
-      x="32" y="44"
-      textAnchor="middle"
-      fontFamily="Arial Black, Arial, sans-serif"
-      fontSize="30" fontWeight="900"
-      fill="white"
-      stroke="#000"
-      strokeWidth="1.5"
-    >95</text>
-    {/* Raio pequeno na frente, canto superior direito */}
+    {/* Teto do carro */}
     <path
-      d="M48 8 L43 18 L47 18 L42 28"
-      fill="#FCD34D"
-      stroke="#F59E0B"
+      d="M25 39 L28 35 L36 35 L39 39"
+      fill="#222"
+      stroke="#FCD34D"
       strokeWidth="0.8"
       strokeLinejoin="round"
     />
+    {/* Rodas */}
+    <circle cx="24" cy="44.5" r="2" fill="#333" stroke="#FCD34D" strokeWidth="0.8" />
+    <circle cx="40" cy="44.5" r="2" fill="#333" stroke="#FCD34D" strokeWidth="0.8" />
+    {/* Farol */}
+    <circle cx="43" cy="41" r="1" fill="#FCD34D" opacity="0.9" />
+
+    {/* 95 bold no teto da garagem */}
+    <text
+      x="32" y="28"
+      textAnchor="middle"
+      fontFamily="Arial Black, Arial, sans-serif"
+      fontSize="14" fontWeight="900"
+      fill="#FCD34D"
+      stroke="#000"
+      strokeWidth="0.5"
+    >95</text>
+
     <defs>
       <linearGradient id="g95v2" x1="0" y1="0" x2="64" y2="64">
         <stop offset="0%" stopColor="#DC2626" />
