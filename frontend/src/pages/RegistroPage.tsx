@@ -77,7 +77,7 @@ export const RegistroPage = () => {
       </div>
 
       <div className="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-700 relative z-10">
-        <div className="flex items-center justify-center -mb-4">
+        <div className="flex items-center justify-center mb-6">
           <img src="/logo-garage95.png" alt="Garage95" style={{ height: 180, width: 'auto' }} />
         </div>
 
