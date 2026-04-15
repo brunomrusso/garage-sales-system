@@ -17,7 +17,7 @@ export const Garage95Logo = ({ size = 'md', showText = true, className = '' }: G
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img
-        src="/logo-garage95.png"
+        src="/logo-garage95.svg"
         alt="Garage95"
         height={s.h}
         style={{ height: s.h, width: 'auto', objectFit: 'contain' }}
