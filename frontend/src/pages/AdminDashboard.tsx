@@ -628,12 +628,12 @@ export const AdminDashboard = () => {
                   <p className="text-sm mt-2 text-gray-500">Clientes que se registrarem aparecerão aqui automaticamente</p>
                 </div>
               ) : (
-                <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700 overflow-x-auto">
+                <div className="bg-stone-800 rounded-lg shadow overflow-hidden border border-stone-700 overflow-x-auto">
                   <table className="w-full min-w-[600px]">
-                    <thead className="bg-gray-900/50">
+                    <thead className="bg-stone-900/50">
                       <tr>
-                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Nome</th>
-                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Email</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Nome</th>
+                        <th className="px-3 md:px-6 py-3 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Email</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden sm:table-cell">Telefone</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden md:table-cell">Role</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden md:table-cell">Data Cadastro</th>
@@ -797,10 +797,10 @@ export const AdminDashboard = () => {
                     }`}>
                     {lote.foto ? (
                       <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
-                        className="w-full h-48 object-contain rounded mb-3 bg-gray-900" />
+                        className="w-full h-48 object-contain rounded mb-3 bg-stone-900" />
                     ) : (
-                      <div className="w-full h-32 bg-gray-700 rounded mb-3 flex items-center justify-center">
-                        <Image size={32} className="text-gray-500" />
+                      <div className="w-full h-32 bg-stone-700 rounded mb-3 flex items-center justify-center">
+                        <Image size={32} className="text-stone-500" />
                       </div>
                     )}
                     <div className="flex justify-between items-start">
@@ -904,15 +904,15 @@ export const AdminDashboard = () => {
                       {lotesArquivados.map((lote) => (
                       <div key={lote.id} 
                         onClick={() => handleSelectLote(lote)}
-                        className={`bg-gray-900/50 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 opacity-75 ${
-                          selectedLote?.id === lote.id ? 'border-yellow-500 shadow-yellow-500/20 shadow-lg' : 'border-gray-700 hover:border-gray-500'
+                        className={`bg-stone-900/50 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 opacity-75 ${
+                          selectedLote?.id === lote.id ? 'border-yellow-500 shadow-yellow-500/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'
                         }`}>
                         {lote.foto ? (
                           <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.numero_lote}
-                            className="w-full h-48 object-contain rounded mb-3 grayscale bg-gray-900" />
+                            className="w-full h-48 object-contain rounded mb-3 grayscale bg-stone-900" />
                         ) : (
-                          <div className="w-full h-32 bg-gray-800 rounded mb-3 flex items-center justify-center">
-                            <Archive size={32} className="text-gray-600" />
+                          <div className="w-full h-32 bg-stone-800 rounded mb-3 flex items-center justify-center">
+                            <Archive size={32} className="text-stone-600" />
                           </div>
                         )}
                         <div className="flex justify-between items-start">
@@ -965,7 +965,7 @@ export const AdminDashboard = () => {
                   </div>
 
                   {showVendaForm && (
-                    <form onSubmit={handleCreateVenda} className="bg-gray-900/50 p-4 rounded-lg mb-4 border border-gray-600">
+                    <form onSubmit={handleCreateVenda} className="bg-stone-900/50 p-4 rounded-lg mb-4 border border-stone-600">
                       <h4 className="font-semibold mb-3 text-white">Nova Venda</h4>
                       <div className="space-y-4">
                         <div>
@@ -1036,10 +1036,10 @@ export const AdminDashboard = () => {
                   ) : (
                     <div className="overflow-x-auto">
                     <table className="w-full min-w-[800px]">
-                      <thead className="bg-gray-900/50">
+                      <thead className="bg-stone-900/50">
                         <tr>
-                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
-                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
+                          <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                          <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Preço</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Pago</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Pgto</th>
@@ -1153,7 +1153,7 @@ export const AdminDashboard = () => {
                       </div>
 
                       {showFotoForm && (
-                        <form onSubmit={handleAddFotoGaragem} className="bg-gray-900/50 p-4 rounded-lg border border-gray-600 mb-4">
+                        <form onSubmit={handleAddFotoGaragem} className="bg-stone-900/50 p-4 rounded-lg border border-stone-600 mb-4">
                           <div className="space-y-3">
                             <div>
                               <label className="block text-sm text-gray-400 mb-1">Foto</label>
@@ -1227,12 +1227,12 @@ export const AdminDashboard = () => {
                     <p>Nenhuma solicitação de envio pendente</p>
                   </div>
                 ) : (
-                  <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700 overflow-x-auto">
+                  <div className="bg-stone-800 rounded-lg shadow overflow-hidden border border-stone-700 overflow-x-auto">
                     <table className="w-full min-w-[600px]">
-                      <thead className="bg-gray-900/50">
+                      <thead className="bg-stone-900/50">
                         <tr>
-                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
-                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data</th>
+                          <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                          <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Data</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Rastreio</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
@@ -1323,13 +1323,13 @@ export const AdminDashboard = () => {
                   <p className="text-sm mt-2">Todos os admins estão aprovados e ativos</p>
                 </div>
               ) : (
-                <div className="bg-gray-800 rounded-lg shadow border border-gray-700 overflow-hidden">
+                <div className="bg-stone-800 rounded-lg shadow border border-stone-700 overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-gray-900/50 border-b border-gray-700">
+                      <thead className="bg-stone-900/50 border-b border-stone-700">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nome</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">Nome</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">Email</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Telefone</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Tipo</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Cadastro</th>
