@@ -698,15 +698,15 @@ export const AdminDashboard = () => {
                       placeholder="Buscar..."
                       value={buscaCliente}
                       onChange={(e) => handleBuscaClientes(e.target.value)}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 pl-10 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none w-full sm:w-80"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 pl-10 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none w-full sm:w-80"
                     />
                     <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
                     {resultadosBusca.length > 0 && buscaCliente.length > 2 && (
-                      <div className="absolute top-full mt-1 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                      <div className="absolute top-full mt-1 w-full bg-stone-800 border border-gray-600 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                         {resultadosBusca.map((cliente) => (
                           <div
                             key={cliente.id}
-                            className="p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-600 last:border-b-0"
+                            className="p-3 hover:bg-stone-700 cursor-pointer border-b border-gray-600 last:border-b-0"
                             onClick={() => {
                               setBuscaCliente('');
                               setResultadosBusca([]);
@@ -726,7 +726,7 @@ export const AdminDashboard = () => {
                   <button
                     onClick={loadClientes}
                     disabled={loading}
-                    className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition"
+                    className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 disabled:opacity-50 transition"
                   >
                     <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                     Atualizar
@@ -747,14 +747,14 @@ export const AdminDashboard = () => {
               </div>
 
               {showForm && (
-                <form onSubmit={handleCreateCliente} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                <form onSubmit={handleCreateCliente} className="bg-stone-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-stone-700">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input
                       type="text"
                       placeholder="Nome"
                       value={formData.nome}
                       onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
                       required
                     />
                     <input
@@ -762,7 +762,7 @@ export const AdminDashboard = () => {
                       placeholder="Email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
                       required
                     />
                     <input
@@ -770,7 +770,7 @@ export const AdminDashboard = () => {
                       placeholder="Senha"
                       value={formData.senha}
                       onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
                       required
                     />
                     <input
@@ -778,7 +778,7 @@ export const AdminDashboard = () => {
                       placeholder="Telefone"
                       value={formData.telefone}
                       onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
                     />
                   </div>
                   <button
@@ -791,12 +791,12 @@ export const AdminDashboard = () => {
               )}
 
               {loading && clientes.length === 0 ? (
-                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-400 border border-gray-700">
+                <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-400 border border-stone-700">
                   <RefreshCw size={32} className="animate-spin mx-auto mb-4 text-red-500" />
                   Carregando clientes...
                 </div>
               ) : clientes.length === 0 ? (
-                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-400 border border-gray-700">
+                <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-400 border border-stone-700">
                   <Users size={48} className="mx-auto mb-4 text-gray-600" />
                   <p className="text-lg">Nenhum cliente cadastrado ainda</p>
                   <p className="text-sm mt-2 text-gray-500">Clientes que se registrarem aparecerão aqui automaticamente</p>
@@ -816,7 +816,7 @@ export const AdminDashboard = () => {
                     </thead>
                     <tbody>
                       {clientes.map((cliente) => (
-                        <tr key={cliente.id} className={`border-t border-gray-700 hover:bg-gray-700/50 transition ${cliente.role !== 'cliente' ? 'bg-gray-700/20' : ''}`}>
+                        <tr key={cliente.id} className={`border-t border-gray-700 hover:bg-stone-700/50 transition ${cliente.role !== 'cliente' ? 'bg-gray-700/20' : ''}`}>
                           <td className="px-3 md:px-6 py-3 text-white font-medium">
                             <div className="flex items-center gap-2">
                               {cliente.nome}
@@ -892,7 +892,7 @@ export const AdminDashboard = () => {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={loadLotes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
+                  <button onClick={loadLotes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 transition">
                     <RefreshCw size={18} />
                     Atualizar
                   </button>
@@ -918,26 +918,26 @@ export const AdminDashboard = () => {
               </div>
 
               {showLoteForm && (
-                <form onSubmit={handleCreateLote} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                <form onSubmit={handleCreateLote} className="bg-stone-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-stone-700">
                   <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Lote</h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Número do Lote (opcional)</label>
                       <input type="text" placeholder="#001, #002, etc." value={loteFormData.numero_lote}
                         onChange={(e) => setLoteFormData({ ...loteFormData, numero_lote: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Nome do Lote</label>
                       <input type="text" placeholder="Nome do lote" value={loteFormData.nome}
                         onChange={(e) => setLoteFormData({ ...loteFormData, nome: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Status do Lote (opcional)</label>
                       <select value={loteFormData.status_lote}
                         onChange={(e) => setLoteFormData({ ...loteFormData, status_lote: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
                         <option value="">Selecione um status</option>
                         <option value="Chegou EUA">Chegou EUA</option>
                         <option value="Importado Brasil">Importado Brasil</option>
@@ -949,17 +949,17 @@ export const AdminDashboard = () => {
                       <label className="block text-sm text-gray-400 mb-1">Rastreio de Importação (opcional)</label>
                       <input type="text" placeholder="Código de rastreio para vincular lotes" value={loteFormData.rastreio_importacao}
                         onChange={(e) => setLoteFormData({ ...loteFormData, rastreio_importacao: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
-                      <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300 text-sm" />
+                      <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 text-sm" />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Descrição do Lote</label>
                       <textarea placeholder="Descrição do lote" value={loteFormData.descricao}
                         onChange={(e) => setLoteFormData({ ...loteFormData, descricao: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={3} />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={3} />
                     </div>
                   </div>
                   <button type="submit" className="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
@@ -1150,7 +1150,7 @@ export const AdminDashboard = () => {
                     <div className="flex gap-2">
                       <button onClick={() => setEditingLote(!editingLote)}
                         className={`flex items-center gap-2 px-3 py-2 rounded font-semibold transition text-sm ${
-                          editingLote ? 'bg-gray-600 text-gray-200' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                          editingLote ? 'bg-gray-600 text-gray-200' : 'bg-gray-700 text-gray-300 hover:bg-stone-600'
                         }`}>
                         <Pencil size={16} />
                         {editingLote ? 'Cancelar Edição' : 'Editar Lote'}
@@ -1171,13 +1171,13 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Nome</label>
                           <input type="text" value={editLoteData.nome}
                             onChange={(e) => setEditLoteData({ ...editLoteData, nome: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
                         </div>
                         <div>
                           <label className="block text-sm text-gray-400 mb-1">Status do Lote</label>
                           <select value={editLoteData.status_lote}
                             onChange={(e) => setEditLoteData({ ...editLoteData, status_lote: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
                             <option value="">Selecione um status</option>
                             <option value="Chegou EUA">Chegou EUA</option>
                             <option value="Importado Brasil">Importado Brasil</option>
@@ -1189,13 +1189,13 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Rastreio de Importação</label>
                           <input type="text" placeholder="Código de rastreio para vincular tributos" value={editLoteData.rastreio_importacao}
                             onChange={(e) => setEditLoteData({ ...editLoteData, rastreio_importacao: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
                         </div>
                         <div>
                           <label className="block text-sm text-gray-400 mb-1">Descrição</label>
                           <input type="text" value={editLoteData.descricao}
                             onChange={(e) => setEditLoteData({ ...editLoteData, descricao: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
                         </div>
                       </div>
                       <button onClick={handleUpdateLote}
@@ -1214,7 +1214,7 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Cliente</label>
                           <select value={vendaFormData.cliente_id}
                             onChange={(e) => setVendaFormData({ ...vendaFormData, cliente_id: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" required>
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" required>
                             <option value="">Selecione o Cliente</option>
                             {clientes.map((c) => (
                               <option key={c.id} value={c.id}>{c.nome} ({c.email})</option>
@@ -1227,13 +1227,13 @@ export const AdminDashboard = () => {
                             <label className="block text-sm text-gray-400 mb-1">Preço (R$)</label>
                             <input type="number" step="0.01" placeholder="0.00" value={vendaFormData.preco}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, preco: e.target.value })}
-                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
                           </div>
                           <div>
                             <label className="block text-sm text-gray-400 mb-1">Cotas (padrão: 1)</label>
                             <input type="number" step="0.1" min="0.1" placeholder="1" value={vendaFormData.cotas}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, cotas: e.target.value })}
-                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
                           </div>
                           <div className="flex items-center gap-2 mt-6">
                             <input type="checkbox" id="pago" checked={vendaFormData.pago}
@@ -1247,7 +1247,7 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Carrinhos comprados</label>
                           <textarea placeholder="Ex: Hot Wheels Camaro, Matchbox Fusca" value={vendaFormData.carrinhos_comprados}
                             onChange={(e) => setVendaFormData({ ...vendaFormData, carrinhos_comprados: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} required />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} required />
                         </div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1255,11 +1255,11 @@ export const AdminDashboard = () => {
                             <label className="block text-sm text-gray-400 mb-1">Data do Pagamento</label>
                             <input type="datetime-local" value={vendaFormData.data_pagamento}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, data_pagamento: e.target.value })}
-                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
                           </div>
                           <div>
                             <label className="block text-sm text-gray-400 mb-1">Comprovante de Pagamento</label>
-                            <input type="file" accept="image/*" onChange={handleComprovante} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700" />
+                            <input type="file" accept="image/*" onChange={handleComprovante} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700" />
                           </div>
                         </div>
                         
@@ -1267,7 +1267,7 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Observações</label>
                           <textarea placeholder="Informações adicionais (opcional)" value={vendaFormData.observacoes}
                             onChange={(e) => setVendaFormData({ ...vendaFormData, observacoes: e.target.value })}
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
                         </div>
                       </div>
                       <button type="submit" className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition w-full sm:w-auto">
@@ -1304,7 +1304,7 @@ export const AdminDashboard = () => {
                           const tributoLote = tributos.find(t => t.rastreio_importacao === selectedLote?.rastreio_importacao);
                           const valorTributoVenda = tributoLote ? (Number(venda.cotas || 1) * Number(tributoLote.valor_por_cota)) : null;
                           return (
-                          <tr key={venda.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
+                          <tr key={venda.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
                             <td className="px-4 py-2 font-medium text-white">{venda.cliente_nome}</td>
                             <td className="px-4 py-2 text-sm max-w-xs truncate text-gray-300">{venda.carrinhos_comprados}</td>
                             <td className="px-4 py-2 font-semibold text-green-400">R$ {Number(venda.preco).toFixed(2)}</td>
@@ -1389,12 +1389,12 @@ export const AdminDashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col h-full">
                   <h3 className="text-lg font-semibold mb-3 text-gray-300">Selecione um Cliente</h3>
-                  <div className="bg-gray-800 rounded-lg shadow border border-gray-700 flex-1 overflow-y-auto max-h-[600px]">
+                  <div className="bg-stone-800 rounded-lg shadow border border-stone-700 flex-1 overflow-y-auto max-h-[600px]">
                     {clientes.map((cliente) => (
                       <div key={cliente.id}
                         onClick={() => handleSelectClienteGaragem(cliente)}
                         className={`p-3 cursor-pointer border-b border-gray-700 transition ${
-                          selectedClienteGaragem?.id === cliente.id ? 'bg-red-600/20 border-l-4 border-l-red-500' : 'hover:bg-gray-700/50'
+                          selectedClienteGaragem?.id === cliente.id ? 'bg-red-600/20 border-l-4 border-l-red-500' : 'hover:bg-stone-700/50'
                         }`}>
                         <p className="font-medium text-white">{cliente.nome}</p>
                         <p className="text-sm text-gray-400">{cliente.email}</p>
@@ -1428,12 +1428,12 @@ export const AdminDashboard = () => {
                               <label className="block text-sm text-gray-400 mb-1">Foto</label>
                               <input type="file" accept="image/*" onChange={handleFotoGaragemFile}
                                 disabled={!canUploadFotoGaragem()}
-                                className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" required />
+                                className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" required />
                             </div>
                             <input type="text" placeholder="Descrição (opcional)" value={fotoFormData.descricao}
                               onChange={(e) => setFotoFormData({ ...fotoFormData, descricao: e.target.value })}
                               disabled={!canUploadFotoGaragem()}
-                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" />
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" />
                             <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                               disabled={!fotoFormData.foto || !canUploadFotoGaragem() || savingFoto}>
                               {savingFoto ? 'Salvando...' : 'Salvar Foto'}
@@ -1443,7 +1443,7 @@ export const AdminDashboard = () => {
                       )}
 
                       {fotosGaragem.length === 0 ? (
-                        <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700 flex-1 flex items-center justify-center">
+                        <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-500 border border-stone-700 flex-1 flex items-center justify-center">
                           <Image size={48} className="mx-auto mb-3 text-gray-600" />
                           <p>Nenhuma foto na garagem deste cliente</p>
                         </div>
@@ -1451,7 +1451,7 @@ export const AdminDashboard = () => {
                         <div className="flex-1 overflow-y-auto max-h-[600px]">
                           <div className="grid grid-cols-2 gap-3">
                             {fotosGaragem.map((foto) => (
-                              <div key={foto.id} className="bg-gray-800 rounded-lg shadow overflow-hidden relative group border border-gray-700">
+                              <div key={foto.id} className="bg-stone-800 rounded-lg shadow overflow-hidden relative group border border-stone-700">
                                 <img src={`data:image/jpeg;base64,${foto.foto}`} alt={foto.descricao || 'Foto garagem'}
                                   className="w-full h-40 object-cover" />
                                 <div className="p-2">
@@ -1475,7 +1475,7 @@ export const AdminDashboard = () => {
                       )}
                     </div>
                   ) : (
-                    <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700 flex-1 flex items-center justify-center">
+                    <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-500 border border-stone-700 flex-1 flex items-center justify-center">
                       <Warehouse size={48} className="mx-auto mb-3 text-gray-600" />
                       <p>Selecione um cliente para gerenciar a garagem</p>
                     </div>
@@ -1486,12 +1486,12 @@ export const AdminDashboard = () => {
               <div className="mt-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                   <h3 className="text-lg md:text-xl font-bold text-white">Solicitações de Envio</h3>
-                  <button onClick={loadSolicitacoes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-3 py-2 rounded hover:bg-gray-600 text-sm transition">
+                  <button onClick={loadSolicitacoes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-3 py-2 rounded hover:bg-stone-600 text-sm transition">
                     <RefreshCw size={16} /> Atualizar
                   </button>
                 </div>
                 {solicitacoes.length === 0 ? (
-                  <div className="bg-gray-800 rounded-lg shadow p-6 text-center text-gray-500 border border-gray-700">
+                  <div className="bg-stone-800 rounded-lg shadow p-6 text-center text-gray-500 border border-stone-700">
                     <Send size={32} className="mx-auto mb-2 text-gray-600" />
                     <p>Nenhuma solicitação de envio pendente</p>
                   </div>
@@ -1509,7 +1509,7 @@ export const AdminDashboard = () => {
                       </thead>
                       <tbody>
                         {solicitacoes.map((sol) => (
-                          <tr key={sol.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
+                          <tr key={sol.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
                             <td className="px-4 py-2 font-medium text-white">{sol.cliente_nome}</td>
                             <td className="px-4 py-2 text-sm text-gray-400">{new Date(sol.data_solicitacao).toLocaleString('pt-BR')}</td>
                             <td className="px-4 py-2">
@@ -1544,7 +1544,7 @@ export const AdminDashboard = () => {
                                 {sol.status === 'enviado' && (
                                   <>
                                     <button onClick={() => handleSalvarRastreio(sol.id)}
-                                      className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded hover:bg-gray-600 transition">
+                                      className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded hover:bg-stone-600 transition">
                                       Editar Rastreio
                                     </button>
                                     <button onClick={() => handleUpdateSolicitacao(sol.id, 'entregue')}
@@ -1585,12 +1585,12 @@ export const AdminDashboard = () => {
                     setMostrarTributosArquivados(novo);
                     loadTributos(novo);
                   }} className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition text-sm ${
-                    mostrarTributosArquivados ? 'bg-orange-600/30 text-orange-300 border border-orange-600/40' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    mostrarTributosArquivados ? 'bg-orange-600/30 text-orange-300 border border-orange-600/40' : 'bg-gray-700 text-gray-300 hover:bg-stone-600'
                   }`}>
                     <Archive size={16} />
                     {mostrarTributosArquivados ? 'Ocultar Arquivados' : 'Ver Arquivados'}
                   </button>
-                  <button onClick={() => loadTributos()} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
+                  <button onClick={() => loadTributos()} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 transition">
                     <RefreshCw size={18} />
                     Atualizar
                   </button>
@@ -1603,27 +1603,27 @@ export const AdminDashboard = () => {
               </div>
 
               {showTributoForm && (
-                <form onSubmit={handleCreateTributo} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                <form onSubmit={handleCreateTributo} className="bg-stone-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-stone-700">
                   <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Tributo</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Código Rastreio de Importação</label>
                       <input type="text" placeholder="Ex: BR123456789" value={tributoFormData.rastreio_importacao}
                         onChange={(e) => setTributoFormData({ ...tributoFormData, rastreio_importacao: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Valor Total do Imposto (R$)</label>
                       <input type="number" step="0.01" placeholder="0.00" value={tributoFormData.valor_total_imposto}
                         onChange={(e) => setTributoFormData({ ...tributoFormData, valor_total_imposto: e.target.value })}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
                     </div>
                   </div>
                   <div className="mt-4">
                     <label className="block text-sm text-gray-400 mb-1">Observações (opcional)</label>
                     <textarea placeholder="Notas sobre este tributo..." value={tributoFormData.observacoes}
                       onChange={(e) => setTributoFormData({ ...tributoFormData, observacoes: e.target.value })}
-                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
                   </div>
                   <button type="submit" className="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
                     Criar Tributo
@@ -1632,7 +1632,7 @@ export const AdminDashboard = () => {
               )}
 
               {tributos.length === 0 ? (
-                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-500 border border-stone-700">
                   <Receipt size={64} className="mx-auto mb-4 text-gray-600" />
                   <p className="text-lg">Nenhum tributo cadastrado</p>
                   <p className="text-sm mt-2">Crie um tributo vinculando-o a um código de rastreio de importação</p>
@@ -1642,7 +1642,7 @@ export const AdminDashboard = () => {
                   {tributos.map((tributo) => (
                     <div key={tributo.id}
                       onClick={() => handleSelectTributo(tributo)}
-                      className={`bg-gray-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
+                      className={`bg-stone-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
                         tributo.arquivado ? 'border-gray-600 opacity-60' :
                         selectedTributo?.id === tributo.id ? 'border-orange-500 shadow-orange-500/20 shadow-lg' : 'border-gray-700 hover:border-gray-500'
                       }`}>
@@ -1741,7 +1741,7 @@ export const AdminDashboard = () => {
               {/* Modal Mensagem WhatsApp */}
               {mensagemCobranca && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                  <div className="bg-gray-800 rounded-lg p-6 w-full max-w-lg border border-gray-700 flex flex-col gap-4">
+                  <div className="bg-stone-800 rounded-lg p-6 w-full max-w-lg border border-stone-700 flex flex-col gap-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <MessageSquare size={20} className="text-green-400" />
@@ -1770,7 +1770,7 @@ export const AdminDashboard = () => {
                         Copiar mensagem
                       </button>
                       <button onClick={() => setMensagemCobranca(null)}
-                        className="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-gray-600 transition">
+                        className="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-stone-600 transition">
                         Fechar
                       </button>
                     </div>
@@ -1781,19 +1781,19 @@ export const AdminDashboard = () => {
               {/* Modal Editar Tributo */}
               {editingTributo && (
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                  <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
+                  <div className="bg-stone-800 rounded-lg p-6 w-full max-w-md border border-stone-700">
                     <h3 className="text-lg font-bold text-white mb-4">Editar Tributo</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Valor Total do Imposto (R$)</label>
                         <input type="number" step="0.01" defaultValue={editingTributo.valor_total_imposto}
                           id="edit-tributo-valor"
-                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                          className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
                       </div>
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Observações</label>
                         <textarea defaultValue={editingTributo.observacoes || ''} id="edit-tributo-obs"
-                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" rows={2} />
+                          className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" rows={2} />
                       </div>
                     </div>
                     <div className="flex gap-2 mt-4">
@@ -1808,7 +1808,7 @@ export const AdminDashboard = () => {
                         Salvar
                       </button>
                       <button onClick={() => setEditingTributo(null)}
-                        className="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-gray-600 transition">
+                        className="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-stone-600 transition">
                         Cancelar
                       </button>
                     </div>
@@ -1818,7 +1818,7 @@ export const AdminDashboard = () => {
 
               {/* Detalhe do tributo selecionado */}
               {selectedTributo && (
-                <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 border border-gray-700 mt-2">
+                <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 border border-stone-700 mt-2">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-bold text-white">
                       Vendas - Rastreio: <span className="text-orange-400">{selectedTributo.rastreio_importacao}</span>
@@ -1848,7 +1848,7 @@ export const AdminDashboard = () => {
                         </thead>
                         <tbody>
                           {vendasTributo.map((venda) => (
-                            <tr key={venda.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
+                            <tr key={venda.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
                               <td className="px-4 py-2 font-medium text-white">{venda.cliente_nome}</td>
                               <td className="px-4 py-2 text-sm text-gray-300">{venda.lote_numero}</td>
                               <td className="px-4 py-2 text-sm text-gray-300 max-w-xs truncate">{venda.carrinhos_comprados}</td>
@@ -1893,14 +1893,14 @@ export const AdminDashboard = () => {
                     {adminsPendentes.length} aguardando aprovação
                   </span>
                 </div>
-                <button onClick={loadAdminsPendentes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
+                <button onClick={loadAdminsPendentes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 transition">
                   <RefreshCw size={18} />
                   Atualizar
                 </button>
               </div>
 
               {adminsPendentes.length === 0 ? (
-                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-500 border border-stone-700">
                   <Shield size={64} className="mx-auto mb-4 text-gray-600" />
                   <p className="text-lg">Nenhum admin pendente</p>
                   <p className="text-sm mt-2">Todos os admins estão aprovados e ativos</p>
@@ -1921,7 +1921,7 @@ export const AdminDashboard = () => {
                       </thead>
                       <tbody className="divide-y divide-gray-700">
                         {adminsPendentes.map((admin) => (
-                          <tr key={admin.id} className="hover:bg-gray-700/50 transition">
+                          <tr key={admin.id} className="hover:bg-stone-700/50 transition">
                             <td className="px-4 py-3">
                               <div>
                                 <p className="font-medium text-white">{admin.nome}</p>
