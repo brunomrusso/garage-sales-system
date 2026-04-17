@@ -390,6 +390,12 @@ def _calcular_tributo_response(db: Session, tributo: TributoImportacao) -> dict:
     tributos_pagos = sum(1 for v in vendas if v.tributo_pago)
     tributos_pendentes = len(vendas) - tributos_pagos
     
+    # Valores monetários pagos/pendentes
+    cotas_pagas = sum(float(v.cotas or 1.0) for v in vendas if v.tributo_pago)
+    cotas_pendentes = sum(float(v.cotas or 1.0) for v in vendas if not v.tributo_pago)
+    valor_pago = round(cotas_pagas * valor_por_cota, 2)
+    valor_pendente = round(cotas_pendentes * valor_por_cota, 2)
+    
     lotes_info = [{
         "id": l.id,
         "numero_lote": l.numero_lote,
@@ -408,7 +414,9 @@ def _calcular_tributo_response(db: Session, tributo: TributoImportacao) -> dict:
         "lotes_vinculados": lotes_info,
         "vendas_count": len(vendas),
         "tributos_pagos": tributos_pagos,
-        "tributos_pendentes": tributos_pendentes
+        "tributos_pendentes": tributos_pendentes,
+        "valor_pago": valor_pago,
+        "valor_pendente": valor_pendente
     }
 
 

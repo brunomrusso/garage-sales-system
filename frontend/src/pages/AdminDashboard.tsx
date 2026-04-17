@@ -1603,7 +1603,7 @@ export const AdminDashboard = () => {
                               R$ {Number(tributo.valor_total_imposto).toFixed(2)}
                             </span>
                           </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm mb-3">
                             <div>
                               <span className="text-gray-500">Cotas:</span>
                               <span className="text-white ml-1 font-semibold">{tributo.total_cotas}</span>
@@ -1617,18 +1617,29 @@ export const AdminDashboard = () => {
                               <span className="text-white ml-1">{tributo.vendas_count}</span>
                             </div>
                           </div>
-                          <div className="mt-2 flex items-center gap-2 flex-wrap">
-                            <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30">
-                              {tributo.tributos_pagos} pago{tributo.tributos_pagos !== 1 ? 's' : ''}
+
+                          {/* Lotes vinculados */}
+                          {tributo.lotes_vinculados?.length > 0 && (
+                            <div className="mb-3">
+                              <span className="text-xs text-gray-500 mr-2">Lotes vinculados:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {tributo.lotes_vinculados.map((l: any) => (
+                                  <span key={l.id} className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30 font-semibold">
+                                    {l.numero_lote}{l.nome ? ` · ${l.nome}` : ''} <span className="text-blue-300/60">({l.total_vendas} vendas)</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Status financeiro */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30 font-semibold">
+                              ✓ Pago: R$ {Number(tributo.valor_pago ?? 0).toFixed(2)} ({tributo.tributos_pagos})
                             </span>
                             {tributo.tributos_pendentes > 0 && (
-                              <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30">
-                                {tributo.tributos_pendentes} pendente{tributo.tributos_pendentes !== 1 ? 's' : ''}
-                              </span>
-                            )}
-                            {tributo.lotes_vinculados?.length > 0 && (
-                              <span className="text-xs text-gray-500">
-                                Lotes: {tributo.lotes_vinculados.map((l: any) => l.numero_lote).join(', ')}
+                              <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30 font-semibold">
+                                ⏳ Falta: R$ {Number(tributo.valor_pendente ?? 0).toFixed(2)} ({tributo.tributos_pendentes})
                               </span>
                             )}
                           </div>
