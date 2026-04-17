@@ -42,7 +42,7 @@ export function EmpresaSelector({ onSelect, selectedSlug }: EmpresaSelectorProps
             onClick={() => handleSelect(empresa.slug)}
             className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
               selectedSlug === empresa.slug
-                ? 'border-blue-500 bg-blue-500/10'
+                ? 'border-red-500 bg-red-500/10'
                 : 'border-gray-600 hover:border-gray-500'
             }`}
           >
@@ -75,12 +75,12 @@ export function EmpresaSelector({ onSelect, selectedSlug }: EmpresaSelectorProps
             placeholder="Digite o slug da empresa"
             value={customSlug}
             onChange={(e) => setCustomSlug(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500"
           />
           <div className="flex gap-2">
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Confirmar
             </button>

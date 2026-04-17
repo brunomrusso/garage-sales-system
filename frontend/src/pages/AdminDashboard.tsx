@@ -346,7 +346,7 @@ export const AdminDashboard = () => {
   const statusEntregaOptions = [
     { value: 'aguardando_pagamento', label: 'Aguardando Pagamento', color: 'bg-gray-100 text-gray-700' },
     { value: 'pago', label: 'Pago', color: 'bg-yellow-100 text-yellow-700' },
-    { value: 'chegou_eua', label: 'Chegou EUA', color: 'bg-blue-100 text-blue-700' },
+    { value: 'chegou_eua', label: 'Chegou EUA', color: 'bg-purple-100 text-purple-700' },
     { value: 'importado_brasil', label: 'Importado p/ Brasil', color: 'bg-indigo-100 text-indigo-700' },
     { value: 'alfandega', label: 'Alfândega/Tributação', color: 'bg-orange-100 text-orange-700' },
     { value: 'centro_distribuicao', label: 'Centro Distribuição', color: 'bg-green-100 text-green-700' },
@@ -853,7 +853,7 @@ export const AdminDashboard = () => {
                                     setSelectedAdminForPerms(cliente);
                                     setShowPermissionsModal(true);
                                   }}
-                                  className="text-blue-500 hover:text-blue-400 transition"
+                                  className="text-orange-400 hover:text-orange-300 transition"
                                   title="Editar permissões"
                                 >
                                   <Settings size={16} />
@@ -988,7 +988,7 @@ export const AdminDashboard = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-bold text-lg text-white">{lote.numero_lote || lote.nome}</h3>
                           {lote.status_lote && (
-                            <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30">
+                            <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30">
                               {lote.status_lote}
                             </span>
                           )}
@@ -1019,10 +1019,10 @@ export const AdminDashboard = () => {
                           {/* Indicadores de Entrega */}
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-gray-400">Entregas:</span>
-                            <span className="text-xs text-blue-400">{lote.vendas_entregues || 0}/{lote.total_vendas || 0}</span>
+                            <span className="text-xs text-purple-400">{lote.vendas_entregues || 0}/{lote.total_vendas || 0}</span>
                           </div>
                           {lote.percentual_entregue === 100 && (
-                            <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30 inline-block">
+                            <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded border border-purple-600/30 inline-block">
                               100% ENTREGUE
                             </span>
                           )}
@@ -1107,7 +1107,7 @@ export const AdminDashboard = () => {
                               <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30">
                                 100% PAGO
                               </span>
-                              <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30">
+                              <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded border border-purple-600/30">
                                 100% ENTREGUE
                               </span>
                             </div>
@@ -1516,7 +1516,7 @@ export const AdminDashboard = () => {
                               <span className={`px-2 py-1 rounded text-xs font-semibold ${
                                 sol.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
                                 sol.status === 'enviado' ? 'bg-green-100 text-green-700' :
-                                sol.status === 'entregue' ? 'bg-blue-100 text-blue-700' :
+                                sol.status === 'entregue' ? 'bg-purple-100 text-purple-700' :
                                 'bg-gray-100 text-gray-700'
                               }`}>
                                 {sol.status}
@@ -1548,7 +1548,7 @@ export const AdminDashboard = () => {
                                       Editar Rastreio
                                     </button>
                                     <button onClick={() => handleUpdateSolicitacao(sol.id, 'entregue')}
-                                      className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded hover:bg-blue-600/30 border border-blue-600/30 transition">
+                                      className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded hover:bg-purple-600/30 border border-purple-600/30 transition">
                                       Entregue
                                     </button>
                                   </>
@@ -1680,8 +1680,8 @@ export const AdminDashboard = () => {
                               <span className="text-xs text-gray-500 mr-2">Lotes vinculados:</span>
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {tributo.lotes_vinculados.map((l: any) => (
-                                  <span key={l.id} className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30 font-semibold">
-                                    {l.numero_lote}{l.nome ? ` · ${l.nome}` : ''} <span className="text-blue-300/60">({l.total_vendas} vendas)</span>
+                                  <span key={l.id} className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30 font-semibold">
+                                    {l.numero_lote}{l.nome ? ` · ${l.nome}` : ''} <span className="text-orange-300/60">({l.total_vendas} vendas)</span>
                                   </span>
                                 ))}
                               </div>
