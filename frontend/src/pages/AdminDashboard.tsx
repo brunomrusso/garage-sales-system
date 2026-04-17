@@ -974,34 +974,36 @@ export const AdminDashboard = () => {
                 {lotes.map((lote) => (
                   <div key={lote.id}
                     onClick={() => handleSelectLote(lote)}
-                    className={`bg-stone-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
+                    className={`bg-stone-800 rounded-lg p-3 cursor-pointer transition hover:shadow-xl border-2 ${
                       selectedLote?.id === lote.id ? 'border-red-500 shadow-red-500/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'
                     }`}>
                     {lote.foto ? (
-                      <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
-                        className="w-full h-48 object-contain rounded mb-3 bg-stone-900" />
+                      <div className="relative w-full h-32 mb-2 rounded overflow-hidden bg-stone-900/30">
+                        <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      </div>
                     ) : (
-                      <div className="w-full h-32 bg-stone-700 rounded mb-3 flex items-center justify-center">
-                        <Image size={32} className="text-stone-500" />
+                      <div className="w-full h-24 bg-stone-700/50 rounded mb-2 flex items-center justify-center">
+                        <Image size={28} className="text-stone-500" />
                       </div>
                     )}
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-lg text-white">{lote.numero_lote || lote.nome}</h3>
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          <h3 className="font-bold text-base text-white">{lote.numero_lote || lote.nome}</h3>
                           {lote.status_lote && (
-                            <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30">
+                            <span className="text-xs bg-orange-600/20 text-orange-400 px-1.5 py-0.5 rounded border border-orange-600/30">
                               {lote.status_lote}
                             </span>
                           )}
                           {lote.rastreio_importacao && (
-                            <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30">
+                            <span className="text-xs bg-orange-600/20 text-orange-400 px-1.5 py-0.5 rounded border border-orange-600/30">
                               📦 {lote.rastreio_importacao}
                             </span>
                           )}
                         </div>
-                        {lote.descricao && <p className="text-sm text-gray-400 mt-1">{lote.descricao}</p>}
-                        <p className="text-sm text-gray-500 mt-1">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
+                        {lote.descricao && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{lote.descricao}</p>}
+                        <p className="text-xs text-gray-500 mt-0.5">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
                         
                         {/* Indicadores Financeiros */}
                         <div className="mt-2 space-y-1">
