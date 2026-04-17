@@ -93,7 +93,7 @@ export const loteService = {
   buscarClientes: (termo: string) => api.get(`/lotes/buscar-clientes/${termo}/`),
   // Tributos
   criarTributo: (data: any) => api.post('/lotes/tributos/', data),
-  listarTributos: () => api.get('/lotes/tributos/'),
+  listarTributos: (incluirArquivados = false) => api.get(`/lotes/tributos/?incluir_arquivados=${incluirArquivados}`),
   obterTributo: (tributoId: number) => api.get(`/lotes/tributos/${tributoId}/`),
   obterTributoPorRastreio: (rastreio: string) => api.get(`/lotes/tributos/rastreio/${rastreio}/`),
   obterVendasTributo: (rastreio: string) => api.get(`/lotes/tributos/rastreio/${rastreio}/vendas/`),

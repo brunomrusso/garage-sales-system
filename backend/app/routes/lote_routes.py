@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate, TributoImportacaoCreate, TributoImportacaoUpdate
@@ -40,8 +40,12 @@ def criar_tributo(data: TributoImportacaoCreate, db: Session = Depends(get_db), 
 
 
 @router.get("/tributos/")
-def listar_tributos(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.listar_tributos(db)
+def listar_tributos(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_admin_token),
+    incluir_arquivados: bool = Query(False)
+):
+    return lote_controller.listar_tributos(db, incluir_arquivados=incluir_arquivados)
 
 
 @router.get("/tributos/{tributo_id}/")

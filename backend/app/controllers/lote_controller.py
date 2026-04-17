@@ -302,6 +302,24 @@ def atualizar_venda(db: Session, venda_id: int, venda_data: VendaLoteUpdate) -> 
             db.commit()
             db.refresh(lote)
     
+    # Verificar arquivamento automático do tributo vinculado ao lote
+    if lote and lote.rastreio_importacao:
+        tributo = db.query(TributoImportacao).filter(
+            TributoImportacao.empresa_id == lote.empresa_id,
+            TributoImportacao.rastreio_importacao == lote.rastreio_importacao,
+            TributoImportacao.arquivado == False
+        ).first()
+        if tributo:
+            # Buscar todas vendas dos lotes com mesmo rastreio
+            lotes_ids = [l.id for l in db.query(Lote).filter(
+                Lote.empresa_id == lote.empresa_id,
+                Lote.rastreio_importacao == lote.rastreio_importacao
+            ).all()]
+            todas_vendas = db.query(VendaLote).filter(VendaLote.lote_id.in_(lotes_ids)).all()
+            if todas_vendas and all(v.tributo_pago for v in todas_vendas):
+                tributo.arquivado = True
+                db.commit()
+    
     return _venda_to_response(venda)
 
 
@@ -422,7 +440,8 @@ def _calcular_tributo_response(db: Session, tributo: TributoImportacao) -> dict:
         "tributos_pagos": tributos_pagos,
         "tributos_pendentes": tributos_pendentes,
         "valor_pago": valor_pago,
-        "valor_pendente": valor_pendente
+        "valor_pendente": valor_pendente,
+        "arquivado": tributo.arquivado or False
     }
 
 
@@ -453,14 +472,17 @@ def criar_tributo(db: Session, data: TributoImportacaoCreate, empresa_id: int = 
     return _calcular_tributo_response(db, tributo)
 
 
-def listar_tributos(db: Session, empresa_id: int = None) -> list:
+def listar_tributos(db: Session, empresa_id: int = None, incluir_arquivados: bool = False) -> list:
     if empresa_id is None:
         empresa_id = TenantContext.get_tenant_id()
     
-    tributos = db.query(TributoImportacao).filter(
+    query = db.query(TributoImportacao).filter(
         TributoImportacao.empresa_id == empresa_id
-    ).order_by(TributoImportacao.data_registro.desc()).all()
+    )
+    if not incluir_arquivados:
+        query = query.filter(TributoImportacao.arquivado == False)
     
+    tributos = query.order_by(TributoImportacao.data_registro.desc()).all()
     return [_calcular_tributo_response(db, t) for t in tributos]
 
 

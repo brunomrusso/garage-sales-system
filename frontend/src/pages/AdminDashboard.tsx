@@ -51,6 +51,7 @@ export const AdminDashboard = () => {
 
   // Tributos state
   const [tributos, setTributos] = useState<any[]>([]);
+  const [mostrarTributosArquivados, setMostrarTributosArquivados] = useState(false);
   const [showTributoForm, setShowTributoForm] = useState(false);
   const [tributoFormData, setTributoFormData] = useState({ rastreio_importacao: '', valor_total_imposto: '', observacoes: '' });
   const [selectedTributo, setSelectedTributo] = useState<any>(null);
@@ -468,9 +469,9 @@ export const AdminDashboard = () => {
   };
 
   // ========== TRIBUTOS ==========
-  const loadTributos = async () => {
+  const loadTributos = async (arquivados = mostrarTributosArquivados) => {
     try {
-      const response = await loteService.listarTributos();
+      const response = await loteService.listarTributos(arquivados);
       setTributos(response.data);
     } catch (error) {
       console.error('Erro ao carregar tributos:', error);
@@ -1540,7 +1541,17 @@ export const AdminDashboard = () => {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={loadTributos} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
+                  <button onClick={() => {
+                    const novo = !mostrarTributosArquivados;
+                    setMostrarTributosArquivados(novo);
+                    loadTributos(novo);
+                  }} className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition text-sm ${
+                    mostrarTributosArquivados ? 'bg-orange-600/30 text-orange-300 border border-orange-600/40' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}>
+                    <Archive size={16} />
+                    {mostrarTributosArquivados ? 'Ocultar Arquivados' : 'Ver Arquivados'}
+                  </button>
+                  <button onClick={() => loadTributos()} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
                     <RefreshCw size={18} />
                     Atualizar
                   </button>
@@ -1593,12 +1604,18 @@ export const AdminDashboard = () => {
                     <div key={tributo.id}
                       onClick={() => handleSelectTributo(tributo)}
                       className={`bg-gray-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
+                        tributo.arquivado ? 'border-gray-600 opacity-60' :
                         selectedTributo?.id === tributo.id ? 'border-orange-500 shadow-orange-500/20 shadow-lg' : 'border-gray-700 hover:border-gray-500'
                       }`}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <h3 className="font-bold text-lg text-white">📦 {tributo.rastreio_importacao}</h3>
+                            {tributo.arquivado && (
+                              <span className="text-xs bg-gray-600/40 text-gray-400 px-2 py-1 rounded border border-gray-600/40">
+                                <Archive size={10} className="inline mr-1" />Arquivado
+                              </span>
+                            )}
                             <span className="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded border border-red-600/30 font-semibold">
                               R$ {Number(tributo.valor_total_imposto).toFixed(2)}
                             </span>

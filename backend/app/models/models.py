@@ -158,6 +158,7 @@ class TributoImportacao(Base):
     valor_total_imposto = Column(Numeric(10, 2), nullable=False)
     data_registro = Column(DateTime, default=datetime.utcnow)
     observacoes = Column(Text, nullable=True)
+    arquivado = Column(Boolean, default=False)
 
 
 class FotoGaragem(Base):
