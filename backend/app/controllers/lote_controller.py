@@ -373,6 +373,7 @@ def _venda_to_response(venda: VendaLote, include_lote_foto: bool = True) -> dict
         "observacoes": venda.observacoes,
         "status_entrega": venda.status_entrega,
         "cliente_nome": venda.cliente.nome if venda.cliente else None,
+        "cliente_telefone": venda.cliente.telefone if venda.cliente else None,
         "lote_numero": venda.lote.numero_lote if venda.lote else None,
         "lote_foto": (base64.b64encode(venda.lote.foto).decode() if venda.lote and venda.lote.foto else None) if include_lote_foto else None,
         "cotas": float(venda.cotas) if venda.cotas else None,

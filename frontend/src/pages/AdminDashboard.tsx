@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 import { Garage95Logo } from '../components/Garage95Logo';
 
@@ -57,6 +57,7 @@ export const AdminDashboard = () => {
   const [selectedTributo, setSelectedTributo] = useState<any>(null);
   const [vendasTributo, setVendasTributo] = useState<any[]>([]);
   const [editingTributo, setEditingTributo] = useState<any>(null);
+  const [mensagemCobranca, setMensagemCobranca] = useState<{ tributo: any; texto: string } | null>(null);
   const [editingLote, setEditingLote] = useState(false);
   const [editLoteData, setEditLoteData] = useState({ nome: '', descricao: '', status_lote: '', rastreio_importacao: '' });
   const [savingFoto, setSavingFoto] = useState(false);
@@ -534,6 +535,44 @@ export const AdminDashboard = () => {
       } catch (error) {
         console.error('Erro ao deletar tributo:', error);
       }
+    }
+  };
+
+  const gerarMensagemCobranca = async (tributo: any) => {
+    try {
+      const resp = await loteService.obterVendasTributo(tributo.rastreio_importacao);
+      const vendas: any[] = resp.data;
+      const pendentes = vendas.filter((v: any) => !v.tributo_pago);
+      if (pendentes.length === 0) {
+        alert('Todos os clientes já pagaram o tributo! 🎉');
+        return;
+      }
+      const formatTel = (tel: string) => {
+        if (!tel) return null;
+        const digits = tel.replace(/\D/g, '');
+        if (digits.startsWith('55') && digits.length >= 12) return digits;
+        if (digits.length === 11 || digits.length === 10) return `55${digits}`;
+        return digits;
+      };
+      const linhas = pendentes.map((v: any) => {
+        const tel = formatTel(v.cliente_telefone);
+        const mencao = tel ? `@${tel}` : '';
+        const total = (Number(v.cotas || 1) * Number(tributo.valor_por_cota)).toFixed(2);
+        return `${mencao} *${v.cliente_nome || 'Cliente'}*\nCotas: ${v.cotas || 1} | Total: R$ ${total}`;
+      }).join('\n\n');
+      const texto = [
+        `📦 *TRIBUTO DE IMPORTAÇÃO — Rastreio: ${tributo.rastreio_importacao}*`,
+        `💰 Valor Total: R$ ${Number(tributo.valor_total_imposto).toFixed(2)} | Valor/Cota: R$ ${Number(tributo.valor_por_cota).toFixed(2)}`,
+        ``,
+        `⚠️ *Clientes com tributo PENDENTE (${pendentes.length}):*`,
+        ``,
+        linhas,
+        ``,
+        `Por favor, realizar o pagamento. Dúvidas, me chamem. 🙏`,
+      ].join('\n');
+      setMensagemCobranca({ tributo, texto });
+    } catch (err) {
+      console.error('Erro ao gerar mensagem:', err);
     }
   };
 
@@ -1663,6 +1702,12 @@ export const AdminDashboard = () => {
                           {tributo.observacoes && <p className="text-xs text-gray-500 mt-2">{tributo.observacoes}</p>}
                         </div>
                         <div className="flex gap-1">
+                          {!tributo.arquivado && tributo.tributos_pendentes > 0 && (
+                            <button onClick={(e) => { e.stopPropagation(); gerarMensagemCobranca(tributo); }}
+                              className="text-gray-400 hover:text-green-400 p-1 transition" title="Gerar mensagem WhatsApp">
+                              <MessageSquare size={16} />
+                            </button>
+                          )}
                           <button onClick={async (e) => {
                             e.stopPropagation();
                             try {
@@ -1690,6 +1735,46 @@ export const AdminDashboard = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Modal Mensagem WhatsApp */}
+              {mensagemCobranca && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                  <div className="bg-gray-800 rounded-lg p-6 w-full max-w-lg border border-gray-700 flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <MessageSquare size={20} className="text-green-400" />
+                        Mensagem de Cobrança — WhatsApp
+                      </h3>
+                      <button onClick={() => setMensagemCobranca(null)} className="text-gray-400 hover:text-white">
+                        <X size={20} />
+                      </button>
+                    </div>
+                    <textarea
+                      readOnly
+                      value={mensagemCobranca.texto}
+                      rows={14}
+                      className="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white text-sm font-mono resize-none focus:outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(mensagemCobranca.texto);
+                          const btn = document.getElementById('btn-copiar-msg');
+                          if (btn) { btn.textContent = '✓ Copiado!'; setTimeout(() => { btn.textContent = 'Copiar mensagem'; }, 2000); }
+                        }}
+                        id="btn-copiar-msg"
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded transition"
+                      >
+                        Copiar mensagem
+                      </button>
+                      <button onClick={() => setMensagemCobranca(null)}
+                        className="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-gray-600 transition">
+                        Fechar
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
