@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate
+from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate, TributoImportacaoCreate, TributoImportacaoUpdate
 from app.controllers import lote_controller, permission_controller
 from app.core.security import verify_token, verify_admin_token
 
@@ -95,9 +95,52 @@ def buscar_clientes(termo: str, db: Session = Depends(get_db), current_user: dic
     return lote_controller.buscar_clientes(db, termo)
 
 
-@router.get("/arquivados/")
-def listar_lotes_arquivados(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.listar_lotes_arquivados(db)
+# ========== TRIBUTOS ==========
+
+@router.post("/tributos/")
+def criar_tributo(data: TributoImportacaoCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_edit", "gerenciar tributos")
+    return lote_controller.criar_tributo(db, data)
+
+
+@router.get("/tributos/")
+def listar_tributos(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.listar_tributos(db)
+
+
+@router.get("/tributos/{tributo_id}/")
+def obter_tributo(tributo_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.obter_tributo(db, tributo_id)
+
+
+@router.get("/tributos/rastreio/{rastreio}/")
+def obter_tributo_por_rastreio(rastreio: str, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.obter_tributo_por_rastreio(db, rastreio)
+
+
+@router.get("/tributos/rastreio/{rastreio}/vendas/")
+def obter_vendas_tributo(rastreio: str, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.obter_vendas_tributo(db, rastreio)
+
+
+@router.put("/tributos/{tributo_id}/")
+def atualizar_tributo(tributo_id: int, data: TributoImportacaoUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_edit", "gerenciar tributos")
+    return lote_controller.atualizar_tributo(db, tributo_id, data)
+
+
+@router.delete("/tributos/{tributo_id}/")
+def deletar_tributo(tributo_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_delete", "deletar tributos")
+    return lote_controller.deletar_tributo(db, tributo_id)
+
+
+@router.get("/vendas/cliente/{cliente_id}/tributos/")
+def obter_tributos_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
+    return lote_controller.obter_tributos_cliente(db, cliente_id)
 
 
 @router.post("/migrar-producao/")

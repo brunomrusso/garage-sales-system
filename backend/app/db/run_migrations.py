@@ -36,7 +36,8 @@ def run_migrations():
     
     migrations = [
         'migrate_add_role_ativo.sql',
-        'migrate_add_permissions.sql'
+        'migrate_add_permissions.sql',
+        'migrate_add_tributos.sql'
     ]
     
     for migration in migrations:

@@ -87,6 +87,7 @@ class Lote(Base):
     data_criacao = Column(DateTime, default=datetime.utcnow)
     status_lote = Column(String(50), nullable=True)  # Chegou EUA, Importado Brasil, Alfandega/Tributação, Centro Distribuição
     arquivado = Column(Boolean, default=False)
+    rastreio_importacao = Column(String(100), nullable=True)  # Vincula lotes importados juntos
     
     # Campos calculados (não armazenados no banco, calculados em tempo real)
     @property
@@ -139,9 +140,24 @@ class VendaLote(Base):
     data_venda = Column(DateTime, default=datetime.utcnow)
     observacoes = Column(Text, nullable=True)
     status_entrega = Column(String(50), default="aguardando_pagamento")
+    cotas = Column(Numeric(10, 2), nullable=True, default=1.0)  # Cotas de importação
+    tributo_pago = Column(Boolean, default=False)
+    comprovante_tributo = Column(LargeBinary, nullable=True)
+    data_pagamento_tributo = Column(DateTime, nullable=True)
 
     lote = relationship("Lote", back_populates="vendas")
     cliente = relationship("Cliente", back_populates="vendas_lote")
+
+
+class TributoImportacao(Base):
+    __tablename__ = "tributos_importacao"
+
+    id = Column(Integer, primary_key=True, index=True)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=True)
+    rastreio_importacao = Column(String(100), nullable=False)
+    valor_total_imposto = Column(Numeric(10, 2), nullable=False)
+    data_registro = Column(DateTime, default=datetime.utcnow)
+    observacoes = Column(Text, nullable=True)
 
 
 class FotoGaragem(Base):

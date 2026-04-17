@@ -128,6 +128,7 @@ class LoteCreate(BaseModel):
     descricao: Optional[str] = None
     foto: Optional[str] = None
     status_lote: Optional[str] = None
+    rastreio_importacao: Optional[str] = None
 
 
 class LoteUpdate(BaseModel):
@@ -135,6 +136,7 @@ class LoteUpdate(BaseModel):
     foto: Optional[str] = None
     status_lote: Optional[str] = None
     arquivado: Optional[bool] = None
+    rastreio_importacao: Optional[str] = None
 
 
 class LoteResponse(BaseModel):
@@ -146,6 +148,7 @@ class LoteResponse(BaseModel):
     data_criacao: datetime
     status_lote: Optional[str]
     arquivado: bool
+    rastreio_importacao: Optional[str] = None
     total_vendas: int
     vendas_pagas: int
     vendas_nao_pagas: int
@@ -168,6 +171,7 @@ class VendaLoteCreate(BaseModel):
     comprovante_pagamento: Optional[str] = None
     data_pagamento: Optional[datetime] = None
     observacoes: Optional[str] = None
+    cotas: Optional[Decimal] = None
 
 
 class VendaLoteUpdate(BaseModel):
@@ -178,6 +182,10 @@ class VendaLoteUpdate(BaseModel):
     data_pagamento: Optional[datetime] = None
     observacoes: Optional[str] = None
     status_entrega: Optional[str] = None
+    cotas: Optional[Decimal] = None
+    tributo_pago: Optional[bool] = None
+    comprovante_tributo: Optional[str] = None
+    data_pagamento_tributo: Optional[datetime] = None
 
 
 class VendaLoteResponse(BaseModel):
@@ -195,6 +203,39 @@ class VendaLoteResponse(BaseModel):
     cliente_nome: Optional[str] = None
     lote_nome: Optional[str] = None
     lote_foto: Optional[str] = None
+    cotas: Optional[float] = None
+    tributo_pago: Optional[bool] = False
+    comprovante_tributo: Optional[str] = None
+    data_pagamento_tributo: Optional[datetime] = None
+    valor_tributo: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
+
+class TributoImportacaoCreate(BaseModel):
+    rastreio_importacao: str
+    valor_total_imposto: Decimal
+    observacoes: Optional[str] = None
+
+
+class TributoImportacaoUpdate(BaseModel):
+    valor_total_imposto: Optional[Decimal] = None
+    observacoes: Optional[str] = None
+
+
+class TributoImportacaoResponse(BaseModel):
+    id: int
+    rastreio_importacao: str
+    valor_total_imposto: float
+    data_registro: datetime
+    observacoes: Optional[str] = None
+    total_cotas: Optional[float] = 0
+    valor_por_cota: Optional[float] = 0
+    lotes_vinculados: Optional[List[dict]] = []
+    vendas_count: Optional[int] = 0
+    tributos_pagos: Optional[int] = 0
+    tributos_pendentes: Optional[int] = 0
 
     class Config:
         from_attributes = True

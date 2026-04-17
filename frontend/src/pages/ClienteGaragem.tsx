@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTenant } from '../contexts/TenantContext';
 import { loteService, garagemService } from '../services/api';
-import { LogOut, ShoppingBag, Check, X, Eye, Image as ImageIcon, RefreshCw, Warehouse, Send, Package } from 'lucide-react';
+import { LogOut, ShoppingBag, Check, X, Eye, Image as ImageIcon, RefreshCw, Warehouse, Send, Package, Receipt } from 'lucide-react';
 import { Garage95Logo } from '../components/Garage95Logo';
 
 export const ClienteGaragem = () => {
@@ -20,6 +20,7 @@ export const ClienteGaragem = () => {
   const [motivoSolicitacao, setMotivoSolicitacao] = useState<string>("");
   const [temSolicitacaoPendente, setTemSolicitacaoPendente] = useState<boolean>(false);
   const [itensStatus, setItensStatus] = useState<Record<number, any>>({});
+  const [tributosCliente, setTributosCliente] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -27,6 +28,7 @@ export const ClienteGaragem = () => {
       loadFotos();
       loadSolicitacoes();
       loadFotosNaoSolicitadas();
+      loadTributosCliente();
     }
   }, [user]);
 
@@ -95,6 +97,39 @@ export const ClienteGaragem = () => {
         console.error('Erro ao solicitar envio:', error);
       }
     }
+  };
+
+  const loadTributosCliente = async () => {
+    try {
+      const response = await loteService.obterTributosCliente(user!.id);
+      setTributosCliente(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar tributos:', error);
+    }
+  };
+
+  const handleUploadComprovanteTributo = async (vendaId: number) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+        try {
+          await loteService.atualizarVenda(vendaId, { comprovante_tributo: base64 });
+          alert('Comprovante enviado com sucesso!');
+          loadTributosCliente();
+        } catch (error) {
+          console.error('Erro ao enviar comprovante:', error);
+          alert('Erro ao enviar comprovante.');
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
   };
 
   const totalGasto = vendas.reduce((acc, v) => acc + Number(v.preco), 0);
@@ -317,6 +352,48 @@ export const ClienteGaragem = () => {
                             )}
                           </div>
                         </div>
+
+                        {/* Tributo info */}
+                        {(() => {
+                          const tributo = tributosCliente.find((t: any) => t.venda_id === venda.id);
+                          if (!tributo) return null;
+                          return (
+                            <div className="mt-3 p-3 bg-orange-600/10 border border-orange-600/20 rounded-lg">
+                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <Receipt size={16} className="text-orange-400" />
+                                  <span className="text-sm font-semibold text-orange-400">Tributo de Importação</span>
+                                  <span className="text-xs text-gray-500">Rastreio: {tributo.rastreio_importacao}</span>
+                                  <span className="text-xs text-gray-500">Cotas: {tributo.cotas}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-lg font-bold text-orange-400">R$ {Number(tributo.valor_tributo).toFixed(2)}</span>
+                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                    tributo.tributo_pago ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-orange-600/20 text-orange-400 border border-orange-600/30'
+                                  }`}>
+                                    {tributo.tributo_pago ? 'Pago' : 'Pendente'}
+                                  </span>
+                                </div>
+                              </div>
+                              {!tributo.tributo_pago && (
+                                <div className="mt-2 flex items-center gap-2">
+                                  <button onClick={() => handleUploadComprovanteTributo(tributo.venda_id)}
+                                    className="text-xs bg-orange-600/20 text-orange-400 px-3 py-1 rounded hover:bg-orange-600/30 border border-orange-600/30 transition">
+                                    Enviar Comprovante de Tributo
+                                  </button>
+                                </div>
+                              )}
+                              {tributo.comprovante_tributo && (
+                                <button onClick={() => {
+                                  const w = window.open('');
+                                  w?.document.write(`<img src="data:image/jpeg;base64,${tributo.comprovante_tributo}" style="max-width:100%" />`);
+                                }} className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-xs mt-2 transition">
+                                  <Eye size={12} /> Ver Comprovante Tributo
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

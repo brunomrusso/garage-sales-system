@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 import { Garage95Logo } from '../components/Garage95Logo';
 
@@ -20,7 +20,7 @@ export const AdminDashboard = () => {
   } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins'>('clientes');
+  const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins' | 'tributos'>('clientes');
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '' });
@@ -34,10 +34,10 @@ export const AdminDashboard = () => {
   const [vendasLote, setVendasLote] = useState<any[]>([]);
   const [showLoteForm, setShowLoteForm] = useState(false);
   const [showVendaForm, setShowVendaForm] = useState(false);
-  const [loteFormData, setLoteFormData] = useState({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '' });
+  const [loteFormData, setLoteFormData] = useState({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '', rastreio_importacao: '' });
   const [vendaFormData, setVendaFormData] = useState({
     cliente_id: '', carrinhos_comprados: '', preco: '', pago: false,
-    comprovante_pagamento: '', data_pagamento: '', observacoes: ''
+    comprovante_pagamento: '', data_pagamento: '', observacoes: '', cotas: '1'
   });
   const [buscaCliente, setBuscaCliente] = useState('');
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
@@ -48,6 +48,14 @@ export const AdminDashboard = () => {
   const [solicitacoes, setSolicitacoes] = useState<any[]>([]);
   const [showFotoForm, setShowFotoForm] = useState(false);
   const [fotoFormData, setFotoFormData] = useState({ foto: '', descricao: '' });
+
+  // Tributos state
+  const [tributos, setTributos] = useState<any[]>([]);
+  const [showTributoForm, setShowTributoForm] = useState(false);
+  const [tributoFormData, setTributoFormData] = useState({ rastreio_importacao: '', valor_total_imposto: '', observacoes: '' });
+  const [selectedTributo, setSelectedTributo] = useState<any>(null);
+  const [vendasTributo, setVendasTributo] = useState<any[]>([]);
+  const [editingTributo, setEditingTributo] = useState<any>(null);
   const [savingFoto, setSavingFoto] = useState(false);
 
   useEffect(() => {
@@ -164,7 +172,7 @@ export const AdminDashboard = () => {
     e.preventDefault();
     try {
       await loteService.criar(loteFormData);
-      setLoteFormData({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '' });
+      setLoteFormData({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '', rastreio_importacao: '' });
       setShowLoteForm(false);
       loadLotes();
     } catch (error) {
@@ -237,10 +245,11 @@ export const AdminDashboard = () => {
         data_pagamento: vendaFormData.data_pagamento || null,
         observacoes: vendaFormData.observacoes || null,
         comprovante_pagamento: vendaFormData.comprovante_pagamento || null,
+        cotas: vendaFormData.cotas ? parseFloat(vendaFormData.cotas) : 1.0,
       });
       setVendaFormData({
         cliente_id: '', carrinhos_comprados: '', preco: '', pago: false,
-        comprovante_pagamento: '', data_pagamento: '', observacoes: ''
+        comprovante_pagamento: '', data_pagamento: '', observacoes: '', cotas: '1'
       });
       setShowVendaForm(false);
       loadVendasLote(selectedLote.id);
@@ -424,6 +433,88 @@ export const AdminDashboard = () => {
     }
   };
 
+  // ========== TRIBUTOS ==========
+  const loadTributos = async () => {
+    try {
+      const response = await loteService.listarTributos();
+      setTributos(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar tributos:', error);
+    }
+  };
+
+  const handleCreateTributo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await loteService.criarTributo({
+        rastreio_importacao: tributoFormData.rastreio_importacao,
+        valor_total_imposto: parseFloat(tributoFormData.valor_total_imposto),
+        observacoes: tributoFormData.observacoes || null,
+      });
+      setTributoFormData({ rastreio_importacao: '', valor_total_imposto: '', observacoes: '' });
+      setShowTributoForm(false);
+      loadTributos();
+    } catch (error: any) {
+      const msg = error.response?.data?.detail || 'Erro ao criar tributo';
+      alert(msg);
+    }
+  };
+
+  const handleSelectTributo = async (tributo: any) => {
+    setSelectedTributo(tributo);
+    try {
+      const response = await loteService.obterVendasTributo(tributo.rastreio_importacao);
+      setVendasTributo(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar vendas do tributo:', error);
+      setVendasTributo([]);
+    }
+  };
+
+  const handleUpdateTributo = async (tributoId: number, data: any) => {
+    try {
+      await loteService.atualizarTributo(tributoId, data);
+      loadTributos();
+      if (selectedTributo?.id === tributoId) {
+        const resp = await loteService.obterTributo(tributoId);
+        setSelectedTributo(resp.data);
+        const vendasResp = await loteService.obterVendasTributo(resp.data.rastreio_importacao);
+        setVendasTributo(vendasResp.data);
+      }
+      setEditingTributo(null);
+    } catch (error) {
+      console.error('Erro ao atualizar tributo:', error);
+    }
+  };
+
+  const handleDeleteTributo = async (tributoId: number) => {
+    if (window.confirm('Tem certeza que deseja deletar este tributo?')) {
+      try {
+        await loteService.deletarTributo(tributoId);
+        if (selectedTributo?.id === tributoId) {
+          setSelectedTributo(null);
+          setVendasTributo([]);
+        }
+        loadTributos();
+      } catch (error) {
+        console.error('Erro ao deletar tributo:', error);
+      }
+    }
+  };
+
+  const handleToggleTributoPago = async (venda: any) => {
+    try {
+      await loteService.atualizarVenda(venda.id, { tributo_pago: !venda.tributo_pago });
+      if (selectedTributo) {
+        const vendasResp = await loteService.obterVendasTributo(selectedTributo.rastreio_importacao);
+        setVendasTributo(vendasResp.data);
+        loadTributos();
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar tributo pago:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-red-950">
       <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
@@ -490,6 +581,15 @@ export const AdminDashboard = () => {
               Garagem
             </button>
             )}
+            <button
+              onClick={() => { setActiveTab('tributos'); loadTributos(); }}
+              className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
+                activeTab === 'tributos' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
+              }`}
+            >
+              <Receipt size={18} />
+              Tributos
+            </button>
             <button
               onClick={() => { setActiveTab('admins'); loadAdminsPendentes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
@@ -772,6 +872,12 @@ export const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
+                      <label className="block text-sm text-gray-400 mb-1">Rastreio de Importação (opcional)</label>
+                      <input type="text" placeholder="Código de rastreio para vincular lotes" value={loteFormData.rastreio_importacao}
+                        onChange={(e) => setLoteFormData({ ...loteFormData, rastreio_importacao: e.target.value })}
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                    </div>
+                    <div>
                       <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
                       <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-gray-300 text-sm" />
                     </div>
@@ -810,6 +916,11 @@ export const AdminDashboard = () => {
                           {lote.status_lote && (
                             <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-600/30">
                               {lote.status_lote}
+                            </span>
+                          )}
+                          {lote.rastreio_importacao && (
+                            <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30">
+                              📦 {lote.rastreio_importacao}
                             </span>
                           )}
                         </div>
@@ -980,12 +1091,18 @@ export const AdminDashboard = () => {
                           </select>
                         </div>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <div>
                             <label className="block text-sm text-gray-400 mb-1">Preço (R$)</label>
                             <input type="number" step="0.01" placeholder="0.00" value={vendaFormData.preco}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, preco: e.target.value })}
                               className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-1">Cotas (padrão: 1)</label>
+                            <input type="number" step="0.1" min="0.1" placeholder="1" value={vendaFormData.cotas}
+                              onChange={(e) => setVendaFormData({ ...vendaFormData, cotas: e.target.value })}
+                              className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
                           </div>
                           <div className="flex items-center gap-2 mt-6">
                             <input type="checkbox" id="pago" checked={vendaFormData.pago}
@@ -1041,7 +1158,9 @@ export const AdminDashboard = () => {
                           <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
                           <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Preço</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cotas</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Pago</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Tributo</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Pgto</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Comprov.</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Entrega</th>
@@ -1055,6 +1174,7 @@ export const AdminDashboard = () => {
                             <td className="px-4 py-2 font-medium text-white">{venda.cliente_nome}</td>
                             <td className="px-4 py-2 text-sm max-w-xs truncate text-gray-300">{venda.carrinhos_comprados}</td>
                             <td className="px-4 py-2 font-semibold text-green-400">R$ {Number(venda.preco).toFixed(2)}</td>
+                            <td className="px-4 py-2 text-sm text-gray-300">{venda.cotas || 1}</td>
                             <td className="px-4 py-2">
                               <button onClick={() => handleTogglePago(venda)}
                                 className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
@@ -1062,6 +1182,13 @@ export const AdminDashboard = () => {
                                 }`}>
                                 {venda.pago ? <><Check size={14} /> Pago</> : <><X size={14} /> Pendente</>}
                               </button>
+                            </td>
+                            <td className="px-4 py-2">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                venda.tributo_pago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                              }`}>
+                                {venda.tributo_pago ? 'Pago' : 'Pendente'}
+                              </span>
                             </td>
                             <td className="px-4 py-2 text-sm text-gray-400">
                               {venda.data_pagamento ? new Date(venda.data_pagamento).toLocaleString('pt-BR') : '-'}
@@ -1297,6 +1424,232 @@ export const AdminDashboard = () => {
                 )}
               </div>
                 </>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'tributos' && (
+            <div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide">Tributos de Importação</h2>
+                  <span className="bg-orange-600/20 text-orange-400 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-orange-600/30">
+                    {tributos.length} registro{tributos.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={loadTributos} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-gray-600 transition">
+                    <RefreshCw size={18} />
+                    Atualizar
+                  </button>
+                  <button onClick={() => setShowTributoForm(!showTributoForm)}
+                    className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                    <Plus size={18} />
+                    {showTributoForm ? 'Cancelar' : 'Novo Tributo'}
+                  </button>
+                </div>
+              </div>
+
+              {showTributoForm && (
+                <form onSubmit={handleCreateTributo} className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-gray-700">
+                  <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Tributo</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Código Rastreio de Importação</label>
+                      <input type="text" placeholder="Ex: BR123456789" value={tributoFormData.rastreio_importacao}
+                        onChange={(e) => setTributoFormData({ ...tributoFormData, rastreio_importacao: e.target.value })}
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Valor Total do Imposto (R$)</label>
+                      <input type="number" step="0.01" placeholder="0.00" value={tributoFormData.valor_total_imposto}
+                        onChange={(e) => setTributoFormData({ ...tributoFormData, valor_total_imposto: e.target.value })}
+                        className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className="block text-sm text-gray-400 mb-1">Observações (opcional)</label>
+                    <textarea placeholder="Notas sobre este tributo..." value={tributoFormData.observacoes}
+                      onChange={(e) => setTributoFormData({ ...tributoFormData, observacoes: e.target.value })}
+                      className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                  </div>
+                  <button type="submit" className="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                    Criar Tributo
+                  </button>
+                </form>
+              )}
+
+              {tributos.length === 0 ? (
+                <div className="bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 border border-gray-700">
+                  <Receipt size={64} className="mx-auto mb-4 text-gray-600" />
+                  <p className="text-lg">Nenhum tributo cadastrado</p>
+                  <p className="text-sm mt-2">Crie um tributo vinculando-o a um código de rastreio de importação</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                  {tributos.map((tributo) => (
+                    <div key={tributo.id}
+                      onClick={() => handleSelectTributo(tributo)}
+                      className={`bg-gray-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
+                        selectedTributo?.id === tributo.id ? 'border-orange-500 shadow-orange-500/20 shadow-lg' : 'border-gray-700 hover:border-gray-500'
+                      }`}>
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <h3 className="font-bold text-lg text-white">📦 {tributo.rastreio_importacao}</h3>
+                            <span className="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded border border-red-600/30 font-semibold">
+                              R$ {Number(tributo.valor_total_imposto).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+                            <div>
+                              <span className="text-gray-500">Cotas:</span>
+                              <span className="text-white ml-1 font-semibold">{tributo.total_cotas}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Valor/Cota:</span>
+                              <span className="text-orange-400 ml-1 font-semibold">R$ {Number(tributo.valor_por_cota).toFixed(2)}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Vendas:</span>
+                              <span className="text-white ml-1">{tributo.vendas_count}</span>
+                            </div>
+                          </div>
+                          <div className="mt-2 flex items-center gap-2 flex-wrap">
+                            <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30">
+                              {tributo.tributos_pagos} pago{tributo.tributos_pagos !== 1 ? 's' : ''}
+                            </span>
+                            {tributo.tributos_pendentes > 0 && (
+                              <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30">
+                                {tributo.tributos_pendentes} pendente{tributo.tributos_pendentes !== 1 ? 's' : ''}
+                              </span>
+                            )}
+                            {tributo.lotes_vinculados?.length > 0 && (
+                              <span className="text-xs text-gray-500">
+                                Lotes: {tributo.lotes_vinculados.map((l: any) => l.numero_lote).join(', ')}
+                              </span>
+                            )}
+                          </div>
+                          {tributo.observacoes && <p className="text-xs text-gray-500 mt-2">{tributo.observacoes}</p>}
+                        </div>
+                        <div className="flex gap-1">
+                          <button onClick={(e) => { e.stopPropagation(); setEditingTributo(tributo); }}
+                            className="text-gray-400 hover:text-white p-1 transition" title="Editar">
+                            <Settings size={16} />
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteTributo(tributo.id); }}
+                            className="text-red-500 hover:text-red-400 p-1 transition" title="Deletar">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Modal Editar Tributo */}
+              {editingTributo && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                  <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
+                    <h3 className="text-lg font-bold text-white mb-4">Editar Tributo</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Valor Total do Imposto (R$)</label>
+                        <input type="number" step="0.01" defaultValue={editingTributo.valor_total_imposto}
+                          id="edit-tributo-valor"
+                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Observações</label>
+                        <textarea defaultValue={editingTributo.observacoes || ''} id="edit-tributo-obs"
+                          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" rows={2} />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <button onClick={() => {
+                        const valor = (document.getElementById('edit-tributo-valor') as HTMLInputElement).value;
+                        const obs = (document.getElementById('edit-tributo-obs') as HTMLTextAreaElement).value;
+                        handleUpdateTributo(editingTributo.id, {
+                          valor_total_imposto: parseFloat(valor),
+                          observacoes: obs || null,
+                        });
+                      }} className="flex-1 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                        Salvar
+                      </button>
+                      <button onClick={() => setEditingTributo(null)}
+                        className="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-gray-600 transition">
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Detalhe do tributo selecionado */}
+              {selectedTributo && (
+                <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 border border-gray-700 mt-2">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold text-white">
+                      Vendas - Rastreio: <span className="text-orange-400">{selectedTributo.rastreio_importacao}</span>
+                    </h3>
+                    <span className="text-sm text-gray-400">
+                      Valor/Cota: <span className="text-orange-400 font-semibold">R$ {Number(selectedTributo.valor_por_cota).toFixed(2)}</span>
+                    </span>
+                  </div>
+                  {vendasTributo.length === 0 ? (
+                    <div className="text-center text-gray-500 py-6">
+                      <p>Nenhuma venda vinculada a este rastreio.</p>
+                      <p className="text-xs mt-1">Vincule lotes a este rastreio definindo o campo "Rastreio de Importação" no lote.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[700px]">
+                        <thead className="bg-stone-900/50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                            <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Lote</th>
+                            <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
+                            <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cotas</th>
+                            <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Valor Tributo</th>
+                            <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status</th>
+                            <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {vendasTributo.map((venda) => (
+                            <tr key={venda.id} className="border-t border-gray-700 hover:bg-gray-700/50 transition">
+                              <td className="px-4 py-2 font-medium text-white">{venda.cliente_nome}</td>
+                              <td className="px-4 py-2 text-sm text-gray-300">{venda.lote_numero}</td>
+                              <td className="px-4 py-2 text-sm text-gray-300 max-w-xs truncate">{venda.carrinhos_comprados}</td>
+                              <td className="px-4 py-2 text-sm text-gray-300">{venda.cotas || 1}</td>
+                              <td className="px-4 py-2 font-semibold text-orange-400">
+                                R$ {venda.valor_tributo !== null ? Number(venda.valor_tributo).toFixed(2) : '—'}
+                              </td>
+                              <td className="px-4 py-2">
+                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                  venda.tributo_pago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                }`}>
+                                  {venda.tributo_pago ? 'Pago' : 'Pendente'}
+                                </span>
+                              </td>
+                              <td className="px-4 py-2">
+                                <button onClick={() => handleToggleTributoPago(venda)}
+                                  className={`text-xs px-2 py-1 rounded transition ${
+                                    venda.tributo_pago
+                                      ? 'bg-orange-600/20 text-orange-400 hover:bg-orange-600/30 border border-orange-600/30'
+                                      : 'bg-green-600/20 text-green-400 hover:bg-green-600/30 border border-green-600/30'
+                                  }`}>
+                                  {venda.tributo_pago ? 'Marcar Pendente' : 'Marcar Pago'}
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}

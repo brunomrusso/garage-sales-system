@@ -91,6 +91,15 @@ export const loteService = {
   desarquivar: (loteId: number) => api.put(`/lotes/${loteId}/desarquivar/`),
   migrar: () => api.post('/lotes/migrar/'),
   buscarClientes: (termo: string) => api.get(`/lotes/buscar-clientes/${termo}/`),
+  // Tributos
+  criarTributo: (data: any) => api.post('/lotes/tributos/', data),
+  listarTributos: () => api.get('/lotes/tributos/'),
+  obterTributo: (tributoId: number) => api.get(`/lotes/tributos/${tributoId}/`),
+  obterTributoPorRastreio: (rastreio: string) => api.get(`/lotes/tributos/rastreio/${rastreio}/`),
+  obterVendasTributo: (rastreio: string) => api.get(`/lotes/tributos/rastreio/${rastreio}/vendas/`),
+  atualizarTributo: (tributoId: number, data: any) => api.put(`/lotes/tributos/${tributoId}/`, data),
+  deletarTributo: (tributoId: number) => api.delete(`/lotes/tributos/${tributoId}/`),
+  obterTributosCliente: (clienteId: number) => api.get(`/lotes/vendas/cliente/${clienteId}/tributos/`),
 };
 
 export const garagemService = {

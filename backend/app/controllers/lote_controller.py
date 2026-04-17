@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from fastapi import HTTPException, status
-from app.models.models import Lote, VendaLote, Cliente
-from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate
+from app.models.models import Lote, VendaLote, Cliente, TributoImportacao
+from app.schemas.schemas import LoteCreate, LoteUpdate, VendaLoteCreate, VendaLoteUpdate, TributoImportacaoCreate, TributoImportacaoUpdate
 from app.core.tenant import TenantContext
 import base64
 from datetime import datetime
@@ -87,7 +88,8 @@ def criar_lote(db: Session, lote_data: LoteCreate, empresa_id: int = None) -> di
         nome=lote_data.nome,
         descricao=lote_data.descricao,
         foto=foto_bytes,
-        status_lote=lote_data.status_lote
+        status_lote=lote_data.status_lote,
+        rastreio_importacao=lote_data.rastreio_importacao
     )
     db.add(novo_lote)
     db.commit()
@@ -153,6 +155,8 @@ def atualizar_lote(db: Session, lote_id: int, lote_data: LoteUpdate, empresa_id:
         lote.status_lote = lote_data.status_lote
     if lote_data.arquivado is not None:
         lote.arquivado = lote_data.arquivado
+    if lote_data.rastreio_importacao is not None:
+        lote.rastreio_importacao = lote_data.rastreio_importacao
 
     db.commit()
     db.refresh(lote)
@@ -231,7 +235,8 @@ def criar_venda(db: Session, venda_data: VendaLoteCreate) -> dict:
         pago=venda_data.pago,
         comprovante_pagamento=comprovante_bytes,
         data_pagamento=venda_data.data_pagamento,
-        observacoes=venda_data.observacoes
+        observacoes=venda_data.observacoes,
+        cotas=venda_data.cotas if venda_data.cotas is not None else 1.0
     )
     db.add(nova_venda)
     db.commit()
@@ -266,6 +271,14 @@ def atualizar_venda(db: Session, venda_id: int, venda_data: VendaLoteUpdate) -> 
         venda.data_pagamento = venda_data.data_pagamento
     if venda_data.observacoes is not None:
         venda.observacoes = venda_data.observacoes
+    if venda_data.cotas is not None:
+        venda.cotas = venda_data.cotas
+    if venda_data.tributo_pago is not None:
+        venda.tributo_pago = venda_data.tributo_pago
+    if venda_data.comprovante_tributo is not None:
+        venda.comprovante_tributo = base64.b64decode(venda_data.comprovante_tributo)
+    if venda_data.data_pagamento_tributo is not None:
+        venda.data_pagamento_tributo = venda_data.data_pagamento_tributo
     if venda_data.status_entrega is not None:
         venda.status_entrega = venda_data.status_entrega
         status_pagos = ['pago', 'chegou_eua', 'importado_brasil', 'alfandega', 'centro_distribuicao']
@@ -305,6 +318,7 @@ def _lote_to_response(lote: Lote) -> dict:
         "data_criacao": lote.data_criacao,
         "status_lote": lote.status_lote,
         "arquivado": lote.arquivado,
+        "rastreio_importacao": lote.rastreio_importacao,
         "total_vendas": lote.total_vendas,
         "vendas_pagas": lote.vendas_pagas,
         "vendas_nao_pagas": lote.vendas_nao_pagas,
@@ -336,5 +350,259 @@ def _venda_to_response(venda: VendaLote) -> dict:
         "status_entrega": venda.status_entrega,
         "cliente_nome": venda.cliente.nome if venda.cliente else None,
         "lote_numero": venda.lote.numero_lote if venda.lote else None,
-        "lote_foto": base64.b64encode(venda.lote.foto).decode() if venda.lote and venda.lote.foto else None
+        "lote_foto": base64.b64encode(venda.lote.foto).decode() if venda.lote and venda.lote.foto else None,
+        "cotas": float(venda.cotas) if venda.cotas else None,
+        "tributo_pago": venda.tributo_pago or False,
+        "comprovante_tributo": base64.b64encode(venda.comprovante_tributo).decode() if venda.comprovante_tributo else None,
+        "data_pagamento_tributo": venda.data_pagamento_tributo.strftime("%d/%m/%Y") if venda.data_pagamento_tributo else None,
+        "valor_tributo": None  # Calculado via endpoint de tributo
     }
+
+
+# ========== TRIBUTO / COTAS ==========
+
+def _calcular_tributo_response(db: Session, tributo: TributoImportacao) -> dict:
+    """Calcula total de cotas, valor por cota e monta response completo"""
+    rastreio = tributo.rastreio_importacao
+    empresa_id = tributo.empresa_id
+    
+    # Buscar lotes vinculados
+    lotes = db.query(Lote).filter(
+        Lote.empresa_id == empresa_id,
+        Lote.rastreio_importacao == rastreio
+    ).all()
+    
+    lotes_ids = [l.id for l in lotes]
+    
+    # Buscar todas vendas dos lotes vinculados
+    vendas = []
+    if lotes_ids:
+        vendas = db.query(VendaLote).filter(VendaLote.lote_id.in_(lotes_ids)).all()
+    
+    # Calcular total de cotas
+    total_cotas = sum(float(v.cotas or 1.0) for v in vendas)
+    
+    # Valor por cota
+    valor_imposto = float(tributo.valor_total_imposto)
+    valor_por_cota = valor_imposto / total_cotas if total_cotas > 0 else 0
+    
+    # Stats
+    tributos_pagos = sum(1 for v in vendas if v.tributo_pago)
+    tributos_pendentes = len(vendas) - tributos_pagos
+    
+    lotes_info = [{
+        "id": l.id,
+        "numero_lote": l.numero_lote,
+        "nome": l.nome,
+        "total_vendas": l.total_vendas
+    } for l in lotes]
+    
+    return {
+        "id": tributo.id,
+        "rastreio_importacao": tributo.rastreio_importacao,
+        "valor_total_imposto": valor_imposto,
+        "data_registro": tributo.data_registro,
+        "observacoes": tributo.observacoes,
+        "total_cotas": round(total_cotas, 2),
+        "valor_por_cota": round(valor_por_cota, 2),
+        "lotes_vinculados": lotes_info,
+        "vendas_count": len(vendas),
+        "tributos_pagos": tributos_pagos,
+        "tributos_pendentes": tributos_pendentes
+    }
+
+
+def criar_tributo(db: Session, data: TributoImportacaoCreate, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    # Verificar se já existe tributo para este rastreio nesta empresa
+    existente = db.query(TributoImportacao).filter(
+        TributoImportacao.empresa_id == empresa_id,
+        TributoImportacao.rastreio_importacao == data.rastreio_importacao
+    ).first()
+    if existente:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Já existe um tributo para o rastreio '{data.rastreio_importacao}'"
+        )
+    
+    tributo = TributoImportacao(
+        empresa_id=empresa_id,
+        rastreio_importacao=data.rastreio_importacao,
+        valor_total_imposto=data.valor_total_imposto,
+        observacoes=data.observacoes
+    )
+    db.add(tributo)
+    db.commit()
+    db.refresh(tributo)
+    return _calcular_tributo_response(db, tributo)
+
+
+def listar_tributos(db: Session, empresa_id: int = None) -> list:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    tributos = db.query(TributoImportacao).filter(
+        TributoImportacao.empresa_id == empresa_id
+    ).order_by(TributoImportacao.data_registro.desc()).all()
+    
+    return [_calcular_tributo_response(db, t) for t in tributos]
+
+
+def obter_tributo(db: Session, tributo_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    tributo = db.query(TributoImportacao).filter(
+        TributoImportacao.id == tributo_id,
+        TributoImportacao.empresa_id == empresa_id
+    ).first()
+    if not tributo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tributo não encontrado")
+    return _calcular_tributo_response(db, tributo)
+
+
+def obter_tributo_por_rastreio(db: Session, rastreio: str, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    tributo = db.query(TributoImportacao).filter(
+        TributoImportacao.empresa_id == empresa_id,
+        TributoImportacao.rastreio_importacao == rastreio
+    ).first()
+    if not tributo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tributo não encontrado para este rastreio")
+    return _calcular_tributo_response(db, tributo)
+
+
+def atualizar_tributo(db: Session, tributo_id: int, data: TributoImportacaoUpdate, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    tributo = db.query(TributoImportacao).filter(
+        TributoImportacao.id == tributo_id,
+        TributoImportacao.empresa_id == empresa_id
+    ).first()
+    if not tributo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tributo não encontrado")
+    
+    if data.valor_total_imposto is not None:
+        tributo.valor_total_imposto = data.valor_total_imposto
+    if data.observacoes is not None:
+        tributo.observacoes = data.observacoes
+    
+    db.commit()
+    db.refresh(tributo)
+    return _calcular_tributo_response(db, tributo)
+
+
+def deletar_tributo(db: Session, tributo_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    tributo = db.query(TributoImportacao).filter(
+        TributoImportacao.id == tributo_id,
+        TributoImportacao.empresa_id == empresa_id
+    ).first()
+    if not tributo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tributo não encontrado")
+    db.delete(tributo)
+    db.commit()
+    return {"message": "Tributo deletado com sucesso"}
+
+
+def obter_vendas_tributo(db: Session, rastreio: str, empresa_id: int = None) -> list:
+    """Retorna todas vendas vinculadas a um rastreio com o valor de tributo calculado"""
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    tributo = db.query(TributoImportacao).filter(
+        TributoImportacao.empresa_id == empresa_id,
+        TributoImportacao.rastreio_importacao == rastreio
+    ).first()
+    
+    if not tributo:
+        return []
+    
+    lotes = db.query(Lote).filter(
+        Lote.empresa_id == empresa_id,
+        Lote.rastreio_importacao == rastreio
+    ).all()
+    
+    lotes_ids = [l.id for l in lotes]
+    if not lotes_ids:
+        return []
+    
+    vendas = db.query(VendaLote).filter(VendaLote.lote_id.in_(lotes_ids)).all()
+    
+    total_cotas = sum(float(v.cotas or 1.0) for v in vendas)
+    valor_imposto = float(tributo.valor_total_imposto)
+    valor_por_cota = valor_imposto / total_cotas if total_cotas > 0 else 0
+    
+    result = []
+    for v in vendas:
+        resp = _venda_to_response(v)
+        cotas_venda = float(v.cotas or 1.0)
+        resp["valor_tributo"] = round(cotas_venda * valor_por_cota, 2)
+        result.append(resp)
+    
+    return result
+
+
+def obter_tributos_cliente(db: Session, cliente_id: int, empresa_id: int = None) -> list:
+    """Retorna tributos pendentes de um cliente"""
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    
+    vendas = db.query(VendaLote).filter(
+        VendaLote.cliente_id == cliente_id
+    ).all()
+    
+    if not vendas:
+        return []
+    
+    # Agrupar por rastreio
+    rastreios = set()
+    for v in vendas:
+        if v.lote and v.lote.rastreio_importacao:
+            rastreios.add(v.lote.rastreio_importacao)
+    
+    result = []
+    for rastreio in rastreios:
+        tributo = db.query(TributoImportacao).filter(
+            TributoImportacao.empresa_id == empresa_id,
+            TributoImportacao.rastreio_importacao == rastreio
+        ).first()
+        
+        if not tributo:
+            continue
+        
+        # Calcular valor por cota para este rastreio
+        lotes = db.query(Lote).filter(
+            Lote.empresa_id == empresa_id,
+            Lote.rastreio_importacao == rastreio
+        ).all()
+        lotes_ids = [l.id for l in lotes]
+        
+        todas_vendas = db.query(VendaLote).filter(VendaLote.lote_id.in_(lotes_ids)).all() if lotes_ids else []
+        total_cotas = sum(float(vv.cotas or 1.0) for vv in todas_vendas)
+        valor_por_cota = float(tributo.valor_total_imposto) / total_cotas if total_cotas > 0 else 0
+        
+        # Filtrar vendas deste cliente neste rastreio
+        vendas_cliente = [v for v in vendas if v.lote and v.lote.rastreio_importacao == rastreio]
+        for v in vendas_cliente:
+            cotas_venda = float(v.cotas or 1.0)
+            result.append({
+                "venda_id": v.id,
+                "rastreio_importacao": rastreio,
+                "carrinhos_comprados": v.carrinhos_comprados,
+                "lote_numero": v.lote.numero_lote if v.lote else None,
+                "cotas": cotas_venda,
+                "valor_tributo": round(cotas_venda * valor_por_cota, 2),
+                "tributo_pago": v.tributo_pago or False,
+                "comprovante_tributo": base64.b64encode(v.comprovante_tributo).decode() if v.comprovante_tributo else None,
+                "data_pagamento_tributo": v.data_pagamento_tributo.strftime("%d/%m/%Y") if v.data_pagamento_tributo else None
+            })
+    
+    return result
