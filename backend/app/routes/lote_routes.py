@@ -30,72 +30,7 @@ def listar_lotes_arquivados(db: Session = Depends(get_db), current_user: dict = 
     return lote_controller.listar_lotes_arquivados(db, empresa_id)
 
 
-@router.get("/{lote_id}/")
-def obter_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
-    return lote_controller.obter_lote(db, lote_id)
-
-
-@router.put("/{lote_id}/")
-def atualizar_lote(lote_id: int, lote_data: LoteUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    # Verificar permissão
-    admin_id = current_user.get("user_id")
-    permission_controller.require_permission(db, admin_id, "lote_edit", "editar lotes")
-    return lote_controller.atualizar_lote(db, lote_id, lote_data)
-
-
-@router.delete("/{lote_id}/")
-def deletar_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    # Verificar permissão
-    admin_id = current_user.get("user_id")
-    permission_controller.require_permission(db, admin_id, "lote_delete", "deletar lotes")
-    return lote_controller.deletar_lote(db, lote_id)
-
-
-@router.post("/vendas/")
-def criar_venda(venda_data: VendaLoteCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    # Verificar permissão
-    admin_id = current_user.get("user_id")
-    permission_controller.require_permission(db, admin_id, "venda_create", "criar vendas")
-    return lote_controller.criar_venda(db, venda_data)
-
-
-@router.get("/{lote_id}/vendas/")
-def listar_vendas_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.listar_vendas_lote(db, lote_id)
-
-
-@router.get("/vendas/cliente/{cliente_id}/")
-def listar_vendas_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
-    return lote_controller.listar_vendas_cliente(db, cliente_id)
-
-
-@router.put("/vendas/{venda_id}/")
-def atualizar_venda(venda_id: int, venda_data: VendaLoteUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    # Verificar permissão
-    admin_id = current_user.get("user_id")
-    permission_controller.require_permission(db, admin_id, "venda_edit", "editar vendas")
-    return lote_controller.atualizar_venda(db, venda_id, venda_data)
-
-
-@router.delete("/vendas/{venda_id}/")
-def deletar_venda(venda_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    # Verificar permissão
-    admin_id = current_user.get("user_id")
-    permission_controller.require_permission(db, admin_id, "venda_delete", "deletar vendas")
-    return lote_controller.deletar_venda(db, venda_id)
-
-
-@router.post("/migrar/")
-def migrar_lotes_existentes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
-    return lote_controller.migrar_lotes_existentes(db)
-
-
-@router.get("/buscar-clientes/{termo}/")
-def buscar_clientes(termo: str, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
-    return lote_controller.buscar_clientes(db, termo)
-
-
-# ========== TRIBUTOS ==========
+# ========== TRIBUTOS (antes das rotas dinâmicas /{lote_id}/) ==========
 
 @router.post("/tributos/")
 def criar_tributo(data: TributoImportacaoCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
@@ -138,9 +73,80 @@ def deletar_tributo(tributo_id: int, db: Session = Depends(get_db), current_user
     return lote_controller.deletar_tributo(db, tributo_id)
 
 
+# ========== VENDAS ==========
+
+@router.post("/vendas/")
+def criar_venda(venda_data: VendaLoteCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_create", "criar vendas")
+    return lote_controller.criar_venda(db, venda_data)
+
+
+@router.get("/vendas/cliente/{cliente_id}/")
+def listar_vendas_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
+    return lote_controller.listar_vendas_cliente(db, cliente_id)
+
+
 @router.get("/vendas/cliente/{cliente_id}/tributos/")
 def obter_tributos_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return lote_controller.obter_tributos_cliente(db, cliente_id)
+
+
+@router.put("/vendas/{venda_id}/")
+def atualizar_venda(venda_id: int, venda_data: VendaLoteUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_edit", "editar vendas")
+    return lote_controller.atualizar_venda(db, venda_id, venda_data)
+
+
+@router.delete("/vendas/{venda_id}/")
+def deletar_venda(venda_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_delete", "deletar vendas")
+    return lote_controller.deletar_venda(db, venda_id)
+
+
+# ========== UTILIDADES ==========
+
+@router.post("/migrar/")
+def migrar_lotes_existentes(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.migrar_lotes_existentes(db)
+
+
+@router.get("/buscar-clientes/{termo}/")
+def buscar_clientes(termo: str, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
+    return lote_controller.buscar_clientes(db, termo)
+
+
+# ========== ROTAS DINÂMICAS (devem ficar por último) ==========
+
+@router.get("/{lote_id}/")
+def obter_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
+    return lote_controller.obter_lote(db, lote_id)
+
+
+@router.put("/{lote_id}/")
+def atualizar_lote(lote_id: int, lote_data: LoteUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "lote_edit", "editar lotes")
+    return lote_controller.atualizar_lote(db, lote_id, lote_data)
+
+
+@router.delete("/{lote_id}/")
+def deletar_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    # Verificar permissão
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "lote_delete", "deletar lotes")
+    return lote_controller.deletar_lote(db, lote_id)
+
+
+@router.get("/{lote_id}/vendas/")
+def listar_vendas_lote(lote_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.listar_vendas_lote(db, lote_id)
 
 
 @router.post("/migrar-producao/")
