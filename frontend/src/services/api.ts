@@ -98,6 +98,8 @@ export const loteService = {
   obterTributoPorRastreio: (rastreio: string) => api.get(`/lotes/tributos/rastreio/${rastreio}/`),
   obterVendasTributo: (rastreio: string) => api.get(`/lotes/tributos/rastreio/${rastreio}/vendas/`),
   atualizarTributo: (tributoId: number, data: any) => api.put(`/lotes/tributos/${tributoId}/`, data),
+  arquivarTributo: (tributoId: number) => api.put(`/lotes/tributos/${tributoId}/arquivar/`),
+  desarquivarTributo: (tributoId: number) => api.put(`/lotes/tributos/${tributoId}/desarquivar/`),
   deletarTributo: (tributoId: number) => api.delete(`/lotes/tributos/${tributoId}/`),
   obterTributosCliente: (clienteId: number) => api.get(`/lotes/vendas/cliente/${clienteId}/tributos/`),
 };

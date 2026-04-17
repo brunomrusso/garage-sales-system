@@ -1663,6 +1663,21 @@ export const AdminDashboard = () => {
                           {tributo.observacoes && <p className="text-xs text-gray-500 mt-2">{tributo.observacoes}</p>}
                         </div>
                         <div className="flex gap-1">
+                          <button onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              if (tributo.arquivado) {
+                                await loteService.desarquivarTributo(tributo.id);
+                              } else {
+                                await loteService.arquivarTributo(tributo.id);
+                              }
+                              loadTributos();
+                            } catch (err) { console.error(err); }
+                          }}
+                            className="text-gray-400 hover:text-yellow-400 p-1 transition"
+                            title={tributo.arquivado ? 'Desarquivar' : 'Arquivar'}>
+                            <Archive size={16} />
+                          </button>
                           <button onClick={(e) => { e.stopPropagation(); setEditingTributo(tributo); }}
                             className="text-gray-400 hover:text-white p-1 transition" title="Editar">
                             <Settings size={16} />

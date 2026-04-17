@@ -53,6 +53,20 @@ def obter_tributo(tributo_id: int, db: Session = Depends(get_db), current_user: 
     return lote_controller.obter_tributo(db, tributo_id)
 
 
+@router.put("/tributos/{tributo_id}/arquivar/")
+def arquivar_tributo(tributo_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_edit", "gerenciar tributos")
+    return lote_controller.arquivar_tributo(db, tributo_id)
+
+
+@router.put("/tributos/{tributo_id}/desarquivar/")
+def desarquivar_tributo(tributo_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    admin_id = current_user.get("user_id")
+    permission_controller.require_permission(db, admin_id, "venda_edit", "gerenciar tributos")
+    return lote_controller.desarquivar_tributo_imp(db, tributo_id)
+
+
 @router.get("/tributos/rastreio/{rastreio}/")
 def obter_tributo_por_rastreio(rastreio: str, db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
     return lote_controller.obter_tributo_por_rastreio(db, rastreio)
@@ -183,13 +197,34 @@ def migrar_producao(db: Session = Depends(get_db), current_user: dict = Depends(
             db.commit()
         except Exception:
             pass  # Coluna já existe
+
+        # Adicionar colunas de tributos em vendas_lote
+        for col_sql in [
+            "ALTER TABLE vendas_lote ADD COLUMN cotas NUMERIC(10,2) DEFAULT 1.0",
+            "ALTER TABLE vendas_lote ADD COLUMN tributo_pago BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE vendas_lote ADD COLUMN comprovante_tributo BYTEA",
+            "ALTER TABLE vendas_lote ADD COLUMN data_pagamento_tributo TIMESTAMP",
+            "ALTER TABLE lotes ADD COLUMN rastreio_importacao VARCHAR(100)",
+        ]:
+            try:
+                db.execute(text(col_sql))
+                db.commit()
+            except Exception:
+                pass
+
+        # Adicionar coluna arquivado em tributos_importacao
+        try:
+            db.execute(text("ALTER TABLE tributos_importacao ADD COLUMN arquivado BOOLEAN DEFAULT FALSE"))
+            db.commit()
+        except Exception:
+            pass  # Coluna já existe
         
         # Migrar lotes existentes
         resultado = lote_controller.migrar_lotes_existentes(db)
         
         return {
             "message": "Migração executada com sucesso!",
-            "colunas_adicionadas": ["numero_lote", "status_lote", "arquivado"],
+            "colunas_adicionadas": ["numero_lote", "status_lote", "arquivado", "tributos_importacao.arquivado", "vendas_lote.tributo_pago"],
             "resultado_migracao": resultado
         }
         

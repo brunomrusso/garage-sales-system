@@ -307,7 +307,7 @@ def atualizar_venda(db: Session, venda_id: int, venda_data: VendaLoteUpdate) -> 
         tributo = db.query(TributoImportacao).filter(
             TributoImportacao.empresa_id == lote.empresa_id,
             TributoImportacao.rastreio_importacao == lote.rastreio_importacao,
-            TributoImportacao.arquivado == False
+            TributoImportacao.arquivado.isnot(True)
         ).first()
         if tributo:
             # Buscar todas vendas dos lotes com mesmo rastreio
@@ -441,7 +441,7 @@ def _calcular_tributo_response(db: Session, tributo: TributoImportacao) -> dict:
         "tributos_pendentes": tributos_pendentes,
         "valor_pago": valor_pago,
         "valor_pendente": valor_pendente,
-        "arquivado": tributo.arquivado or False
+        "arquivado": tributo.arquivado is True
     }
 
 
@@ -480,7 +480,7 @@ def listar_tributos(db: Session, empresa_id: int = None, incluir_arquivados: boo
         TributoImportacao.empresa_id == empresa_id
     )
     if not incluir_arquivados:
-        query = query.filter(TributoImportacao.arquivado == False)
+        query = query.filter(TributoImportacao.arquivado.isnot(True))
     
     tributos = query.order_by(TributoImportacao.data_registro.desc()).all()
     return [_calcular_tributo_response(db, t) for t in tributos]
@@ -531,6 +531,34 @@ def atualizar_tributo(db: Session, tributo_id: int, data: TributoImportacaoUpdat
     db.commit()
     db.refresh(tributo)
     return _calcular_tributo_response(db, tributo)
+
+
+def arquivar_tributo(db: Session, tributo_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    tributo = db.query(TributoImportacao).filter(
+        TributoImportacao.id == tributo_id,
+        TributoImportacao.empresa_id == empresa_id
+    ).first()
+    if not tributo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tributo não encontrado")
+    tributo.arquivado = True
+    db.commit()
+    return {"message": "Tributo arquivado"}
+
+
+def desarquivar_tributo_imp(db: Session, tributo_id: int, empresa_id: int = None) -> dict:
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+    tributo = db.query(TributoImportacao).filter(
+        TributoImportacao.id == tributo_id,
+        TributoImportacao.empresa_id == empresa_id
+    ).first()
+    if not tributo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tributo não encontrado")
+    tributo.arquivado = False
+    db.commit()
+    return {"message": "Tributo desarquivado"}
 
 
 def deletar_tributo(db: Session, tributo_id: int, empresa_id: int = None) -> dict:
