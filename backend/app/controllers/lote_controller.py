@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy import func
 from fastapi import HTTPException, status
 from app.models.models import Lote, VendaLote, Cliente, TributoImportacao
@@ -107,7 +107,9 @@ def listar_lotes(db: Session, empresa_id: int = None) -> list:
             detail="Empresa não especificado"
         )
     
-    lotes = db.query(Lote).filter(Lote.empresa_id == empresa_id).all()
+    lotes = db.query(Lote).filter(Lote.empresa_id == empresa_id)\
+        .options(selectinload(Lote.vendas))\
+        .all()
     return [_lote_to_response(lote) for lote in lotes]
 
 
@@ -177,7 +179,7 @@ def listar_lotes_arquivados(db: Session, empresa_id: int = None) -> list:
     lotes = db.query(Lote).filter(
         Lote.empresa_id == empresa_id,
         Lote.arquivado == True
-    ).all()
+    ).options(selectinload(Lote.vendas)).all()
     return [_lote_to_response(lote) for lote in lotes]
 
 
@@ -245,13 +247,17 @@ def criar_venda(db: Session, venda_data: VendaLoteCreate) -> dict:
 
 
 def listar_vendas_lote(db: Session, lote_id: int) -> list:
-    vendas = db.query(VendaLote).filter(VendaLote.lote_id == lote_id).all()
-    return [_venda_to_response(v) for v in vendas]
+    vendas = db.query(VendaLote).filter(VendaLote.lote_id == lote_id)\
+        .options(joinedload(VendaLote.cliente), joinedload(VendaLote.lote))\
+        .all()
+    return [_venda_to_response(v, include_lote_foto=False) for v in vendas]
 
 
 def listar_vendas_cliente(db: Session, cliente_id: int) -> list:
-    vendas = db.query(VendaLote).filter(VendaLote.cliente_id == cliente_id).all()
-    return [_venda_to_response(v) for v in vendas]
+    vendas = db.query(VendaLote).filter(VendaLote.cliente_id == cliente_id)\
+        .options(joinedload(VendaLote.cliente), joinedload(VendaLote.lote))\
+        .all()
+    return [_venda_to_response(v, include_lote_foto=True) for v in vendas]
 
 
 def atualizar_venda(db: Session, venda_id: int, venda_data: VendaLoteUpdate) -> dict:
@@ -330,7 +336,7 @@ def _lote_to_response(lote: Lote) -> dict:
     }
 
 
-def _venda_to_response(venda: VendaLote) -> dict:
+def _venda_to_response(venda: VendaLote, include_lote_foto: bool = True) -> dict:
     # Formatar data de pagamento para DD/MM/YYYY
     data_pagamento_formatada = None
     if venda.data_pagamento:
@@ -350,7 +356,7 @@ def _venda_to_response(venda: VendaLote) -> dict:
         "status_entrega": venda.status_entrega,
         "cliente_nome": venda.cliente.nome if venda.cliente else None,
         "lote_numero": venda.lote.numero_lote if venda.lote else None,
-        "lote_foto": base64.b64encode(venda.lote.foto).decode() if venda.lote and venda.lote.foto else None,
+        "lote_foto": (base64.b64encode(venda.lote.foto).decode() if venda.lote and venda.lote.foto else None) if include_lote_foto else None,
         "cotas": float(venda.cotas) if venda.cotas else None,
         "tributo_pago": venda.tributo_pago or False,
         "comprovante_tributo": base64.b64encode(venda.comprovante_tributo).decode() if venda.comprovante_tributo else None,
