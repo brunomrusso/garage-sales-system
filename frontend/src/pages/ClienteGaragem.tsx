@@ -226,7 +226,7 @@ export const ClienteGaragem = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
               <h2 className="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">Minhas Compras</h2>
               <button onClick={loadVendas} disabled={loading}
-                className="flex items-center gap-2 bg-stone-700 text-stone-200 px-4 py-2 rounded hover:bg-stone-600 disabled:opacity-50 transition">
+                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 transition">
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                 Atualizar
               </button>

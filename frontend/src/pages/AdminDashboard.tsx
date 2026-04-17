@@ -726,7 +726,7 @@ export const AdminDashboard = () => {
                   <button
                     onClick={loadClientes}
                     disabled={loading}
-                    className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 disabled:opacity-50 transition"
+                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 transition"
                   >
                     <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                     Atualizar
@@ -892,7 +892,7 @@ export const AdminDashboard = () => {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={loadLotes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 transition">
+                  <button onClick={loadLotes} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
                     <RefreshCw size={18} />
                     Atualizar
                   </button>
@@ -1590,7 +1590,7 @@ export const AdminDashboard = () => {
                     <Archive size={16} />
                     {mostrarTributosArquivados ? 'Ocultar Arquivados' : 'Ver Arquivados'}
                   </button>
-                  <button onClick={() => loadTributos()} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 transition">
+                  <button onClick={() => loadTributos()} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
                     <RefreshCw size={18} />
                     Atualizar
                   </button>
@@ -1893,7 +1893,7 @@ export const AdminDashboard = () => {
                     {adminsPendentes.length} aguardando aprovação
                   </span>
                 </div>
-                <button onClick={loadAdminsPendentes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-4 py-2 rounded hover:bg-stone-600 transition">
+                <button onClick={loadAdminsPendentes} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
                   <RefreshCw size={18} />
                   Atualizar
                 </button>
