@@ -2,7 +2,7 @@
 
 -- 1. Criar o módulo tributos se não existir
 INSERT INTO modulos (codigo, nome, descricao, icone, categoria, obrigatorio, dependencias)
-VALUES ('tributos', 'Gestão de Tributos', 'Controle de tributos de importação e rateio por cliente', 'Receipt', 'core', false, ARRAY['core'])
+VALUES ('tributos', 'Gestão de Tributos', 'Controle de tributos de importação e rateio por cliente', 'Receipt', 'core', false, '["core"]'::json)
 ON CONFLICT (codigo) DO NOTHING;
 
 -- 2. Habilitar o módulo tributos para todas as empresas existentes
