@@ -1486,7 +1486,7 @@ export const AdminDashboard = () => {
               <div className="mt-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                   <h3 className="text-lg md:text-xl font-bold text-white">Solicitações de Envio</h3>
-                  <button onClick={loadSolicitacoes} className="flex items-center gap-2 bg-gray-700 text-gray-200 px-3 py-2 rounded hover:bg-stone-600 text-sm transition">
+                  <button onClick={loadSolicitacoes} className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 text-sm transition">
                     <RefreshCw size={16} /> Atualizar
                   </button>
                 </div>
