@@ -293,6 +293,18 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleToggleTributo = async (venda: any) => {
+    try {
+      await loteService.atualizarVenda(venda.id, {
+        tributo_pago: !venda.tributo_pago,
+        data_pagamento_tributo: !venda.tributo_pago ? new Date().toISOString() : null
+      });
+      if (selectedLote) loadVendasLote(selectedLote.id);
+    } catch (error) {
+      console.error('Erro ao atualizar tributo:', error);
+    }
+  };
+
   const handleDeleteVenda = async (vendaId: number) => {
     if (window.confirm('Tem certeza que deseja deletar esta venda?')) {
       try {
@@ -1272,11 +1284,12 @@ export const AdminDashboard = () => {
                                     R$ {valorTributoVenda.toFixed(2)}
                                   </span>
                                 )}
-                                <span className={`px-2 py-1 rounded text-xs font-semibold w-fit ${
-                                  venda.tributo_pago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                                }`}>
-                                  {venda.tributo_pago ? 'Pago' : 'Pendente'}
-                                </span>
+                                <button onClick={() => handleToggleTributo(venda)}
+                                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold w-fit ${
+                                    venda.tributo_pago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                  }`}>
+                                  {venda.tributo_pago ? <><Check size={12} /> Pago</> : <><X size={12} /> Pendente</>}
+                                </button>
                               </div>
                             </td>
                             <td className="px-4 py-2 text-sm text-gray-400">
