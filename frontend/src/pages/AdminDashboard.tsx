@@ -972,8 +972,8 @@ export const AdminDashboard = () => {
                 {lotes.map((lote) => (
                   <div key={lote.id}
                     onClick={() => handleSelectLote(lote)}
-                    className={`bg-gray-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
-                      selectedLote?.id === lote.id ? 'border-red-500 shadow-red-500/20 shadow-lg' : 'border-gray-700 hover:border-gray-500'
+                    className={`bg-stone-800 rounded-lg p-4 cursor-pointer transition hover:shadow-xl border-2 ${
+                      selectedLote?.id === lote.id ? 'border-red-500 shadow-red-500/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'
                     }`}>
                     {lote.foto ? (
                       <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
@@ -1131,7 +1131,7 @@ export const AdminDashboard = () => {
               )}
 
               {selectedLote && (
-                <div className="bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 border border-gray-700 mt-8">
+                <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 border border-stone-700 mt-8">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-lg md:text-xl font-bold text-white">Vendas - {selectedLote.nome}</h3>
