@@ -347,7 +347,7 @@ export const AdminDashboard = () => {
     { value: 'aguardando_pagamento', label: 'Aguardando Pagamento', color: 'bg-gray-100 text-gray-700' },
     { value: 'pago', label: 'Pago', color: 'bg-yellow-100 text-yellow-700' },
     { value: 'chegou_eua', label: 'Chegou EUA', color: 'bg-purple-100 text-purple-700' },
-    { value: 'importado_brasil', label: 'Importado p/ Brasil', color: 'bg-indigo-100 text-indigo-700' },
+    { value: 'importado_brasil', label: 'Importado p/ Brasil', color: 'bg-rose-100 text-rose-700' },
     { value: 'alfandega', label: 'Alfândega/Tributação', color: 'bg-orange-100 text-orange-700' },
     { value: 'centro_distribuicao', label: 'Centro Distribuição', color: 'bg-green-100 text-green-700' },
     { value: 'entregue', label: 'Entregue', color: 'bg-emerald-100 text-emerald-700' },

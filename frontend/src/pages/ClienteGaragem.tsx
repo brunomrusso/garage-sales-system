@@ -147,7 +147,7 @@ export const ClienteGaragem = () => {
     aguardando_pagamento: { label: 'Aguardando Pagamento', color: 'bg-stone-700 text-stone-300' },
     pago: { label: 'Pago', color: 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30' },
     chegou_eua: { label: 'Chegou nos EUA', color: 'bg-purple-600/20 text-purple-400 border border-purple-600/30' },
-    importado_brasil: { label: 'Importado p/ Brasil', color: 'bg-indigo-600/20 text-indigo-400 border border-indigo-600/30' },
+    importado_brasil: { label: 'Importado p/ Brasil', color: 'bg-rose-600/20 text-rose-400 border border-rose-600/30' },
     alfandega: { label: 'Alfândega/Tributação', color: 'bg-orange-600/20 text-orange-400 border border-orange-600/30' },
     centro_distribuicao: { label: 'No Centro de Distribuição', color: 'bg-green-600/20 text-green-400 border border-green-600/30' },
     entregue: { label: 'Entregue', color: 'bg-emerald-600/20 text-emerald-400 border border-emerald-600/30' },
