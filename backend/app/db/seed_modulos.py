@@ -30,6 +30,15 @@ def criar_modulos_padrao(db: Session):
             "dependencias": ["core"]
         },
         {
+            "codigo": "tributos",
+            "nome": "Gestão de Tributos",
+            "descricao": "Controle de tributos de importação e rateio por cliente",
+            "icone": "Receipt",
+            "categoria": "core",
+            "obrigatorio": False,
+            "dependencias": ["core"]
+        },
+        {
             "codigo": "pagamentos",
             "nome": "Gateway de Pagamento",
             "descricao": "Integração com Stripe/PayPal para pagamentos online",

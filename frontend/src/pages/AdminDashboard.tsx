@@ -655,6 +655,7 @@ export const AdminDashboard = () => {
               Garagem
             </button>
             )}
+            {isModuloHabilitado('tributos') && (
             <button
               onClick={() => { setActiveTab('tributos'); loadTributos(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
@@ -664,6 +665,7 @@ export const AdminDashboard = () => {
               <Receipt size={18} />
               Tributos
             </button>
+            )}
             <button
               onClick={() => { setActiveTab('admins'); loadAdminsPendentes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
@@ -1570,7 +1572,7 @@ export const AdminDashboard = () => {
             </div>
           )}
 
-          {activeTab === 'tributos' && (
+          {activeTab === 'tributos' && isModuloHabilitado('tributos') && (
             <div>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                 <div className="flex items-center gap-3">
