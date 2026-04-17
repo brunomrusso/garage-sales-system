@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 import { Garage95Logo } from '../components/Garage95Logo';
 
@@ -56,6 +56,8 @@ export const AdminDashboard = () => {
   const [selectedTributo, setSelectedTributo] = useState<any>(null);
   const [vendasTributo, setVendasTributo] = useState<any[]>([]);
   const [editingTributo, setEditingTributo] = useState<any>(null);
+  const [editingLote, setEditingLote] = useState(false);
+  const [editLoteData, setEditLoteData] = useState({ nome: '', descricao: '', status_lote: '', rastreio_importacao: '' });
   const [savingFoto, setSavingFoto] = useState(false);
 
   useEffect(() => {
@@ -165,7 +167,27 @@ export const AdminDashboard = () => {
 
   const handleSelectLote = async (lote: any) => {
     setSelectedLote(lote);
+    setEditingLote(false);
+    setEditLoteData({
+      nome: lote.nome || '',
+      descricao: lote.descricao || '',
+      status_lote: lote.status_lote || '',
+      rastreio_importacao: lote.rastreio_importacao || '',
+    });
     await loadVendasLote(lote.id);
+  };
+
+  const handleUpdateLote = async () => {
+    if (!selectedLote) return;
+    try {
+      await loteService.atualizar(selectedLote.id, editLoteData);
+      setEditingLote(false);
+      loadLotes();
+      // Atualizar o lote selecionado com os novos dados
+      setSelectedLote({ ...selectedLote, ...editLoteData });
+    } catch (error) {
+      console.error('Erro ao atualizar lote:', error);
+    }
   };
 
   const handleCreateLote = async (e: React.FormEvent) => {
@@ -1061,6 +1083,11 @@ export const AdminDashboard = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-lg md:text-xl font-bold text-white">Vendas - {selectedLote.nome}</h3>
+                      {selectedLote.rastreio_importacao && (
+                        <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded border border-orange-600/30">
+                          📦 {selectedLote.rastreio_importacao}
+                        </span>
+                      )}
                       {selectedLote.arquivado && (
                         <span className="bg-yellow-600/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-600/30">
                           <Archive size={16} className="inline mr-1" />
@@ -1068,12 +1095,64 @@ export const AdminDashboard = () => {
                         </span>
                       )}
                     </div>
-                    <button onClick={() => setShowVendaForm(!showVendaForm)}
-                      className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
-                      <Plus size={18} />
-                      {showVendaForm ? 'Cancelar' : 'Adicionar Venda'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditingLote(!editingLote)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded font-semibold transition text-sm ${
+                          editingLote ? 'bg-gray-600 text-gray-200' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}>
+                        <Pencil size={16} />
+                        {editingLote ? 'Cancelar Edição' : 'Editar Lote'}
+                      </button>
+                      <button onClick={() => setShowVendaForm(!showVendaForm)}
+                        className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                        <Plus size={18} />
+                        {showVendaForm ? 'Cancelar' : 'Adicionar Venda'}
+                      </button>
+                    </div>
                   </div>
+
+                  {editingLote && (
+                    <div className="bg-stone-900/50 p-4 rounded-lg mb-4 border border-stone-600">
+                      <h4 className="font-semibold mb-3 text-white">Editar Lote</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Nome</label>
+                          <input type="text" value={editLoteData.nome}
+                            onChange={(e) => setEditLoteData({ ...editLoteData, nome: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Status do Lote</label>
+                          <select value={editLoteData.status_lote}
+                            onChange={(e) => setEditLoteData({ ...editLoteData, status_lote: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
+                            <option value="">Selecione um status</option>
+                            <option value="Chegou EUA">Chegou EUA</option>
+                            <option value="Importado Brasil">Importado Brasil</option>
+                            <option value="Alfandega/Tributação">Alfandega/Tributação</option>
+                            <option value="Centro Distribuição">Centro Distribuição</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Rastreio de Importação</label>
+                          <input type="text" placeholder="Código de rastreio para vincular tributos" value={editLoteData.rastreio_importacao}
+                            onChange={(e) => setEditLoteData({ ...editLoteData, rastreio_importacao: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Descrição</label>
+                          <input type="text" value={editLoteData.descricao}
+                            onChange={(e) => setEditLoteData({ ...editLoteData, descricao: e.target.value })}
+                            className="bg-gray-700 border border-gray-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                        </div>
+                      </div>
+                      <button onClick={handleUpdateLote}
+                        className="mt-4 flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                        <Save size={16} />
+                        Salvar Alterações
+                      </button>
+                    </div>
+                  )}
 
                   {showVendaForm && (
                     <form onSubmit={handleCreateVenda} className="bg-stone-900/50 p-4 rounded-lg mb-4 border border-stone-600">
