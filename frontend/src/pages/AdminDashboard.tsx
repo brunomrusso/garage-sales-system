@@ -978,9 +978,9 @@ export const AdminDashboard = () => {
                       selectedLote?.id === lote.id ? 'border-red-500 shadow-red-500/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'
                     }`}>
                     {lote.foto ? (
-                      <div className="relative w-full h-32 mb-2 rounded overflow-hidden bg-stone-900/30">
+                      <div className="relative w-full h-32 mb-2 rounded overflow-hidden bg-stone-900/30 flex items-center justify-center">
                         <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                          className="max-w-full max-h-full object-contain" />
                       </div>
                     ) : (
                       <div className="w-full h-24 bg-stone-700/50 rounded mb-2 flex items-center justify-center">
