@@ -1005,35 +1005,37 @@ export const AdminDashboard = () => {
                         {lote.descricao && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{lote.descricao}</p>}
                         <p className="text-xs text-gray-500 mt-0.5">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
                         
-                        {/* Indicadores Financeiros */}
+                        {/* Indicadores do lote */}
                         <div className="mt-2 space-y-1">
+                          {/* Pagamentos das vendas */}
                           <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-400 flex items-center gap-1"><Receipt size={11} /> Tributos imp.:</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-green-400">{lote.vendas_pagas || 0} pago</span>
-                              <span className="text-xs text-red-400">{lote.vendas_nao_pagas || lote.total_vendas || 0} pendente</span>
+                            <span className="text-xs text-gray-400">Pagamentos:</span>
+                            <div className="flex items-center gap-1.5">
+                              {lote.percentual_pago === 100
+                                ? <span className="text-xs bg-green-600/20 text-green-400 px-1.5 py-0.5 rounded border border-green-600/30">100% PAGO</span>
+                                : <>
+                                    <span className="text-xs text-green-400">{lote.vendas_pagas || 0} pago</span>
+                                    <span className="text-xs text-stone-600">·</span>
+                                    <span className="text-xs text-red-400">{lote.vendas_nao_pagas || 0} pendente</span>
+                                  </>
+                              }
                             </div>
                           </div>
-                          {lote.percentual_pago === 100 && (
-                            <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30 inline-block">
-                              100% PAGO
-                            </span>
-                          )}
-                          
-                          {/* Indicadores de Entrega */}
+
+                          {/* Entregas */}
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-gray-400">Entregas:</span>
-                            <span className="text-xs text-purple-400">{lote.vendas_entregues || 0}/{lote.total_vendas || 0}</span>
+                            <div className="flex items-center gap-1.5">
+                              {lote.percentual_entregue === 100
+                                ? <span className="text-xs bg-teal-600/20 text-teal-400 px-1.5 py-0.5 rounded border border-teal-600/30">100% ENTREGUE</span>
+                                : <span className="text-xs text-gray-400">{lote.vendas_entregues || 0}/{lote.total_vendas || 0}</span>
+                              }
+                            </div>
                           </div>
-                          {lote.percentual_entregue === 100 && (
-                            <span className="text-xs bg-teal-600/20 text-teal-400 px-2 py-1 rounded border border-teal-600/30 inline-block">
-                              100% ENTREGUE
-                            </span>
-                          )}
-                          
-                          {/* Se 100% pago e 100% entregue, mostrar badge de arquivável */}
+
+                          {/* Pronto para arquivar */}
                           {lote.percentual_pago === 100 && lote.percentual_entregue === 100 && (
-                            <span className="text-xs bg-yellow-600/20 text-yellow-400 px-2 py-1 rounded border border-yellow-600/30 inline-block">
+                            <span className="text-xs bg-yellow-600/20 text-yellow-400 px-2 py-1 rounded border border-yellow-600/30 inline-block mt-1">
                               PRONTO PARA ARQUIVAR
                             </span>
                           )}
