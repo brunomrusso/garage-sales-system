@@ -350,7 +350,10 @@ def _lote_to_response(lote: Lote) -> dict:
         "valor_pago": lote.valor_pago,
         "percentual_pago": lote.percentual_pago,
         "vendas_entregues": lote.vendas_entregues,
-        "percentual_entregue": lote.percentual_entregue
+        "percentual_entregue": lote.percentual_entregue,
+        "tributos_pagos": lote.tributos_pagos,
+        "tributos_pendentes": lote.tributos_pendentes,
+        "percentual_tributo_pago": lote.percentual_tributo_pago
     }
 
 

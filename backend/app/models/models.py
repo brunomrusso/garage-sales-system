@@ -122,6 +122,18 @@ class Lote(Base):
     def percentual_entregue(self):
         return (self.vendas_entregues / self.total_vendas * 100) if self.total_vendas > 0 else 0
 
+    @property
+    def tributos_pagos(self):
+        return sum(1 for v in self.vendas if v.tributo_pago) if self.vendas else 0
+
+    @property
+    def tributos_pendentes(self):
+        return self.total_vendas - self.tributos_pagos
+
+    @property
+    def percentual_tributo_pago(self):
+        return (self.tributos_pagos / self.total_vendas * 100) if self.total_vendas > 0 else 0
+
     vendas = relationship("VendaLote", back_populates="lote", cascade="all, delete-orphan")
 
 

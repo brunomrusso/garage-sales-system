@@ -1022,6 +1022,23 @@ export const AdminDashboard = () => {
                             </div>
                           </div>
 
+                          {/* Tributos de importação */}
+                          {lote.total_vendas > 0 && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-gray-400 flex items-center gap-1"><Receipt size={11} /> Tributos:</span>
+                              <div className="flex items-center gap-1.5">
+                                {lote.percentual_tributo_pago === 100
+                                  ? <span className="text-xs bg-green-600/20 text-green-400 px-1.5 py-0.5 rounded border border-green-600/30">100% PAGO</span>
+                                  : <>
+                                      <span className="text-xs text-green-400">{lote.tributos_pagos || 0} pago</span>
+                                      <span className="text-xs text-stone-600">·</span>
+                                      <span className="text-xs text-red-400">{lote.tributos_pendentes || 0} pendente</span>
+                                    </>
+                                }
+                              </div>
+                            </div>
+                          )}
+
                           {/* Entregas */}
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-gray-400">Entregas:</span>
