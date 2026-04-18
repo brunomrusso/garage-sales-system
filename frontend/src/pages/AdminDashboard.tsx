@@ -1008,10 +1008,10 @@ export const AdminDashboard = () => {
                         {/* Indicadores Financeiros */}
                         <div className="mt-2 space-y-1">
                           <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-400">Pagamentos:</span>
+                            <span className="text-xs text-gray-400">Tributos:</span>
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-green-400">{lote.vendas_pagas || 0} pago</span>
-                              <span className="text-xs text-red-400">{lote.vendas_nao_pagas || lote.total_vendas || 0} pendente</span>
+                              <span className="text-xs text-red-400">{lote.vendas_nao_pagas || lote.total_vendas || 0} p/ pagar</span>
                             </div>
                           </div>
                           {lote.percentual_pago === 100 && (
