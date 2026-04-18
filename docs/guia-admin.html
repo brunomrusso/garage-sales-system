@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage95 - Guia do Administrador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1c1917;
+            --bg-card: #292524;
+            --bg-card-alt: #1a1614;
+            --red-600: #dc2626;
+            --red-700: #b91c1c;
+            --orange-500: #f97316;
+            --orange-400: #fb923c;
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --teal-500: #14b8a6;
+            --yellow-400: #facc15;
+            --stone-300: #d6d3d1;
+            --stone-400: #a8a29e;
+            --stone-500: #78716c;
+            --stone-600: #57534e;
+            --stone-700: #44403c;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg-dark); color:var(--stone-300); min-height:100vh; }
+
+        .header {
+            background: linear-gradient(135deg, var(--red-700) 0%, var(--red-600) 40%, var(--orange-500) 100%);
+            padding: 40px 20px; text-align: center;
+        }
+        .header img { height:100px; margin-bottom:10px; filter:drop-shadow(0 4px 12px rgba(0,0,0,.4)); }
+        .header h1 { font-size:2rem; font-weight:800; color:#fff; }
+        .header p { font-size:1rem; color:rgba(255,255,255,.85); margin-top:4px; }
+        .badge { display:inline-block; background:rgba(0,0,0,.3); color:#fff; padding:4px 14px; border-radius:20px; font-size:.75rem; font-weight:600; margin-top:8px; }
+
+        .container { max-width:900px; margin:0 auto; padding:30px 20px 60px; }
+        .nav-links { display:flex; justify-content:center; gap:16px; margin-bottom:30px; flex-wrap:wrap; }
+        .nav-links a { background:var(--bg-card); border:1px solid var(--stone-700); color:var(--stone-300); padding:8px 18px; border-radius:8px; text-decoration:none; font-size:.85rem; font-weight:500; transition:border-color .2s; }
+        .nav-links a:hover { border-color:var(--red-600); color:#fff; }
+        .nav-links a.active { border-color:var(--red-600); background:var(--red-600); color:#fff; }
+
+        .section { margin-bottom:40px; }
+        .section-title {
+            font-size:1.3rem; font-weight:700; color:#fff; margin-bottom:16px;
+            padding-bottom:8px; border-bottom:2px solid var(--red-600);
+        }
+        .step {
+            background:var(--bg-card); border:1px solid var(--stone-700); border-radius:10px;
+            padding:20px; margin-bottom:14px;
+        }
+        .step-number {
+            display:inline-flex; align-items:center; justify-content:center;
+            width:28px; height:28px; background:var(--red-600); color:#fff;
+            border-radius:50%; font-size:.8rem; font-weight:700; margin-right:10px;
+        }
+        .step h3 { display:inline; font-size:1rem; font-weight:600; color:#fff; }
+        .step p { margin-top:10px; font-size:.9rem; color:var(--stone-400); line-height:1.7; }
+        .step ul { margin-top:8px; padding-left:20px; }
+        .step li { font-size:.88rem; color:var(--stone-400); margin:4px 0; }
+
+        .tip {
+            background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25);
+            border-radius:8px; padding:12px 16px; margin-top:10px;
+            font-size:.85rem; color:var(--green-500);
+        }
+        .tip::before { content:'💡 '; }
+
+        .warning {
+            background:rgba(250,204,21,.08); border:1px solid rgba(250,204,21,.25);
+            border-radius:8px; padding:12px 16px; margin-top:10px;
+            font-size:.85rem; color:var(--yellow-400);
+        }
+        .warning::before { content:'⚠️ '; }
+
+        .kbd {
+            background:var(--stone-700); color:#fff; padding:2px 8px; border-radius:4px;
+            font-family:monospace; font-size:.82rem;
+        }
+
+        .feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:14px; }
+        .feature-card {
+            background:var(--bg-card-alt); border:1px solid var(--stone-700);
+            border-radius:10px; padding:18px;
+        }
+        .feature-card h4 { color:var(--orange-400); font-size:.95rem; margin-bottom:8px; }
+        .feature-card p { font-size:.85rem; color:var(--stone-400); }
+
+        .footer { text-align:center; padding:24px; font-size:.8rem; color:var(--stone-500); border-top:1px solid var(--stone-700); margin-top:40px; }
+        @media(max-width:600px) { .feature-grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="../frontend/public/logo-garage95.png" alt="Garage95">
+    <h1>Guia do Administrador</h1>
+    <p>Como usar o painel administrativo do Garage95</p>
+    <span class="badge">Documentacao v2.0</span>
+</div>
+
+<div class="container">
+
+    <nav class="nav-links">
+        <a href="arquitetura.html">Arquitetura</a>
+        <a href="guia-admin.html" class="active">Guia Admin</a>
+        <a href="guia-cliente.html">Guia Cliente</a>
+    </nav>
+
+    <!-- VISAO GERAL -->
+    <div class="section">
+        <div class="section-title">Visao Geral do Painel</div>
+        <p style="margin-bottom:14px;font-size:.9rem;color:var(--stone-400)">O painel administrativo e dividido em abas na barra lateral esquerda. Cada aba gerencia uma funcionalidade do sistema.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Clientes</h4>
+                <p>Cadastrar, editar e gerenciar clientes da loja. Visualizar informacoes e historico.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Vendas / Lotes</h4>
+                <p>Criar lotes de importacao, adicionar vendas, controlar pagamentos e entregas.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Garagem</h4>
+                <p>Gerenciar solicitacoes de envio e fotos das colecoes dos clientes. Modulo ativavel.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Tributos</h4>
+                <p>Controle de tributos de importacao por rastreio, rateio por cotas e cobranca. Modulo ativavel.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Admins</h4>
+                <p>Aprovar novos administradores e gerenciar permissoes granulares do sistema.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="section">
+        <div class="section-title">1. Login e Acesso</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Acessar o sistema</h3>
+            <p>Abra <span class="kbd">https://garage-sales-system.vercel.app</span> no navegador. A tela de login aparecera com o logo Garage95.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Fazer login como Admin</h3>
+            <p>Insira seu email e senha de administrador. Apos o login, selecione a empresa (se voce for admin master com acesso a varias empresas).</p>
+            <div class="tip">Se voce for Admin Master, vera a tela de selecao de empresa antes do painel.</div>
+        </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="section">
+        <div class="section-title">2. Gerenciando Clientes</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Cadastrar novo cliente</h3>
+            <p>Na aba <strong>Clientes</strong>, clique no botao <span class="kbd">+ Novo Cliente</span>. Preencha nome, email, senha e telefone. O cliente podera usar essas credenciais para acessar sua area.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Buscar clientes</h3>
+            <p>Use a barra de pesquisa no topo da lista para filtrar por nome ou email.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <h3>Editar ou excluir</h3>
+            <p>Clique no icone de lapis para editar os dados de um cliente, ou no icone de lixeira para excluir.</p>
+            <div class="warning">A exclusao de um cliente e permanente e remove todas as vendas associadas.</div>
+        </div>
+    </div>
+
+    <!-- LOTES E VENDAS -->
+    <div class="section">
+        <div class="section-title">3. Lotes e Vendas</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Criar um lote</h3>
+            <p>Na aba <strong>Vendas/Lotes</strong>, clique em <span class="kbd">+ Novo Lote</span>. Preencha o nome, descricao e status do lote (ex: Chegou EUA, Alfandega). Voce pode tambem adicionar uma foto e um codigo de rastreio de importacao.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Selecionar um lote</h3>
+            <p>Clique em um card de lote para abri-lo. O painel de detalhes aparecera abaixo com as vendas daquele lote.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <h3>Adicionar venda ao lote</h3>
+            <p>Com o lote selecionado, clique em <span class="kbd">+ Adicionar Venda</span>. Selecione o cliente, informe os carrinhos comprados, preco e cotas de importacao.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">4</span>
+            <h3>Controle de pagamento</h3>
+            <p>Na tabela de vendas, a coluna <strong>PAGO</strong> mostra o status. Clique para alternar entre pago/pendente. O card do lote atualiza automaticamente os indicadores:</p>
+            <ul>
+                <li><strong>Pagamentos:</strong> X pago / Y pendente (verde/vermelho)</li>
+                <li>Badge <span class="kbd" style="background:rgba(34,197,94,.2);color:#22c55e">100% PAGO</span> quando todos pagarem</li>
+            </ul>
+        </div>
+        <div class="step">
+            <span class="step-number">5</span>
+            <h3>Controle de tributos no card</h3>
+            <p>Cada card de lote tambem exibe a linha de <strong>Tributos</strong> (com icone de recibo), mostrando quantos clientes pagaram o tributo de importacao:</p>
+            <ul>
+                <li><strong>Tributos:</strong> X pago / Y pendente</li>
+                <li>Badge <span class="kbd" style="background:rgba(34,197,94,.2);color:#22c55e">100% PAGO</span> quando todos pagarem</li>
+            </ul>
+        </div>
+        <div class="step">
+            <span class="step-number">6</span>
+            <h3>Controle de entregas</h3>
+            <p>Altere o status de entrega de cada venda (Aguardando, Em transito, Entregue). O card mostra:</p>
+            <ul>
+                <li><strong>Entregas:</strong> X/Y</li>
+                <li>Badge <span class="kbd" style="background:rgba(20,184,166,.2);color:#14b8a6">100% ENTREGUE</span> quando todos receberem</li>
+            </ul>
+        </div>
+        <div class="step">
+            <span class="step-number">7</span>
+            <h3>Arquivar lote</h3>
+            <p>Quando um lote atinge 100% pago + 100% entregue, o badge <span class="kbd" style="background:rgba(250,204,21,.2);color:#facc15">PRONTO PARA ARQUIVAR</span> aparece. Lotes arquivados ficam na secao "Lotes Arquivados" ao final da pagina.</p>
+        </div>
+        <div class="tip">Ao navegar entre abas, os dados dos lotes e vendas sao recarregados automaticamente ao voltar.</div>
+    </div>
+
+    <!-- TRIBUTOS -->
+    <div class="section">
+        <div class="section-title">4. Tributos de Importacao</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Criar tributo</h3>
+            <p>Na aba <strong>Tributos</strong>, clique em <span class="kbd">+ Novo Tributo</span>. Informe o codigo de rastreio de importacao e o valor total do imposto. O sistema vinculara automaticamente todos os lotes com esse rastreio.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Rateio automatico</h3>
+            <p>O sistema calcula automaticamente o valor por cota. Cada venda tem suas cotas definidas, e o tributo e rateado proporcionalmente.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <h3>Marcar tributo como pago</h3>
+            <p>Clique no tributo para expandir as vendas. Use os botoes <span class="kbd">Marcar Pago</span> / <span class="kbd">Marcar Pendente</span> para cada cliente. Quando todos pagarem, o tributo e arquivado automaticamente.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">4</span>
+            <h3>Gerar mensagem de cobranca</h3>
+            <p>Clique no icone de mensagem no card do tributo para gerar uma mensagem formatada para WhatsApp com os clientes pendentes, valores e mencoes (@telefone).</p>
+        </div>
+        <div class="step">
+            <span class="step-number">5</span>
+            <h3>Arquivar/Desarquivar</h3>
+            <p>Tributos 100% pagos sao arquivados automaticamente. Use o botao <span class="kbd">Ver Arquivados</span> para visualizar e desarquivar se necessario.</p>
+        </div>
+        <div class="warning">Este modulo precisa estar habilitado para a empresa. Se nao aparecer na barra lateral, ative-o no banco de dados.</div>
+    </div>
+
+    <!-- GARAGEM -->
+    <div class="section">
+        <div class="section-title">5. Garagem (Modulo)</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Solicitacoes de envio</h3>
+            <p>Clientes podem solicitar o envio de suas miniaturas. Na aba <strong>Garagem</strong>, voce vera as solicitacoes pendentes e podera aprova-las ou rejeita-las.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Fotos da garagem</h3>
+            <p>Voce pode enviar fotos das colecoes dos clientes. As fotos ficam disponiveis na area do cliente.</p>
+        </div>
+    </div>
+
+    <!-- PERMISSOES -->
+    <div class="section">
+        <div class="section-title">6. Administradores e Permissoes</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Aprovar novos admins</h3>
+            <p>Na aba <strong>Admins</strong>, voce vera solicitacoes de novos administradores. Aprove ou rejeite conforme necessario.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Permissoes granulares</h3>
+            <p>Clique no icone de engrenagem ao lado de um admin para configurar permissoes especificas:</p>
+            <ul>
+                <li>Criar/deletar lotes</li>
+                <li>Criar/deletar vendas</li>
+                <li>Acessar garagem</li>
+                <li>Gerenciar outros admins</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DICAS -->
+    <div class="section">
+        <div class="section-title">Dicas Gerais</div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Atualizar dados</h4>
+                <p>Clique no botao verde <strong>Atualizar</strong> em qualquer aba para forcar a recarga dos dados do servidor.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Navegacao entre abas</h4>
+                <p>Ao trocar de aba e voltar, os dados sao recarregados automaticamente, sem necessidade de atualizar manualmente.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Modulos</h4>
+                <p>Garagem e Tributos sao modulos ativaveis por empresa. Se nao aparecerem, verifique a configuracao no banco.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Cache do navegador</h4>
+                <p>Se algo parecer desatualizado, use <strong>Ctrl+Shift+R</strong> para limpar o cache e recarregar.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    <strong>Garage95 System</strong> &mdash; Guia do Administrador | Abril 2026
+</div>
+
+</body>
+</html>

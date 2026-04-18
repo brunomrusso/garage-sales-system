@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage95 - Guia do Cliente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1c1917;
+            --bg-card: #292524;
+            --bg-card-alt: #1a1614;
+            --red-600: #dc2626;
+            --red-700: #b91c1c;
+            --orange-500: #f97316;
+            --orange-400: #fb923c;
+            --green-500: #22c55e;
+            --teal-500: #14b8a6;
+            --yellow-400: #facc15;
+            --purple-400: #c084fc;
+            --stone-300: #d6d3d1;
+            --stone-400: #a8a29e;
+            --stone-500: #78716c;
+            --stone-600: #57534e;
+            --stone-700: #44403c;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg-dark); color:var(--stone-300); min-height:100vh; }
+
+        .header {
+            background: linear-gradient(135deg, var(--red-700) 0%, var(--red-600) 40%, var(--orange-500) 100%);
+            padding: 40px 20px; text-align: center;
+        }
+        .header img { height:100px; margin-bottom:10px; filter:drop-shadow(0 4px 12px rgba(0,0,0,.4)); }
+        .header h1 { font-size:2rem; font-weight:800; color:#fff; }
+        .header p { font-size:1rem; color:rgba(255,255,255,.85); margin-top:4px; }
+        .badge { display:inline-block; background:rgba(0,0,0,.3); color:#fff; padding:4px 14px; border-radius:20px; font-size:.75rem; font-weight:600; margin-top:8px; }
+
+        .container { max-width:900px; margin:0 auto; padding:30px 20px 60px; }
+        .nav-links { display:flex; justify-content:center; gap:16px; margin-bottom:30px; flex-wrap:wrap; }
+        .nav-links a { background:var(--bg-card); border:1px solid var(--stone-700); color:var(--stone-300); padding:8px 18px; border-radius:8px; text-decoration:none; font-size:.85rem; font-weight:500; transition:border-color .2s; }
+        .nav-links a:hover { border-color:var(--red-600); color:#fff; }
+        .nav-links a.active { border-color:var(--red-600); background:var(--red-600); color:#fff; }
+
+        .section { margin-bottom:40px; }
+        .section-title {
+            font-size:1.3rem; font-weight:700; color:#fff; margin-bottom:16px;
+            padding-bottom:8px; border-bottom:2px solid var(--red-600);
+        }
+        .step {
+            background:var(--bg-card); border:1px solid var(--stone-700); border-radius:10px;
+            padding:20px; margin-bottom:14px;
+        }
+        .step-number {
+            display:inline-flex; align-items:center; justify-content:center;
+            width:28px; height:28px; background:var(--red-600); color:#fff;
+            border-radius:50%; font-size:.8rem; font-weight:700; margin-right:10px;
+        }
+        .step h3 { display:inline; font-size:1rem; font-weight:600; color:#fff; }
+        .step p { margin-top:10px; font-size:.9rem; color:var(--stone-400); line-height:1.7; }
+        .step ul { margin-top:8px; padding-left:20px; }
+        .step li { font-size:.88rem; color:var(--stone-400); margin:4px 0; }
+
+        .tip {
+            background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25);
+            border-radius:8px; padding:12px 16px; margin-top:10px;
+            font-size:.85rem; color:var(--green-500);
+        }
+        .tip::before { content:'💡 '; }
+
+        .info {
+            background:rgba(20,184,166,.08); border:1px solid rgba(20,184,166,.25);
+            border-radius:8px; padding:12px 16px; margin-top:10px;
+            font-size:.85rem; color:var(--teal-500);
+        }
+        .info::before { content:'ℹ️ '; }
+
+        .kbd {
+            background:var(--stone-700); color:#fff; padding:2px 8px; border-radius:4px;
+            font-family:monospace; font-size:.82rem;
+        }
+
+        .status-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:14px; }
+        .status-card {
+            background:var(--bg-card-alt); border-radius:8px; padding:14px; text-align:center;
+        }
+        .status-card .emoji { font-size:1.5rem; margin-bottom:6px; }
+        .status-card h4 { font-size:.85rem; color:#fff; margin-bottom:4px; }
+        .status-card p { font-size:.78rem; color:var(--stone-500); }
+
+        .feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:14px; }
+        .feature-card {
+            background:var(--bg-card-alt); border:1px solid var(--stone-700);
+            border-radius:10px; padding:18px;
+        }
+        .feature-card h4 { color:var(--orange-400); font-size:.95rem; margin-bottom:8px; }
+        .feature-card p { font-size:.85rem; color:var(--stone-400); }
+
+        .footer { text-align:center; padding:24px; font-size:.8rem; color:var(--stone-500); border-top:1px solid var(--stone-700); margin-top:40px; }
+        @media(max-width:600px) { .feature-grid,.status-grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="../frontend/public/logo-garage95.png" alt="Garage95">
+    <h1>Guia do Cliente</h1>
+    <p>Como usar sua area no Garage95</p>
+    <span class="badge">Documentacao v2.0</span>
+</div>
+
+<div class="container">
+
+    <nav class="nav-links">
+        <a href="arquitetura.html">Arquitetura</a>
+        <a href="guia-admin.html">Guia Admin</a>
+        <a href="guia-cliente.html" class="active">Guia Cliente</a>
+    </nav>
+
+    <!-- VISAO GERAL -->
+    <div class="section">
+        <div class="section-title">Bem-vindo ao Garage95!</div>
+        <p style="font-size:.95rem;color:var(--stone-400);line-height:1.7;margin-bottom:14px">
+            O Garage95 e o seu sistema para acompanhar suas compras de miniaturas, ver o status de cada encomenda, 
+            conferir tributos de importacao e gerenciar sua garagem virtual. Aqui voce encontra tudo o que precisa saber para usar o app.
+        </p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Minhas Compras</h4>
+                <p>Veja todas as suas compras, valores, status de pagamento e rastreio.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Tributos</h4>
+                <p>Acompanhe seus tributos de importacao pendentes e pagos.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Garagem</h4>
+                <p>Veja as fotos da sua colecao e solicite envios das suas miniaturas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTRO E LOGIN -->
+    <div class="section">
+        <div class="section-title">1. Criando sua Conta</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Acessar o sistema</h3>
+            <p>Abra <span class="kbd">https://garage-sales-system.vercel.app</span> no navegador do celular ou computador.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Registrar-se</h3>
+            <p>Na tela de login, clique em <strong>"Criar Conta"</strong>. Preencha seu nome, email, telefone e uma senha. Seu telefone sera usado para mencoes em cobranças via WhatsApp.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <h3>Fazer login</h3>
+            <p>Apos o registro, volte para a tela de login e entre com seu email e senha. Voce sera direcionado para a selecao de empresa.</p>
+        </div>
+        <div class="tip">Guarde sua senha em um local seguro. Se esquecer, entre em contato com o administrador.</div>
+    </div>
+
+    <!-- MINHAS COMPRAS -->
+    <div class="section">
+        <div class="section-title">2. Minhas Compras</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Visualizar suas compras</h3>
+            <p>Na aba <strong>Compras</strong> (icone de sacola), voce vera a lista de todas as suas miniaturas compradas, organizadas por lote. Cada compra mostra:</p>
+            <ul>
+                <li><strong>Carrinho:</strong> Nome da miniatura comprada</li>
+                <li><strong>Preco:</strong> Valor da compra</li>
+                <li><strong>Status de pagamento:</strong> Pago ou Pendente</li>
+                <li><strong>Status de entrega:</strong> Aguardando, Em transito ou Entregue</li>
+            </ul>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Entender os status de entrega</h3>
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="emoji">⏳</div>
+                    <h4>Aguardando Pagamento</h4>
+                    <p>Venda registrada, aguardando pagamento</p>
+                </div>
+                <div class="status-card">
+                    <div class="emoji">🟣</div>
+                    <h4>Chegou EUA</h4>
+                    <p>Miniatura chegou no endereco dos EUA</p>
+                </div>
+                <div class="status-card">
+                    <div class="emoji">🌹</div>
+                    <h4>Importado Brasil</h4>
+                    <p>Miniatura esta a caminho do Brasil</p>
+                </div>
+                <div class="status-card">
+                    <div class="emoji">📦</div>
+                    <h4>Centro Distribuicao</h4>
+                    <p>Miniatura no centro de distribuicao</p>
+                </div>
+                <div class="status-card">
+                    <div class="emoji">🚚</div>
+                    <h4>Em Transito</h4>
+                    <p>A caminho do seu endereco</p>
+                </div>
+                <div class="status-card">
+                    <div class="emoji">✅</div>
+                    <h4>Entregue</h4>
+                    <p>Miniatura entregue!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRIBUTOS -->
+    <div class="section">
+        <div class="section-title">3. Tributos de Importacao</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>O que sao tributos?</h3>
+            <p>Quando uma importacao e taxada pela alfandega, o valor do imposto e dividido entre todos os clientes do lote proporcionalmente as suas cotas. Voce pode acompanhar esse valor na sua area.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Ver meus tributos</h3>
+            <p>Na aba <strong>Tributos</strong> (icone de recibo), voce vera os tributos associados as suas compras com:</p>
+            <ul>
+                <li><strong>Rastreio:</strong> Codigo do rastreio de importacao</li>
+                <li><strong>Valor tributo:</strong> Sua parte proporcional do imposto</li>
+                <li><strong>Status:</strong> Pago ou Pendente</li>
+            </ul>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <h3>Pagar tributo</h3>
+            <p>O administrador informara as instrucoes de pagamento. Apos o pagamento, ele marcara como pago no sistema e o status sera atualizado automaticamente.</p>
+        </div>
+        <div class="info">O valor do tributo e calculado automaticamente com base nas suas cotas. Se voce comprou mais itens, sua parcela sera proporcionalmente maior.</div>
+    </div>
+
+    <!-- GARAGEM -->
+    <div class="section">
+        <div class="section-title">4. Minha Garagem</div>
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Ver fotos da colecao</h3>
+            <p>Na aba <strong>Garagem</strong> (icone de armazem), voce pode ver as fotos das suas miniaturas que estao armazenadas na garagem.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Solicitar envio</h3>
+            <p>Clique em <span class="kbd">Solicitar Envio</span> para pedir que suas miniaturas sejam enviadas para voce. O administrador vera a solicitacao e providenciara o envio.</p>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <h3>Acompanhar solicitacoes</h3>
+            <p>Suas solicitacoes de envio aparecerao com status: Pendente, Aprovado ou Enviado.</p>
+        </div>
+    </div>
+
+    <!-- DICAS -->
+    <div class="section">
+        <div class="section-title">Dicas Uteis</div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Funciona no celular</h4>
+                <p>O sistema e totalmente responsivo. Use no celular, tablet ou computador sem problemas.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Atualizar pagina</h4>
+                <p>Se os dados parecerem desatualizados, clique no botao verde <strong>Atualizar</strong> ou puxe a pagina para baixo no celular.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Duvidas?</h4>
+                <p>Entre em contato com o administrador da sua loja pelo WhatsApp.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Seguranca</h4>
+                <p>Nunca compartilhe sua senha. O sistema protege seus dados com criptografia.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section">
+        <div class="section-title">Perguntas Frequentes</div>
+        <div class="step">
+            <h3>Esqueci minha senha, o que faco?</h3>
+            <p>Entre em contato com o administrador da loja. Ele podera redefinir sua senha.</p>
+        </div>
+        <div class="step">
+            <h3>Nao consigo ver meus tributos</h3>
+            <p>O modulo de tributos pode nao estar habilitado para a sua empresa. Entre em contato com o administrador.</p>
+        </div>
+        <div class="step">
+            <h3>Meu status de entrega esta errado</h3>
+            <p>O administrador atualiza os status manualmente. Se perceber algo incorreto, avise pelo WhatsApp.</p>
+        </div>
+        <div class="step">
+            <h3>Posso cancelar uma compra?</h3>
+            <p>Cancelamentos devem ser tratados diretamente com o administrador da loja.</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    <strong>Garage95 System</strong> &mdash; Guia do Cliente | Abril 2026
+</div>
+
+</body>
+</html>

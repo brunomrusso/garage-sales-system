@@ -3,618 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GarageSales System - Arquitetura</title>
+    <title>Garage95 - Arquitetura do Sistema</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-dark: #1c1917;
+            --bg-card: #292524;
+            --bg-card-alt: #1a1614;
+            --red-600: #dc2626;
+            --red-700: #b91c1c;
+            --orange-500: #f97316;
+            --orange-400: #fb923c;
+            --green-500: #22c55e;
+            --teal-500: #14b8a6;
+            --stone-300: #d6d3d1;
+            --stone-400: #a8a29e;
+            --stone-500: #78716c;
+            --stone-600: #57534e;
+            --stone-700: #44403c;
+            --stone-800: #292524;
         }
-        
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--stone-300);
             min-height: 100vh;
-            padding: 20px;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        .header {
+            background: linear-gradient(135deg, var(--red-700) 0%, var(--red-600) 40%, var(--orange-500) 100%);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
-        
-        .header {
-            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
-            color: white;
-            padding: 40px;
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect fill="none" stroke="rgba(255,255,255,0.05)" width="80" height="80"/></svg>');
+            background-size: 40px;
+        }
+        .header-content { position: relative; z-index: 1; }
+        .header img { height: 120px; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(0,0,0,.4)); }
+        .header h1 { font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: .5px; }
+        .header p { font-size: 1rem; color: rgba(255,255,255,.85); margin-top: 6px; }
+        .badge { display: inline-block; background: rgba(0,0,0,.3); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: .75rem; font-weight: 600; margin-top: 10px; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; }
+        .section { margin-bottom: 50px; }
+        .section-title {
+            font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: 20px;
+            padding-bottom: 10px; border-bottom: 2px solid var(--red-600);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title .icon { font-size: 1.2rem; }
+
+        /* Tech Stack */
+        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .tech-card {
+            background: var(--bg-card);
+            border: 1px solid var(--stone-700);
+            border-radius: 12px;
+            padding: 24px;
+            transition: border-color .2s;
+        }
+        .tech-card:hover { border-color: var(--red-600); }
+        .tech-card-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 16px; font-size: 1.1rem; font-weight: 700; color: #fff;
+        }
+        .tech-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,.04);
+        }
+        .tech-item:last-child { border-bottom: none; }
+        .tech-item img { width: 28px; height: 28px; object-fit: contain; }
+        .tech-item .tech-name { font-weight: 600; color: #fff; font-size: .9rem; }
+        .tech-item .tech-desc { font-size: .8rem; color: var(--stone-400); }
+
+        /* Arch Diagram */
+        .arch-diagram {
+            display: flex; flex-direction: column; align-items: center; gap: 0;
+            padding: 40px 20px;
+            background: var(--bg-card-alt);
+            border: 1px solid var(--stone-700);
+            border-radius: 12px;
+        }
+        .arch-box {
+            background: var(--bg-card);
+            border: 2px solid var(--stone-600);
+            border-radius: 12px;
+            padding: 20px 30px;
             text-align: center;
+            min-width: 280px;
+            position: relative;
+            transition: border-color .2s, transform .2s;
         }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .arch-box:hover { border-color: var(--orange-400); transform: scale(1.02); }
+        .arch-box-title { font-weight: 700; font-size: 1rem; color: #fff; margin-bottom: 4px; }
+        .arch-box-sub { font-size: .8rem; color: var(--stone-400); }
+        .arch-box-icons { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+        .arch-box-icons img { width: 24px; height: 24px; }
+        .arch-arrow {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 6px 0; color: var(--stone-500); font-size: .7rem;
         }
-        
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-        
-        .content {
-            padding: 40px;
-        }
-        
-        .section {
-            margin-bottom: 40px;
-        }
-        
-        .section h2 {
-            color: #2c3e50;
-            font-size: 1.8em;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 10px;
-        }
-        
-        .section h3 {
-            color: #34495e;
-            font-size: 1.4em;
-            margin: 20px 0 15px 0;
-        }
-        
-        .stack-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .stack-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .stack-card h4 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .stack-card h4::before {
-            content: ">";
-            margin-right: 10px;
-            font-size: 1.5em;
-        }
-        
-        .stack-card ul {
-            list-style: none;
-            margin-left: 20px;
-        }
-        
-        .stack-card li {
-            margin: 5px 0;
-            opacity: 0.9;
-        }
-        
-        .diagram {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 30px;
-            margin: 20px 0;
-            overflow-x: auto;
-        }
-        
-        .diagram pre {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.4;
-            color: #2c3e50;
-            white-space: pre;
-            margin: 0;
-        }
-        
-        .directory-structure {
-            background: #2c3e50;
-            color: #ecf0f1;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-        
-        .directory-structure .folder {
-            color: #3498db;
-        }
-        
-        .directory-structure .file {
-            color: #2ecc71;
-        }
-        
-        .models-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
+        .arch-arrow svg { width: 20px; height: 30px; }
+        .arch-arrow-label { font-size: .7rem; color: var(--stone-500); margin-bottom: 2px; }
+
+        .arch-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+        .arch-box.github { border-color: #f0f6fc40; }
+        .arch-box.vercel { border-color: #ffffff20; }
+        .arch-box.render { border-color: #4cffa620; }
+        .arch-box.db { border-color: #336791aa; }
+
+        /* Models */
+        .model-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
         .model-card {
-            background: #ecf0f1;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
+            background: var(--bg-card);
+            border-left: 4px solid var(--red-600);
+            border-radius: 0 10px 10px 0;
+            padding: 18px;
         }
-        
-        .model-card h4 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        
-        .model-card p {
-            color: #7f8c8d;
-            font-size: 0.9em;
-        }
-        
-        .api-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
+        .model-card h4 { color: #fff; font-size: .95rem; margin-bottom: 8px; }
+        .model-card p { font-size: .82rem; color: var(--stone-400); margin: 4px 0; }
+        .model-card strong { color: var(--orange-400); }
+
+        /* API */
+        .api-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
         .api-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        }
-        
-        .api-card h4 {
-            margin-bottom: 10px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .api-card p {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-        
-        .flow-diagram {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--stone-700);
             border-radius: 10px;
-            text-align: center;
-            margin: 20px 0;
+            padding: 18px;
         }
-        
-        .flow-diagram code {
-            background: rgba(255,255,255,0.1);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
+        .api-card h4 { color: var(--orange-400); font-size: .95rem; margin-bottom: 10px; }
+        .api-endpoint {
+            font-family: 'Courier New', monospace; font-size: .78rem;
+            color: var(--stone-300); padding: 3px 0;
         }
-        
-        .security-section {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 20px;
+        .method { font-weight: 700; margin-right: 6px; }
+        .method.get { color: var(--green-500); }
+        .method.post { color: var(--orange-500); }
+        .method.put { color: var(--teal-500); }
+        .method.del { color: var(--red-600); }
+
+        /* Security */
+        .sec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .sec-card {
+            background: var(--bg-card);
+            border: 1px solid var(--stone-700);
             border-radius: 10px;
-            margin: 20px 0;
-        }
-        
-        .security-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .security-card {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .security-card h4 {
-            margin-bottom: 10px;
-        }
-        
-        .security-card ul {
-            list-style: none;
-            margin-left: 10px;
-        }
-        
-        .security-card li {
-            margin: 5px 0;
-            opacity: 0.9;
-        }
-        
-        .security-card li::before {
-            content: "lock ";
-            margin-right: 5px;
-        }
-        
-        .production-urls {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
             padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
         }
-        
-        .url-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+        .sec-card h4 { color: #fff; margin-bottom: 12px; font-size: .95rem; }
+        .sec-card li {
+            font-size: .85rem; color: var(--stone-400);
+            padding: 4px 0; list-style: none;
         }
-        
+        .sec-card li::before { content: '🔒 '; }
+
+        /* URLs */
+        .url-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
         .url-card {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
+            background: var(--bg-card);
+            border: 1px solid var(--stone-700);
+            border-radius: 10px;
+            padding: 18px;
         }
-        
-        .url-card h4 {
-            margin-bottom: 10px;
-        }
-        
+        .url-card h4 { color: #fff; font-size: .9rem; margin-bottom: 8px; }
         .url-card a {
-            color: #fff;
-            text-decoration: none;
+            color: var(--orange-400); text-decoration: none; font-family: monospace;
+            font-size: .85rem; word-break: break-all;
+        }
+        .url-card a:hover { text-decoration: underline; }
+
+        /* Dir tree */
+        .dir-tree {
+            background: var(--bg-card-alt);
+            border: 1px solid var(--stone-700);
+            border-radius: 10px;
+            padding: 24px;
             font-family: 'Courier New', monospace;
-            word-break: break-all;
+            font-size: .82rem;
+            line-height: 1.7;
+            overflow-x: auto;
         }
-        
-        .url-card a:hover {
-            text-decoration: underline;
-        }
-        
+        .dir-tree .f { color: var(--teal-500); }
+        .dir-tree .d { color: var(--orange-400); }
+        .dir-tree .c { color: var(--stone-500); }
+
         .footer {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
+            text-align: center; padding: 24px; font-size: .8rem;
+            color: var(--stone-500); border-top: 1px solid var(--stone-700);
+            margin-top: 40px;
         }
-        
-        .badge {
-            display: inline-block;
-            background: #e74c3c;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            margin-left: 10px;
+        .nav-links { display: flex; justify-content: center; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; }
+        .nav-links a {
+            background: var(--bg-card); border: 1px solid var(--stone-700);
+            color: var(--stone-300); padding: 8px 18px; border-radius: 8px;
+            text-decoration: none; font-size: .85rem; font-weight: 500;
+            transition: border-color .2s;
         }
-        
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .stack-grid,
-            .models-grid,
-            .api-list,
-            .security-grid,
-            .url-list {
-                grid-template-columns: 1fr;
-            }
+        .nav-links a:hover { border-color: var(--red-600); color: #fff; }
+        .nav-links a.active { border-color: var(--red-600); background: var(--red-600); color: #fff; }
+
+        @media(max-width:700px) {
+            .tech-grid, .model-grid, .api-grid, .sec-grid, .url-grid { grid-template-columns: 1fr; }
+            .arch-box { min-width: 220px; padding: 14px 18px; }
+            .header h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>GarageSales System</h1>
-            <p>Arquitetura Completa do Sistema de Vendas de Miniaturas</p>
-            <span class="badge">Produção Ativa</span>
-        </div>
-        
-        <div class="content">
-            <div class="section">
-                <h2>Visão Geral</h2>
-                <p>Sistema completo de gestão de vendas de miniaturas de carros com tema Disney Pixar, desenvolvido com arquitetura moderna e deploy em serviços gratuitos.</p>
-            </div>
-            
-            <div class="section">
-                <h2>Stack Tecnológico</h2>
-                <div class="stack-grid">
-                    <div class="stack-card">
-                        <h4>Frontend</h4>
-                        <ul>
-                            <li>Framework: React 18 + TypeScript</li>
-                            <li>Build Tool: Vite</li>
-                            <li>Styling: TailwindCSS</li>
-                            <li>Deploy: Vercel</li>
-                            <li>Estado: useState + Context API</li>
-                            <li>HTTP Client: Axios</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="stack-card">
-                        <h4>Backend</h4>
-                        <ul>
-                            <li>Framework: FastAPI (Python 3.12)</li>
-                            <li>ORM: SQLAlchemy 2.0</li>
-                            <li>Banco de Dados: PostgreSQL</li>
-                            <li>Autenticação: JWT + bcrypt</li>
-                            <li>Deploy: Render</li>
-                            <li>API Documentation: Swagger/OpenUI</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="stack-card">
-                        <h4>Infraestrutura</h4>
-                        <ul>
-                            <li>Version Control: GitHub</li>
-                            <li>CI/CD: Deploy automático via Git push</li>
-                            <li>Database Hosting: Render PostgreSQL</li>
-                            <li>Static Assets: Vercel CDN</li>
-                        </ul>
-                    </div>
+
+<div class="header">
+    <div class="header-content">
+        <img src="../frontend/public/logo-garage95.png" alt="Garage95">
+        <h1>Garage95 System</h1>
+        <p>Arquitetura do Sistema de Gestao de Vendas de Miniaturas</p>
+        <span class="badge">Producao Ativa &mdash; v2.0</span>
+    </div>
+</div>
+
+<div class="container">
+
+    <nav class="nav-links">
+        <a href="arquitetura.html" class="active">Arquitetura</a>
+        <a href="guia-admin.html">Guia Admin</a>
+        <a href="guia-cliente.html">Guia Cliente</a>
+    </nav>
+
+    <!-- STACK -->
+    <div class="section">
+        <div class="section-title">Stack Tecnologico</div>
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-card-header">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    Frontend
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React">
+                    <div><div class="tech-name">React 18</div><div class="tech-desc">Biblioteca UI com hooks e Context API</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TS">
+                    <div><div class="tech-name">TypeScript</div><div class="tech-desc">Tipagem estatica para JavaScript</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" alt="Vite">
+                    <div><div class="tech-name">Vite</div><div class="tech-desc">Build tool ultrarapido com HMR</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind">
+                    <div><div class="tech-name">TailwindCSS</div><div class="tech-desc">Framework CSS utility-first</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/axios/axios-plain.svg" alt="Axios">
+                    <div><div class="tech-name">Axios</div><div class="tech-desc">Cliente HTTP para API requests</div></div>
                 </div>
             </div>
-            
-            <div class="section">
-                <h2>Diagrama de Arquitetura</h2>
-                <div class="diagram">
-                    <pre>
-                    +---------------------+
-                    |     GitHub Repo     |
-                    | (brunomrusso/...)   |
-                    +----------+----------+
-                               |
-                    +----------v----------+
-                    |      Vercel        |
-                    |   Frontend Host    |
-                    | (React + Vite)     |
-                    +----------+----------+
-                               |
-                               | HTTPS Requests
-                               | (CORS enabled)
-                               v
-                    +----------+----------+
-                    |       Render        |
-                    |   Backend Host     |
-                    | (FastAPI + Python) |
-                    +----------+----------+
-                               |
-                               | PostgreSQL
-                               v
-                    +----------+----------+
-                    |   Render Database  |
-                    |   PostgreSQL DB    |
-                    +---------------------+
-                    </pre>
+
+            <div class="tech-card">
+                <div class="tech-card-header">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12H2M22 12L18 8M22 12l-4 4M2 12l4-4M2 12l4 4"/></svg>
+                    Backend
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+                    <div><div class="tech-name">Python 3.12</div><div class="tech-desc">Linguagem principal do backend</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" alt="FastAPI">
+                    <div><div class="tech-name">FastAPI</div><div class="tech-desc">Framework web async de alta performance</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlalchemy/sqlalchemy-original.svg" alt="SQLAlchemy">
+                    <div><div class="tech-name">SQLAlchemy 2.0</div><div class="tech-desc">ORM para acesso ao banco de dados</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL">
+                    <div><div class="tech-name">PostgreSQL</div><div class="tech-desc">Banco de dados relacional</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://jwt.io/img/pic_logo.svg" alt="JWT">
+                    <div><div class="tech-name">JWT + bcrypt</div><div class="tech-desc">Autenticacao e hash de senhas</div></div>
                 </div>
             </div>
-            
-            <div class="section">
-                <h2>Estrutura de Diretórios</h2>
-                <div class="directory-structure">
-                    <div><span class="folder">garage-sales-system/</span></div>
-                    <div>  <span class="folder">frontend/</span></div>
-                    <div>    <span class="folder">src/</span></div>
-                    <div>      <span class="folder">components/</span>     # Componentes React reutilizáveis</div>
-                    <div>      <span class="folder">pages/</span>          # Páginas principais</div>
-                    <div>      <span class="folder">services/</span>       # Clientes API</div>
-                    <div>      <span class="folder">contexts/</span>       # Contextos React</div>
-                    <div>      <span class="folder">types/</span>          # Tipos TypeScript</div>
-                    <div>      <span class="folder">utils/</span>          # Utilitários</div>
-                    <div>      <span class="file">App.tsx</span>         # Componente principal</div>
-                    <div>      <span class="file">main.tsx</span>        # Entry point</div>
-                    <div>    <span class="folder">public/</span>             # Assets estáticos</div>
-                    <div>    <span class="file">package.json</span></div>
-                    <div>    <span class="file">vercel.json</span>         # Config deploy</div>
-                    <div>  <span class="folder">backend/</span></div>
-                    <div>    <span class="folder">app/</span></div>
-                    <div>      <span class="folder">core/</span>           # Configurações</div>
-                    <div>      <span class="folder">db/</span>             # Database</div>
-                    <div>      <span class="folder">models/</span>         # SQLAlchemy Models</div>
-                    <div>      <span class="folder">schemas/</span>        # Pydantic Schemas</div>
-                    <div>      <span class="folder">controllers/</span>    # Lógica de negócio</div>
-                    <div>      <span class="folder">routes/</span>         # Endpoints API</div>
-                    <div>    <span class="file">main.py</span>             # Entry point FastAPI</div>
-                    <div>    <span class="file">requirements.txt</span>    # Dependências</div>
-                    <div>    <span class="file">.python-version</span>    # Versão Python</div>
-                    <div>  <span class="file">render.yaml</span>              # Config deploy</div>
-                    <div>  <span class="file">.gitignore</span></div>
-                    <div>  <span class="file">DEPLOY.md</span>                # Guia de deploy</div>
-                    <div>  <span class="file">ARQUITETURA.md</span>           # Documentação</div>
+
+            <div class="tech-card">
+                <div class="tech-card-header">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    Infraestrutura
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" style="filter:invert(1)">
+                    <div><div class="tech-name">GitHub</div><div class="tech-desc">Controle de versao e CI/CD trigger</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg" alt="Vercel" style="filter:invert(1)">
+                    <div><div class="tech-name">Vercel</div><div class="tech-desc">Hospedagem do frontend + CDN global</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://images.ctfassets.net/velgm0q23j5y/7xbM3SPCEMo5fEbHNF3LWr/0e55c0bba4b3a8ffe2bfc27b73eaca85/render-logo.svg" alt="Render" onerror="this.src='https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg'">
+                    <div><div class="tech-name">Render</div><div class="tech-desc">Hospedagem do backend + PostgreSQL</div></div>
+                </div>
+                <div class="tech-item">
+                    <img src="https://www.svgrepo.com/show/374062/swagger.svg" alt="Swagger" style="width:28px;height:28px;">
+                    <div><div class="tech-name">Swagger/OpenAPI</div><div class="tech-desc">Documentacao automatica da API</div></div>
                 </div>
             </div>
-            
-            <div class="section">
-                <h2>Fluxos Principais</h2>
-                <div class="flow-diagram">
-                    <h3>Autenticação</h3>
-                    <p><code>Cliente/Admin -> Frontend -> Backend API -> JWT Token -> Session</code></p>
-                </div>
-                <div class="flow-diagram">
-                    <h3>Cadastro de Vendas</h3>
-                    <p><code>Admin -> Frontend -> Backend -> Database -> Notificação Cliente</code></p>
-                </div>
-                <div class="flow-diagram">
-                    <h3>Gestão de Garagem</h3>
-                    <p><code>Cliente -> Frontend -> Backend -> Database -> Upload Fotos</code></p>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2>Modelos de Dados</h2>
-                <div class="models-grid">
-                    <div class="model-card">
-                        <h4>Usuários</h4>
-                        <p><strong>UsuarioAdmin:</strong> Gestão do sistema</p>
-                        <p><strong>Cliente:</strong> Compradores das miniaturas</p>
-                    </div>
-                    
-                    <div class="model-card">
-                        <h4>Vendas</h4>
-                        <p><strong>Lote:</strong> Agrupamento de itens</p>
-                        <p><strong>VendaLote:</strong> Itens individuais vendidos</p>
-                        <p><strong>Compra:</strong> Registro de compras</p>
-                    </div>
-                    
-                    <div class="model-card">
-                        <h4>Pagamentos</h4>
-                        <p><strong>Pagamento:</strong> Controle de pagamentos</p>
-                    </div>
-                    
-                    <div class="model-card">
-                        <h4>Envios</h4>
-                        <p><strong>SolicitacaoEnvio:</strong> Pedidos de envio</p>
-                        <p><strong>FotoGaragem:</strong> Fotos das garagens</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2>APIs Principais</h2>
-                <div class="api-list">
-                    <div class="api-card">
-                        <h4>Autenticação</h4>
-                        <p>POST /api/auth/admin/login</p>
-                        <p>POST /api/auth/cliente/login</p>
-                        <p>POST /api/auth/cliente/register</p>
-                    </div>
-                    
-                    <div class="api-card">
-                        <h4>Gestão</h4>
-                        <p>GET/POST/PUT/DELETE /api/clientes</p>
-                        <p>GET/POST/PUT/DELETE /api/lotes</p>
-                        <p>GET/POST/PUT/DELETE /api/vendas</p>
-                    </div>
-                    
-                    <div class="api-card">
-                        <h4>Operações</h4>
-                        <p>GET/POST/PUT/DELETE /api/pagamentos</p>
-                        <p>GET/POST/PUT/DELETE /api/solicitacoes</p>
-                        <p>GET /health - Health Check</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2>Segurança</h2>
-                <div class="security-section">
-                    <h3>Implementações de Segurança</h3>
-                    <div class="security-grid">
-                        <div class="security-card">
-                            <h4>Frontend</h4>
-                            <ul>
-                                <li>Token JWT em localStorage</li>
-                                <li>Verificação de role (admin/cliente)</li>
-                                <li>Proteção de rotas</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="security-card">
-                            <h4>Backend</h4>
-                            <ul>
-                                <li>CORS configurado</li>
-                                <li>Hash de senhas com bcrypt</li>
-                                <li>Tokens JWT com expiração (24h)</li>
-                                <li>Validação com Pydantic</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2>Deploy e Infraestrutura</h2>
-                <div class="production-urls">
-                    <h3>URLs de Produção</h3>
-                    <div class="url-list">
-                        <div class="url-card">
-                            <h4>Frontend</h4>
-                            <a href="https://garage-sales-system.vercel.app" target="_blank">https://garage-sales-system.vercel.app</a>
-                        </div>
-                        
-                        <div class="url-card">
-                            <h4>Backend API</h4>
-                            <a href="https://garagesales-api.onrender.com" target="_blank">https://garagesales-api.onrender.com</a>
-                        </div>
-                        
-                        <div class="url-card">
-                            <h4>API Documentation</h4>
-                            <a href="https://garagesales-api.onrender.com/docs" target="_blank">https://garagesales-api.onrender.com/docs</a>
-                        </div>
-                    </div>
-                    
-                    <h3>Limitações Free Tier</h3>
-                    <ul style="margin-top: 15px; list-style: none;">
-                        <li>Render: Sleep após 15min inatividade (30s para acordar)</li>
-                        <li>Vercel: Sem limitações (sempre online)</li>
-                        <li>Database: 90 dias expira free tier</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2>Escalabilidade</h2>
-                <h3>Vertical (Upgrade Path)</h3>
-                <ul>
-                    <li><strong>Render Starter</strong> ($7/mês): Sem sleep, mais performance</li>
-                    <li><strong>Render Pro</strong> ($50/mês): High availability, monitoring</li>
-                    <li><strong>Vercel Pro</strong>: Edge functions, analytics</li>
-                </ul>
-                
-                <h3>Horizontal</h3>
-                <ul>
-                    <li>Load balancer (Render)</li>
-                    <li>Database replicas</li>
-                    <li>CDN global (Vercel já possui)</li>
-                </ul>
-            </div>
-            
-            <div class="section">
-                <h2>Próximos Passos</h2>
-                <h3>Features Futuras</h3>
-                <ul>
-                    <li>Notificações: Email/SMS para clientes</li>
-                    <li>Pagamentos Online: Stripe/PayPal integration</li>
-                    <li>Relatórios: Analytics e dashboards</li>
-                    <li>Mobile App: React Native</li>
-                    <li>Marketplace: Venda entre clientes</li>
-                </ul>
-                
-                <h3>Melhorias Técnicas</h3>
-                <ul>
-                    <li>Redis Cache: Para performance</li>
-                    <li>Background Jobs: Para notificações</li>
-                    <li>File Storage: S3 para fotos</li>
-                    <li>Testing: Unit e integration tests</li>
-                    <li>CI/CD: GitHub Actions</li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p><strong>Status:</strong> Produção ativa | <strong>Última atualização:</strong> Abril 2026 | <strong>Versão:</strong> 1.0.0</p>
         </div>
     </div>
+
+    <!-- DIAGRAMA -->
+    <div class="section">
+        <div class="section-title">Diagrama de Arquitetura</div>
+        <div class="arch-diagram">
+
+            <div class="arch-box github">
+                <div class="arch-box-title">GitHub Repository</div>
+                <div class="arch-box-sub">brunomrusso/garage-sales-system</div>
+                <div class="arch-box-icons">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" style="filter:invert(1)">
+                </div>
+            </div>
+
+            <div class="arch-arrow">
+                <div class="arch-arrow-label">git push &rarr; auto deploy</div>
+                <svg viewBox="0 0 20 30"><path d="M10 0 V24 M4 18 L10 26 L16 18" stroke="#78716c" fill="none" stroke-width="2"/></svg>
+            </div>
+
+            <div class="arch-row">
+                <div class="arch-box vercel">
+                    <div class="arch-box-title">Vercel</div>
+                    <div class="arch-box-sub">Frontend Host (SPA)</div>
+                    <div class="arch-box-icons">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TS">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" alt="Vite">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" alt="TW">
+                    </div>
+                </div>
+            </div>
+
+            <div class="arch-arrow">
+                <div class="arch-arrow-label">HTTPS / REST API (CORS)</div>
+                <svg viewBox="0 0 20 30"><path d="M10 0 V24 M4 18 L10 26 L16 18" stroke="#78716c" fill="none" stroke-width="2"/></svg>
+            </div>
+
+            <div class="arch-row">
+                <div class="arch-box render">
+                    <div class="arch-box-title">Render</div>
+                    <div class="arch-box-sub">Backend API Server</div>
+                    <div class="arch-box-icons">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" alt="FastAPI">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlalchemy/sqlalchemy-original.svg" alt="SQLAlchemy">
+                    </div>
+                </div>
+            </div>
+
+            <div class="arch-arrow">
+                <div class="arch-arrow-label">SQLAlchemy ORM</div>
+                <svg viewBox="0 0 20 30"><path d="M10 0 V24 M4 18 L10 26 L16 18" stroke="#78716c" fill="none" stroke-width="2"/></svg>
+            </div>
+
+            <div class="arch-box db">
+                <div class="arch-box-title">PostgreSQL</div>
+                <div class="arch-box-sub">Render Managed Database</div>
+                <div class="arch-box-icons">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODELOS -->
+    <div class="section">
+        <div class="section-title">Modelos de Dados</div>
+        <div class="model-grid">
+            <div class="model-card">
+                <h4>Usuarios</h4>
+                <p><strong>UsuarioAdmin</strong> &mdash; Gestao do sistema, permissoes granulares</p>
+                <p><strong>Cliente</strong> &mdash; Compradores, login proprio</p>
+            </div>
+            <div class="model-card">
+                <h4>Vendas</h4>
+                <p><strong>Lote</strong> &mdash; Agrupamento de itens importados</p>
+                <p><strong>VendaLote</strong> &mdash; Venda individual c/ cotas e tributo</p>
+            </div>
+            <div class="model-card">
+                <h4>Tributos</h4>
+                <p><strong>TributoImportacao</strong> &mdash; Controle de tributos por rastreio</p>
+                <p><strong>VendaLote.tributo_pago</strong> &mdash; Status individual</p>
+            </div>
+            <div class="model-card">
+                <h4>Garagem</h4>
+                <p><strong>FotoGaragem</strong> &mdash; Fotos das colecoes dos clientes</p>
+                <p><strong>SolicitacaoEnvio</strong> &mdash; Pedidos de envio</p>
+            </div>
+            <div class="model-card">
+                <h4>Multi-Tenant</h4>
+                <p><strong>Empresa</strong> &mdash; Entidade multi-tenant</p>
+                <p><strong>Modulo / EmpresaModulo</strong> &mdash; Feature flags</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- APIS -->
+    <div class="section">
+        <div class="section-title">Endpoints da API</div>
+        <div class="api-grid">
+            <div class="api-card">
+                <h4>Autenticacao</h4>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/auth/admin/login</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/auth/cliente/login</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/auth/cliente/register</div>
+            </div>
+            <div class="api-card">
+                <h4>Clientes</h4>
+                <div class="api-endpoint"><span class="method get">GET</span>/api/clientes/</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/clientes/</div>
+                <div class="api-endpoint"><span class="method put">PUT</span>/api/clientes/{id}/</div>
+                <div class="api-endpoint"><span class="method del">DEL</span>/api/clientes/{id}/</div>
+            </div>
+            <div class="api-card">
+                <h4>Lotes &amp; Vendas</h4>
+                <div class="api-endpoint"><span class="method get">GET</span>/api/lotes/</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/lotes/</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/lotes/{id}/vendas/</div>
+                <div class="api-endpoint"><span class="method put">PUT</span>/api/lotes/vendas/{id}/</div>
+            </div>
+            <div class="api-card">
+                <h4>Tributos</h4>
+                <div class="api-endpoint"><span class="method get">GET</span>/api/lotes/tributos/</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/lotes/tributos/</div>
+                <div class="api-endpoint"><span class="method put">PUT</span>/api/lotes/tributos/{id}/</div>
+                <div class="api-endpoint"><span class="method put">PUT</span>/api/lotes/tributos/{id}/arquivar/</div>
+            </div>
+            <div class="api-card">
+                <h4>Garagem</h4>
+                <div class="api-endpoint"><span class="method get">GET</span>/api/garagem/fotos/</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/garagem/fotos/</div>
+                <div class="api-endpoint"><span class="method get">GET</span>/api/garagem/solicitacoes/</div>
+                <div class="api-endpoint"><span class="method post">POST</span>/api/garagem/solicitacoes/</div>
+            </div>
+            <div class="api-card">
+                <h4>Sistema</h4>
+                <div class="api-endpoint"><span class="method get">GET</span>/health</div>
+                <div class="api-endpoint"><span class="method get">GET</span>/api/empresas/</div>
+                <div class="api-endpoint"><span class="method get">GET</span>/api/empresas/{slug}/modulos/</div>
+                <div class="api-endpoint"><span class="method get">GET</span>/docs &mdash; Swagger UI</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEGURANCA -->
+    <div class="section">
+        <div class="section-title">Seguranca</div>
+        <div class="sec-grid">
+            <div class="sec-card">
+                <h4>Frontend</h4>
+                <ul>
+                    <li>Token JWT armazenado em localStorage</li>
+                    <li>Verificacao de role (admin/cliente/master)</li>
+                    <li>Protecao de rotas com React Router</li>
+                    <li>Context API para estado de autenticacao</li>
+                </ul>
+            </div>
+            <div class="sec-card">
+                <h4>Backend</h4>
+                <ul>
+                    <li>CORS configurado para dominios especificos</li>
+                    <li>Hash de senhas com bcrypt</li>
+                    <li>Tokens JWT com expiracao (24h)</li>
+                    <li>Validacao de inputs com Pydantic</li>
+                    <li>Multi-tenant isolation por empresa_id</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ESTRUTURA -->
+    <div class="section">
+        <div class="section-title">Estrutura de Diretorios</div>
+        <div class="dir-tree">
+<span class="d">garage-sales-system/</span>
+  <span class="d">frontend/</span>
+    <span class="d">src/</span>
+      <span class="d">components/</span>     <span class="c">Garage95Logo, EmpresaSelector, PermissionsModal</span>
+      <span class="d">pages/</span>          <span class="c">LoginPage, AdminDashboard, ClienteGaragem, RegistroPage</span>
+      <span class="d">services/</span>       <span class="c">api.ts (axios clients)</span>
+      <span class="d">contexts/</span>       <span class="c">TenantContext (multi-tenant + modulos)</span>
+      <span class="d">hooks/</span>          <span class="c">useAuth, usePermissions</span>
+      <span class="f">App.tsx</span>         <span class="c">Router principal</span>
+      <span class="f">main.tsx</span>        <span class="c">Entry point</span>
+    <span class="d">public/</span>           <span class="c">Logo, favicon, assets</span>
+    <span class="f">vercel.json</span>       <span class="c">Config de deploy Vercel</span>
+  <span class="d">backend/</span>
+    <span class="d">app/</span>
+      <span class="d">core/</span>           <span class="c">settings.py, security.py (JWT, bcrypt)</span>
+      <span class="d">db/</span>             <span class="c">session.py, seed_modulos.py</span>
+      <span class="d">models/</span>         <span class="c">SQLAlchemy models (Lote, VendaLote, Tributo...)</span>
+      <span class="d">schemas/</span>        <span class="c">Pydantic schemas (validacao)</span>
+      <span class="d">controllers/</span>    <span class="c">Logica de negocio (lote_controller, etc)</span>
+      <span class="d">routes/</span>         <span class="c">Endpoints FastAPI</span>
+    <span class="f">main.py</span>           <span class="c">Entry point FastAPI + CORS</span>
+    <span class="f">requirements.txt</span>  <span class="c">Dependencias Python</span>
+  <span class="d">docs/</span>              <span class="c">Documentacao HTML</span>
+  <span class="f">render.yaml</span>        <span class="c">Config deploy Render</span>
+        </div>
+    </div>
+
+    <!-- DEPLOY -->
+    <div class="section">
+        <div class="section-title">Deploy &amp; URLs de Producao</div>
+        <div class="url-grid">
+            <div class="url-card">
+                <h4>Frontend (Vercel)</h4>
+                <a href="https://garage-sales-system.vercel.app" target="_blank">https://garage-sales-system.vercel.app</a>
+                <p style="font-size:.75rem;color:var(--stone-500);margin-top:6px">Sempre online, CDN global, deploy automatico</p>
+            </div>
+            <div class="url-card">
+                <h4>Backend API (Render)</h4>
+                <a href="https://garagesales-api.onrender.com" target="_blank">https://garagesales-api.onrender.com</a>
+                <p style="font-size:.75rem;color:var(--stone-500);margin-top:6px">Sleep apos 15min inatividade (free tier)</p>
+            </div>
+            <div class="url-card">
+                <h4>API Docs (Swagger)</h4>
+                <a href="https://garagesales-api.onrender.com/docs" target="_blank">https://garagesales-api.onrender.com/docs</a>
+                <p style="font-size:.75rem;color:var(--stone-500);margin-top:6px">Documentacao interativa auto-gerada</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    <strong>Garage95 System</strong> &mdash; Producao ativa | Ultima atualizacao: Abril 2026 | v2.0
+</div>
+
 </body>
 </html>
