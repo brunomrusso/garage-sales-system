@@ -70,6 +70,10 @@ export const AdminDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (activeTab === 'vendas') loadLotes();
+  }, [activeTab]);
+
   const loadClientes = async () => {
     setLoading(true);
     try {
