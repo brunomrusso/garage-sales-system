@@ -71,7 +71,10 @@ export const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'vendas') loadLotes();
+    if (activeTab === 'vendas') {
+      loadLotes();
+      if (selectedLote) loadVendasLote(selectedLote.id);
+    }
   }, [activeTab]);
 
   const loadClientes = async () => {
