@@ -1026,7 +1026,7 @@ export const AdminDashboard = () => {
                             <span className="text-xs text-purple-400">{lote.vendas_entregues || 0}/{lote.total_vendas || 0}</span>
                           </div>
                           {lote.percentual_entregue === 100 && (
-                            <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded border border-purple-600/30 inline-block">
+                            <span className="text-xs bg-teal-600/20 text-teal-400 px-2 py-1 rounded border border-teal-600/30 inline-block">
                               100% ENTREGUE
                             </span>
                           )}
@@ -1111,7 +1111,7 @@ export const AdminDashboard = () => {
                               <span className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded border border-green-600/30">
                                 100% PAGO
                               </span>
-                              <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded border border-purple-600/30">
+                              <span className="text-xs bg-teal-600/20 text-teal-400 px-2 py-1 rounded border border-teal-600/30">
                                 100% ENTREGUE
                               </span>
                             </div>
