@@ -487,7 +487,64 @@ def listar_tributos(db: Session, empresa_id: int = None, incluir_arquivados: boo
         query = query.filter(TributoImportacao.arquivado.isnot(True))
     
     tributos = query.order_by(TributoImportacao.data_registro.desc()).all()
-    return [_calcular_tributo_response(db, t) for t in tributos]
+    if not tributos:
+        return []
+    
+    # Batch: buscar todos lotes e vendas de uma vez para evitar N+1
+    rastreios = [t.rastreio_importacao for t in tributos]
+    lotes = db.query(Lote).filter(
+        Lote.empresa_id == empresa_id,
+        Lote.rastreio_importacao.in_(rastreios)
+    ).all()
+    
+    lotes_por_rastreio = {}
+    lotes_ids = []
+    for l in lotes:
+        lotes_por_rastreio.setdefault(l.rastreio_importacao, []).append(l)
+        lotes_ids.append(l.id)
+    
+    vendas = []
+    if lotes_ids:
+        vendas = db.query(VendaLote).filter(VendaLote.lote_id.in_(lotes_ids)).all()
+    
+    vendas_por_lote = {}
+    for v in vendas:
+        vendas_por_lote.setdefault(v.lote_id, []).append(v)
+    
+    result = []
+    for tributo in tributos:
+        rastreio = tributo.rastreio_importacao
+        lotes_tributo = lotes_por_rastreio.get(rastreio, [])
+        vendas_tributo = []
+        for l in lotes_tributo:
+            vendas_tributo.extend(vendas_por_lote.get(l.id, []))
+        
+        total_cotas = sum(float(v.cotas or 1.0) for v in vendas_tributo)
+        valor_imposto = float(tributo.valor_total_imposto)
+        valor_por_cota = valor_imposto / total_cotas if total_cotas > 0 else 0
+        
+        tributos_pagos = sum(1 for v in vendas_tributo if v.tributo_pago)
+        cotas_pagas = sum(float(v.cotas or 1.0) for v in vendas_tributo if v.tributo_pago)
+        cotas_pendentes = sum(float(v.cotas or 1.0) for v in vendas_tributo if not v.tributo_pago)
+        
+        result.append({
+            "id": tributo.id,
+            "rastreio_importacao": rastreio,
+            "valor_total_imposto": valor_imposto,
+            "data_registro": tributo.data_registro,
+            "observacoes": tributo.observacoes,
+            "total_cotas": round(total_cotas, 2),
+            "valor_por_cota": round(valor_por_cota, 2),
+            "lotes_vinculados": [{"id": l.id, "numero_lote": l.numero_lote, "nome": l.nome, "total_vendas": l.total_vendas} for l in lotes_tributo],
+            "vendas_count": len(vendas_tributo),
+            "tributos_pagos": tributos_pagos,
+            "tributos_pendentes": len(vendas_tributo) - tributos_pagos,
+            "valor_pago": round(cotas_pagas * valor_por_cota, 2),
+            "valor_pendente": round(cotas_pendentes * valor_por_cota, 2),
+            "arquivado": tributo.arquivado is True
+        })
+    
+    return result
 
 
 def obter_tributo(db: Session, tributo_id: int, empresa_id: int = None) -> dict:
@@ -610,7 +667,7 @@ def obter_vendas_tributo(db: Session, rastreio: str, empresa_id: int = None) -> 
     
     result = []
     for v in vendas:
-        resp = _venda_to_response(v)
+        resp = _venda_to_response(v, include_lote_foto=False)
         cotas_venda = float(v.cotas or 1.0)
         resp["valor_tributo"] = round(cotas_venda * valor_por_cota, 2)
         result.append(resp)
