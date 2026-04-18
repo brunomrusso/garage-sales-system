@@ -75,6 +75,14 @@ export const AdminDashboard = () => {
       loadLotes();
       if (selectedLote) loadVendasLote(selectedLote.id);
     }
+    if (activeTab === 'tributos') {
+      loadTributos();
+      if (selectedTributo) {
+        loteService.obterVendasTributo(selectedTributo.rastreio_importacao)
+          .then(r => setVendasTributo(r.data))
+          .catch(() => {});
+      }
+    }
   }, [activeTab]);
 
   const loadClientes = async () => {
