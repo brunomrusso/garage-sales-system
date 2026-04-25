@@ -607,7 +607,7 @@ export const AdminDashboard = () => {
     <div className="min-h-screen bg-neutral-950">
       <nav className="bg-gradient-to-r from-itgeek-teal-dark via-itgeek-teal to-itgeek-teal-light text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
-          <img src="/logo-itgeek-horizontal.png" alt="ItGeek Store" style={{ height: 30, width: 'auto' }} />
+          <img src="/logo-itgeek-icon.png" alt="ItGeek Store" style={{ height: 30, width: 'auto' }} />
           <div className="flex flex-col">
             {empresa && (
               <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">
