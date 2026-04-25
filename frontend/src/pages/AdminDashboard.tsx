@@ -751,7 +751,7 @@ export const AdminDashboard = () => {
                     onClick={() => canCreateCliente() && setShowForm(!showForm)}
                     disabled={!canCreateCliente()}
                     title={!canCreateCliente() ? 'Você não tem permissão para criar clientes' : ''}
-                    className={`px-4 py-2 rounded font-semibold transition ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition ${
                       canCreateCliente()
                         ? 'bg-itgeek-teal text-white hover:bg-itgeek-teal-dark cursor-pointer'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
@@ -908,8 +908,8 @@ export const AdminDashboard = () => {
                     {lotes.length} lote{lotes.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={loadLotes} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={loadLotes} className="flex items-center gap-2 bg-green-600 text-white px-3 md:px-4 py-2 rounded hover:bg-green-700 transition text-sm md:text-base">
                     <RefreshCw size={18} />
                     Atualizar
                   </button>
@@ -917,7 +917,7 @@ export const AdminDashboard = () => {
                     onClick={() => canCreateLote() && setShowLoteForm(!showLoteForm)} 
                     disabled={!canCreateLote()}
                     title={!canCreateLote() ? 'Você não tem permissão para criar lotes' : ''}
-                    className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition ${
+                    className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded font-semibold transition text-sm md:text-base ${
                       canCreateLote() 
                         ? 'bg-itgeek-teal text-white hover:bg-itgeek-teal-dark cursor-pointer' 
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
@@ -926,7 +926,7 @@ export const AdminDashboard = () => {
                     {showLoteForm ? 'Cancelar' : 'Novo Lote'}
                   </button>
                   {showMigrarButton && (
-                    <button onClick={handleMigrarLotes} className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 font-semibold transition">
+                    <button onClick={handleMigrarLotes} className="flex items-center gap-2 bg-orange-600 text-white px-3 md:px-4 py-2 rounded hover:bg-orange-700 font-semibold transition text-sm md:text-base">
                       <RefreshCw size={18} />
                       Migrar Lotes
                     </button>
@@ -1185,18 +1185,18 @@ export const AdminDashboard = () => {
                         </span>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button onClick={() => setEditingLote(!editingLote)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded font-semibold transition text-sm ${
+                        className={`flex items-center gap-2 px-3 py-2 rounded font-semibold transition text-xs md:text-sm ${
                           editingLote ? 'bg-gray-600 text-gray-200' : 'bg-gray-700 text-gray-300 hover:bg-stone-600'
                         }`}>
                         <Pencil size={16} />
-                        {editingLote ? 'Cancelar Edição' : 'Editar Lote'}
+                        {editingLote ? 'Cancelar' : 'Editar Lote'}
                       </button>
                       <button onClick={() => setShowVendaForm(!showVendaForm)}
-                        className="flex items-center gap-2 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
-                        <Plus size={18} />
-                        {showVendaForm ? 'Cancelar' : 'Adicionar Venda'}
+                        className="flex items-center gap-2 bg-itgeek-teal text-white px-3 md:px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition text-xs md:text-sm">
+                        <Plus size={16} />
+                        {showVendaForm ? 'Cancelar' : 'Nova Venda'}
                       </button>
                     </div>
                   </div>
@@ -1611,30 +1611,31 @@ export const AdminDashboard = () => {
           {activeTab === 'tributos' && isModuloHabilitado('tributos') && (
             <div>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide">Tributos de Importação</h2>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2 className="text-lg md:text-3xl font-extrabold text-white uppercase tracking-wide">Tributos de Importação</h2>
                   <span className="bg-orange-600/20 text-orange-400 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-orange-600/30">
                     {tributos.length} registro{tributos.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button onClick={() => {
                     const novo = !mostrarTributosArquivados;
                     setMostrarTributosArquivados(novo);
                     loadTributos(novo);
-                  }} className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition text-sm ${
+                  }} className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded font-semibold transition text-xs md:text-sm ${
                     mostrarTributosArquivados ? 'bg-orange-600/30 text-orange-300 border border-orange-600/40' : 'bg-gray-700 text-gray-300 hover:bg-stone-600'
                   }`}>
                     <Archive size={16} />
-                    {mostrarTributosArquivados ? 'Ocultar Arquivados' : 'Ver Arquivados'}
+                    <span className="hidden sm:inline">{mostrarTributosArquivados ? 'Ocultar Arquivados' : 'Ver Arquivados'}</span>
+                    <span className="sm:hidden">{mostrarTributosArquivados ? 'Ocultar' : 'Arquivados'}</span>
                   </button>
-                  <button onClick={() => loadTributos()} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                    <RefreshCw size={18} />
+                  <button onClick={() => loadTributos()} className="flex items-center gap-1.5 md:gap-2 bg-green-600 text-white px-3 md:px-4 py-2 rounded hover:bg-green-700 transition text-xs md:text-sm">
+                    <RefreshCw size={16} />
                     Atualizar
                   </button>
                   <button onClick={() => setShowTributoForm(!showTributoForm)}
-                    className="flex items-center gap-2 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
-                    <Plus size={18} />
+                    className="flex items-center gap-1.5 md:gap-2 bg-itgeek-teal text-white px-3 md:px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition text-xs md:text-sm">
+                    <Plus size={16} />
                     {showTributoForm ? 'Cancelar' : 'Novo Tributo'}
                   </button>
                 </div>
@@ -1857,11 +1858,11 @@ export const AdminDashboard = () => {
               {/* Detalhe do tributo selecionado */}
               {selectedTributo && (
                 <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 border border-stone-700 mt-2">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold text-white">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-2">
+                    <h3 className="text-base md:text-lg font-bold text-white">
                       Vendas - Rastreio: <span className="text-itgeek-teal">{selectedTributo.rastreio_importacao}</span>
                     </h3>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-xs md:text-sm text-gray-400">
                       Valor/Cota: <span className="text-itgeek-teal font-semibold">R$ {Number(selectedTributo.valor_por_cota).toFixed(2)}</span>
                     </span>
                   </div>
