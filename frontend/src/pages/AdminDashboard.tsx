@@ -58,7 +58,7 @@ export const AdminDashboard = () => {
   const [editingTributo, setEditingTributo] = useState<any>(null);
   const [mensagemCobranca, setMensagemCobranca] = useState<{ tributo: any; texto: string } | null>(null);
   const [editingLote, setEditingLote] = useState(false);
-  const [editLoteData, setEditLoteData] = useState({ nome: '', descricao: '', status_lote: '', rastreio_importacao: '' });
+  const [editLoteData, setEditLoteData] = useState({ nome: '', descricao: '', status_lote: '', rastreio_importacao: '', foto: '' });
   const [savingFoto, setSavingFoto] = useState(false);
 
   useEffect(() => {
@@ -188,6 +188,7 @@ export const AdminDashboard = () => {
       nome: lote.nome || '',
       descricao: lote.descricao || '',
       status_lote: lote.status_lote || '',
+      foto: '',
       rastreio_importacao: lote.rastreio_importacao || '',
     });
     await loadVendasLote(lote.id);
@@ -196,7 +197,9 @@ export const AdminDashboard = () => {
   const handleUpdateLote = async () => {
     if (!selectedLote) return;
     try {
-      await loteService.atualizar(selectedLote.id, editLoteData);
+      const { foto, ...rest } = editLoteData;
+      const dataToSend = foto ? { ...rest, foto } : rest;
+      await loteService.atualizar(selectedLote.id, dataToSend);
       setEditingLote(false);
       loadLotes();
       // Atualizar o lote selecionado com os novos dados
@@ -908,27 +911,27 @@ export const AdminDashboard = () => {
                     {lotes.length} lote{lotes.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={loadLotes} className="flex items-center gap-2 bg-green-600 text-white px-3 md:px-4 py-2 rounded hover:bg-green-700 transition text-sm md:text-base">
-                    <RefreshCw size={18} />
-                    Atualizar
+                <div className="flex gap-2">
+                  <button onClick={loadLotes} className="flex items-center gap-1.5 bg-green-600 text-white px-2.5 md:px-4 py-2 rounded hover:bg-green-700 transition text-xs md:text-sm">
+                    <RefreshCw size={16} />
+                    <span className="hidden sm:inline">Atualizar</span>
                   </button>
                   <button 
                     onClick={() => canCreateLote() && setShowLoteForm(!showLoteForm)} 
                     disabled={!canCreateLote()}
                     title={!canCreateLote() ? 'Você não tem permissão para criar lotes' : ''}
-                    className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded font-semibold transition text-sm md:text-base ${
+                    className={`flex items-center gap-1.5 px-2.5 md:px-4 py-2 rounded font-semibold transition text-xs md:text-sm ${
                       canCreateLote() 
                         ? 'bg-itgeek-teal text-white hover:bg-itgeek-teal-dark cursor-pointer' 
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
                     }`}>
-                    <Plus size={18} />
-                    {showLoteForm ? 'Cancelar' : 'Novo Lote'}
+                    <Plus size={16} />
+                    <span className="hidden sm:inline">{showLoteForm ? 'Cancelar' : 'Novo Lote'}</span>
                   </button>
                   {showMigrarButton && (
-                    <button onClick={handleMigrarLotes} className="flex items-center gap-2 bg-orange-600 text-white px-3 md:px-4 py-2 rounded hover:bg-orange-700 font-semibold transition text-sm md:text-base">
-                      <RefreshCw size={18} />
-                      Migrar Lotes
+                    <button onClick={handleMigrarLotes} className="flex items-center gap-1.5 bg-orange-600 text-white px-2.5 md:px-4 py-2 rounded hover:bg-orange-700 font-semibold transition text-xs md:text-sm">
+                      <RefreshCw size={16} />
+                      <span className="hidden sm:inline">Migrar Lotes</span>
                     </button>
                   )}
                 </div>
@@ -1234,6 +1237,32 @@ export const AdminDashboard = () => {
                           <input type="text" value={editLoteData.descricao}
                             onChange={(e) => setEditLoteData({ ...editLoteData, descricao: e.target.value })}
                             className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
+                          {selectedLote?.foto && !editLoteData.foto && (
+                            <div className="mb-2 flex items-center gap-3">
+                              <img src={`data:image/jpeg;base64,${selectedLote.foto}`} alt="Foto atual" className="w-16 h-16 object-cover rounded border border-stone-600" />
+                              <span className="text-xs text-gray-500">Foto atual — selecione um arquivo para substituir</span>
+                            </div>
+                          )}
+                          {editLoteData.foto && (
+                            <div className="mb-2 flex items-center gap-3">
+                              <img src={`data:image/jpeg;base64,${editLoteData.foto}`} alt="Nova foto" className="w-16 h-16 object-cover rounded border border-itgeek-teal" />
+                              <span className="text-xs text-green-400">Nova foto selecionada</span>
+                            </div>
+                          )}
+                          <input type="file" accept="image/*" onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const base64 = (reader.result as string).split(',')[1];
+                                setEditLoteData({ ...editLoteData, foto: base64 });
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 text-sm file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-itgeek-teal file:text-white hover:file:bg-itgeek-teal-dark" />
                         </div>
                       </div>
                       <button onClick={handleUpdateLote}
