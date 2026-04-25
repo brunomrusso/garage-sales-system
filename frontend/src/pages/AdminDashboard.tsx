@@ -5,7 +5,6 @@ import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
 import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
-import { Garage95Logo } from '../components/Garage95Logo';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -605,10 +604,10 @@ export const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-red-950">
-      <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
+    <div className="min-h-screen bg-neutral-950">
+      <nav className="bg-gradient-to-r from-itgeek-teal-dark via-itgeek-teal to-itgeek-teal-light text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
-          <img src="/logo-resumido-garage95.png" alt="Garage95" style={{ height: 30, width: 'auto' }} />
+          <img src="/logo-itgeek-horizontal.png" alt="ItGeek Store" style={{ height: 30, width: 'auto' }} />
           <div className="flex flex-col">
             {empresa && (
               <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">
@@ -616,7 +615,7 @@ export const AdminDashboard = () => {
               </span>
             )}
             <span className="text-xs md:text-sm font-medium text-white/70 leading-tight">
-              Garage95
+              ItGeek Store
             </span>
           </div>
           <span className="text-xs bg-black/30 px-2 py-1 rounded font-mono hidden sm:inline">ADMIN</span>
@@ -634,13 +633,13 @@ export const AdminDashboard = () => {
       </nav>
 
       <div className="flex flex-col md:flex-row">
-        <div className="md:w-52 bg-stone-800 shadow-lg md:min-h-screen border-b md:border-b-0 md:border-r border-stone-700">
+        <div className="md:w-52 bg-neutral-900 shadow-lg md:min-h-screen border-b md:border-b-0 md:border-r border-neutral-800">
           <div className="p-2 md:p-4 flex md:flex-col md:space-y-2 gap-1 md:gap-0 overflow-x-auto">
             <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-0 md:mb-3 px-3 hidden md:block">Navegação</p>
             <button
               onClick={() => setActiveTab('clientes')}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'clientes' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
+                activeTab === 'clientes' ? 'bg-itgeek-teal text-white shadow-md' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
               }`}
             >
               <Users size={18} />
@@ -649,7 +648,7 @@ export const AdminDashboard = () => {
             <button
               onClick={() => { setActiveTab('vendas'); loadLotes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'vendas' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
+                activeTab === 'vendas' ? 'bg-itgeek-teal text-white shadow-md' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
               }`}
             >
               <ShoppingBag size={18} />
@@ -663,7 +662,7 @@ export const AdminDashboard = () => {
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
                 !canViewGaragem() 
                   ? 'text-stone-600 cursor-not-allowed opacity-50' 
-                  : activeTab === 'garagem' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
+                  : activeTab === 'garagem' ? 'bg-itgeek-teal text-white shadow-md' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
               }`}
             >
               <Warehouse size={18} />
@@ -674,7 +673,7 @@ export const AdminDashboard = () => {
             <button
               onClick={() => { setActiveTab('tributos'); loadTributos(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'tributos' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
+                activeTab === 'tributos' ? 'bg-itgeek-teal text-white shadow-md' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
               }`}
             >
               <Receipt size={18} />
@@ -684,13 +683,13 @@ export const AdminDashboard = () => {
             <button
               onClick={() => { setActiveTab('admins'); loadAdminsPendentes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
-                activeTab === 'admins' ? 'bg-red-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-700 hover:text-white'
+                activeTab === 'admins' ? 'bg-itgeek-teal text-white shadow-md' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
               }`}
             >
               <Shield size={18} />
               Admins Pendentes
               {adminsPendentes.length > 0 && (
-                <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                <span className="bg-itgeek-orange text-white text-xs px-2 py-1 rounded-full">
                   {adminsPendentes.length}
                 </span>
               )}
@@ -704,7 +703,7 @@ export const AdminDashboard = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide">Clientes</h2>
-                  <span className="bg-red-600/20 text-red-400 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-red-600/30">
+                  <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-itgeek-teal/30">
                     {clientes.length} cadastrado{clientes.length !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -715,7 +714,7 @@ export const AdminDashboard = () => {
                       placeholder="Buscar..."
                       value={buscaCliente}
                       onChange={(e) => handleBuscaClientes(e.target.value)}
-                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 pl-10 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none w-full sm:w-80"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 pl-10 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none w-full sm:w-80"
                     />
                     <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
                     {resultadosBusca.length > 0 && buscaCliente.length > 2 && (
@@ -754,10 +753,11 @@ export const AdminDashboard = () => {
                     title={!canCreateCliente() ? 'Você não tem permissão para criar clientes' : ''}
                     className={`px-4 py-2 rounded font-semibold transition ${
                       canCreateCliente()
-                        ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
+                        ? 'bg-itgeek-teal text-white hover:bg-itgeek-teal-dark cursor-pointer'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
                     }`}
                   >
+                    <Plus size={18} />
                     {showForm ? 'Cancelar' : 'Novo Cliente'}
                   </button>
                 </div>
@@ -771,7 +771,7 @@ export const AdminDashboard = () => {
                       placeholder="Nome"
                       value={formData.nome}
                       onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none"
                       required
                     />
                     <input
@@ -779,7 +779,7 @@ export const AdminDashboard = () => {
                       placeholder="Email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none"
                       required
                     />
                     <input
@@ -787,7 +787,7 @@ export const AdminDashboard = () => {
                       placeholder="Senha"
                       value={formData.senha}
                       onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
-                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none"
                       required
                     />
                     <input
@@ -795,12 +795,12 @@ export const AdminDashboard = () => {
                       placeholder="Telefone"
                       value={formData.telefone}
                       onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none"
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition"
+                    className="mt-4 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition"
                   >
                     Criar Cliente
                   </button>
@@ -809,7 +809,7 @@ export const AdminDashboard = () => {
 
               {loading && clientes.length === 0 ? (
                 <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-400 border border-stone-700">
-                  <RefreshCw size={32} className="animate-spin mx-auto mb-4 text-red-500" />
+                  <RefreshCw size={32} className="animate-spin mx-auto mb-4 text-itgeek-teal" />
                   Carregando clientes...
                 </div>
               ) : clientes.length === 0 ? (
@@ -919,7 +919,7 @@ export const AdminDashboard = () => {
                     title={!canCreateLote() ? 'Você não tem permissão para criar lotes' : ''}
                     className={`flex items-center gap-2 px-4 py-2 rounded font-semibold transition ${
                       canCreateLote() 
-                        ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer' 
+                        ? 'bg-itgeek-teal text-white hover:bg-itgeek-teal-dark cursor-pointer' 
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
                     }`}>
                     <Plus size={18} />
@@ -942,19 +942,19 @@ export const AdminDashboard = () => {
                       <label className="block text-sm text-gray-400 mb-1">Número do Lote (opcional)</label>
                       <input type="text" placeholder="#001, #002, etc." value={loteFormData.numero_lote}
                         onChange={(e) => setLoteFormData({ ...loteFormData, numero_lote: e.target.value })}
-                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Nome do Lote</label>
                       <input type="text" placeholder="Nome do lote" value={loteFormData.nome}
                         onChange={(e) => setLoteFormData({ ...loteFormData, nome: e.target.value })}
-                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Status do Lote (opcional)</label>
                       <select value={loteFormData.status_lote}
                         onChange={(e) => setLoteFormData({ ...loteFormData, status_lote: e.target.value })}
-                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none">
                         <option value="">Selecione um status</option>
                         <option value="Chegou EUA">Chegou EUA</option>
                         <option value="Importado Brasil">Importado Brasil</option>
@@ -966,7 +966,7 @@ export const AdminDashboard = () => {
                       <label className="block text-sm text-gray-400 mb-1">Rastreio de Importação (opcional)</label>
                       <input type="text" placeholder="Código de rastreio para vincular lotes" value={loteFormData.rastreio_importacao}
                         onChange={(e) => setLoteFormData({ ...loteFormData, rastreio_importacao: e.target.value })}
-                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
@@ -976,10 +976,10 @@ export const AdminDashboard = () => {
                       <label className="block text-sm text-gray-400 mb-1">Descrição do Lote</label>
                       <textarea placeholder="Descrição do lote" value={loteFormData.descricao}
                         onChange={(e) => setLoteFormData({ ...loteFormData, descricao: e.target.value })}
-                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={3} />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={3} />
                     </div>
                   </div>
-                  <button type="submit" className="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                  <button type="submit" className="mt-4 w-full bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
                     Criar Lote
                   </button>
                 </form>
@@ -990,7 +990,7 @@ export const AdminDashboard = () => {
                   <div key={lote.id}
                     onClick={() => handleSelectLote(lote)}
                     className={`bg-stone-800 rounded-lg p-3 cursor-pointer transition hover:shadow-xl border-2 ${
-                      selectedLote?.id === lote.id ? 'border-red-500 shadow-red-500/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'
+                      selectedLote?.id === lote.id ? 'border-itgeek-teal shadow-itgeek-teal/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'
                     }`}>
                     {lote.foto ? (
                       <div className="relative w-full h-32 mb-2 rounded overflow-hidden bg-stone-900/30 flex items-center justify-center">
@@ -1194,7 +1194,7 @@ export const AdminDashboard = () => {
                         {editingLote ? 'Cancelar Edição' : 'Editar Lote'}
                       </button>
                       <button onClick={() => setShowVendaForm(!showVendaForm)}
-                        className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                        className="flex items-center gap-2 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
                         <Plus size={18} />
                         {showVendaForm ? 'Cancelar' : 'Adicionar Venda'}
                       </button>
@@ -1209,13 +1209,13 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Nome</label>
                           <input type="text" value={editLoteData.nome}
                             onChange={(e) => setEditLoteData({ ...editLoteData, nome: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
                         </div>
                         <div>
                           <label className="block text-sm text-gray-400 mb-1">Status do Lote</label>
                           <select value={editLoteData.status_lote}
                             onChange={(e) => setEditLoteData({ ...editLoteData, status_lote: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none">
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none">
                             <option value="">Selecione um status</option>
                             <option value="Chegou EUA">Chegou EUA</option>
                             <option value="Importado Brasil">Importado Brasil</option>
@@ -1227,17 +1227,17 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Rastreio de Importação</label>
                           <input type="text" placeholder="Código de rastreio para vincular tributos" value={editLoteData.rastreio_importacao}
                             onChange={(e) => setEditLoteData({ ...editLoteData, rastreio_importacao: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
                         </div>
                         <div>
                           <label className="block text-sm text-gray-400 mb-1">Descrição</label>
                           <input type="text" value={editLoteData.descricao}
                             onChange={(e) => setEditLoteData({ ...editLoteData, descricao: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
                         </div>
                       </div>
                       <button onClick={handleUpdateLote}
-                        className="mt-4 flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                        className="mt-4 flex items-center gap-2 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
                         <Save size={16} />
                         Salvar Alterações
                       </button>
@@ -1252,7 +1252,7 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Cliente</label>
                           <select value={vendaFormData.cliente_id}
                             onChange={(e) => setVendaFormData({ ...vendaFormData, cliente_id: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" required>
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" required>
                             <option value="">Selecione o Cliente</option>
                             {clientes.map((c) => (
                               <option key={c.id} value={c.id}>{c.nome} ({c.email})</option>
@@ -1265,18 +1265,18 @@ export const AdminDashboard = () => {
                             <label className="block text-sm text-gray-400 mb-1">Preço (R$)</label>
                             <input type="number" step="0.01" placeholder="0.00" value={vendaFormData.preco}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, preco: e.target.value })}
-                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" required />
                           </div>
                           <div>
                             <label className="block text-sm text-gray-400 mb-1">Cotas (padrão: 1)</label>
                             <input type="number" step="0.1" min="0.1" placeholder="1" value={vendaFormData.cotas}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, cotas: e.target.value })}
-                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" />
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
                           </div>
                           <div className="flex items-center gap-2 mt-6">
                             <input type="checkbox" id="pago" checked={vendaFormData.pago}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, pago: e.target.checked })}
-                              className="w-4 h-4 accent-red-600" />
+                              className="w-4 h-4 accent-[#19A6A6]" />
                             <label htmlFor="pago" className="text-sm text-gray-300">Já foi pago?</label>
                           </div>
                         </div>
@@ -1285,7 +1285,7 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Carrinhos comprados</label>
                           <textarea placeholder="Ex: Hot Wheels Camaro, Matchbox Fusca" value={vendaFormData.carrinhos_comprados}
                             onChange={(e) => setVendaFormData({ ...vendaFormData, carrinhos_comprados: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} required />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={2} required />
                         </div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1293,11 +1293,11 @@ export const AdminDashboard = () => {
                             <label className="block text-sm text-gray-400 mb-1">Data do Pagamento</label>
                             <input type="datetime-local" value={vendaFormData.data_pagamento}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, data_pagamento: e.target.value })}
-                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
                           </div>
                           <div>
                             <label className="block text-sm text-gray-400 mb-1">Comprovante de Pagamento</label>
-                            <input type="file" accept="image/*" onChange={handleComprovante} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700" />
+                            <input type="file" accept="image/*" onChange={handleComprovante} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-itgeek-teal file:text-white hover:file:bg-itgeek-teal-dark" />
                           </div>
                         </div>
                         
@@ -1305,10 +1305,10 @@ export const AdminDashboard = () => {
                           <label className="block text-sm text-gray-400 mb-1">Observações</label>
                           <textarea placeholder="Informações adicionais (opcional)" value={vendaFormData.observacoes}
                             onChange={(e) => setVendaFormData({ ...vendaFormData, observacoes: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={2} />
                         </div>
                       </div>
-                      <button type="submit" className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition w-full sm:w-auto">
+                      <button type="submit" className="mt-4 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition w-full sm:w-auto">
                         Salvar Venda
                       </button>
                     </form>
@@ -1432,7 +1432,7 @@ export const AdminDashboard = () => {
                       <div key={cliente.id}
                         onClick={() => handleSelectClienteGaragem(cliente)}
                         className={`p-3 cursor-pointer border-b border-gray-700 transition ${
-                          selectedClienteGaragem?.id === cliente.id ? 'bg-red-600/20 border-l-4 border-l-red-500' : 'hover:bg-stone-700/50'
+                          selectedClienteGaragem?.id === cliente.id ? 'bg-itgeek-teal/20 border-l-4 border-l-itgeek-teal' : 'hover:bg-stone-700/50'
                         }`}>
                         <p className="font-medium text-white">{cliente.nome}</p>
                         <p className="text-sm text-gray-400">{cliente.email}</p>
@@ -1451,7 +1451,7 @@ export const AdminDashboard = () => {
                           title={!canUploadFotoGaragem() ? 'Você não tem permissão para fazer upload de fotos' : ''}
                           className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-semibold transition ${
                             canUploadFotoGaragem()
-                              ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
+                              ? 'bg-itgeek-teal text-white hover:bg-itgeek-teal-dark cursor-pointer'
                               : 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50'
                           }`}>
                           <Plus size={16} />
@@ -1471,8 +1471,8 @@ export const AdminDashboard = () => {
                             <input type="text" placeholder="Descrição (opcional)" value={fotoFormData.descricao}
                               onChange={(e) => setFotoFormData({ ...fotoFormData, descricao: e.target.value })}
                               disabled={!canUploadFotoGaragem()}
-                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" />
-                            <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" />
+                            <button type="submit" className="bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                               disabled={!fotoFormData.foto || !canUploadFotoGaragem() || savingFoto}>
                               {savingFoto ? 'Salvando...' : 'Salvar Foto'}
                             </button>
@@ -1633,7 +1633,7 @@ export const AdminDashboard = () => {
                     Atualizar
                   </button>
                   <button onClick={() => setShowTributoForm(!showTributoForm)}
-                    className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                    className="flex items-center gap-2 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
                     <Plus size={18} />
                     {showTributoForm ? 'Cancelar' : 'Novo Tributo'}
                   </button>
@@ -1648,22 +1648,22 @@ export const AdminDashboard = () => {
                       <label className="block text-sm text-gray-400 mb-1">Código Rastreio de Importação</label>
                       <input type="text" placeholder="Ex: BR123456789" value={tributoFormData.rastreio_importacao}
                         onChange={(e) => setTributoFormData({ ...tributoFormData, rastreio_importacao: e.target.value })}
-                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" required />
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Valor Total do Imposto (R$)</label>
                       <input type="number" step="0.01" placeholder="0.00" value={tributoFormData.valor_total_imposto}
                         onChange={(e) => setTributoFormData({ ...tributoFormData, valor_total_imposto: e.target.value })}
-                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" required />
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" required />
                     </div>
                   </div>
                   <div className="mt-4">
                     <label className="block text-sm text-gray-400 mb-1">Observações (opcional)</label>
                     <textarea placeholder="Notas sobre este tributo..." value={tributoFormData.observacoes}
                       onChange={(e) => setTributoFormData({ ...tributoFormData, observacoes: e.target.value })}
-                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-red-500 focus:outline-none" rows={2} />
+                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={2} />
                   </div>
-                  <button type="submit" className="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                  <button type="submit" className="mt-4 w-full bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
                     Criar Tributo
                   </button>
                 </form>
@@ -1693,7 +1693,7 @@ export const AdminDashboard = () => {
                                 <Archive size={10} className="inline mr-1" />Arquivado
                               </span>
                             )}
-                            <span className="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded border border-red-600/30 font-semibold">
+                            <span className="text-xs bg-itgeek-orange/20 text-itgeek-orange px-2 py-1 rounded border border-itgeek-orange/30 font-semibold">
                               R$ {Number(tributo.valor_total_imposto).toFixed(2)}
                             </span>
                           </div>
@@ -1826,12 +1826,12 @@ export const AdminDashboard = () => {
                         <label className="block text-sm text-gray-400 mb-1">Valor Total do Imposto (R$)</label>
                         <input type="number" step="0.01" defaultValue={editingTributo.valor_total_imposto}
                           id="edit-tributo-valor"
-                          className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" />
+                          className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
                       </div>
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Observações</label>
                         <textarea defaultValue={editingTributo.observacoes || ''} id="edit-tributo-obs"
-                          className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-red-500 focus:outline-none" rows={2} />
+                          className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" rows={2} />
                       </div>
                     </div>
                     <div className="flex gap-2 mt-4">
@@ -1842,7 +1842,7 @@ export const AdminDashboard = () => {
                           valor_total_imposto: parseFloat(valor),
                           observacoes: obs || null,
                         });
-                      }} className="flex-1 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold transition">
+                      }} className="flex-1 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
                         Salvar
                       </button>
                       <button onClick={() => setEditingTributo(null)}
@@ -1859,10 +1859,10 @@ export const AdminDashboard = () => {
                 <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 border border-stone-700 mt-2">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-bold text-white">
-                      Vendas - Rastreio: <span className="text-orange-400">{selectedTributo.rastreio_importacao}</span>
+                      Vendas - Rastreio: <span className="text-itgeek-teal">{selectedTributo.rastreio_importacao}</span>
                     </h3>
                     <span className="text-sm text-gray-400">
-                      Valor/Cota: <span className="text-orange-400 font-semibold">R$ {Number(selectedTributo.valor_por_cota).toFixed(2)}</span>
+                      Valor/Cota: <span className="text-itgeek-teal font-semibold">R$ {Number(selectedTributo.valor_por_cota).toFixed(2)}</span>
                     </span>
                   </div>
                   {vendasTributo.length === 0 ? (
@@ -1891,7 +1891,7 @@ export const AdminDashboard = () => {
                               <td className="px-4 py-2 text-sm text-gray-300">{venda.lote_numero}</td>
                               <td className="px-4 py-2 text-sm text-gray-300 max-w-xs truncate">{venda.carrinhos_comprados}</td>
                               <td className="px-4 py-2 text-sm text-gray-300">{venda.cotas || 1}</td>
-                              <td className="px-4 py-2 font-semibold text-orange-400">
+                              <td className="px-4 py-2 font-semibold text-itgeek-orange">
                                 R$ {venda.valor_tributo !== null ? Number(venda.valor_tributo).toFixed(2) : '—'}
                               </td>
                               <td className="px-4 py-2">
@@ -1927,7 +1927,7 @@ export const AdminDashboard = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl md:text-3xl font-extrabold text-white uppercase tracking-wide">Admins Pendentes</h2>
-                  <span className="bg-orange-600/20 text-orange-400 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-orange-600/30">
+                  <span className="bg-itgeek-orange/20 text-itgeek-orange px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold border border-itgeek-orange/30">
                     {adminsPendentes.length} aguardando aprovação
                   </span>
                 </div>
@@ -1975,7 +1975,7 @@ export const AdminDashboard = () => {
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                 admin.role === 'admin_master' 
                                   ? 'bg-purple-600/20 text-purple-400 border border-purple-600/30' 
-                                  : 'bg-orange-600/20 text-orange-400 border border-orange-600/30'
+                                  : 'bg-itgeek-orange/20 text-itgeek-orange border border-itgeek-orange/30'
                               }`}>
                                 {admin.role === 'admin_master' ? 'Admin Master' : 'Admin'}
                               </span>

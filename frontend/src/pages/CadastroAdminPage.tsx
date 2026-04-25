@@ -58,15 +58,15 @@ const CadastroAdminPage: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-red-950 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
-          <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
+          <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-teal to-transparent"></div>
+          <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-orange to-transparent"></div>
         </div>
 
-        <div className="bg-stone-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-stone-700 relative z-10 text-center">
+        <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-neutral-700 relative z-10 text-center">
           <div className="flex items-center justify-center mb-6">
-            <Shield className="w-16 h-16 text-orange-500" />
+            <Shield className="w-16 h-16 text-itgeek-teal" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-4">Cadastro Enviado!</h2>
           <p className="text-gray-300 mb-2">
@@ -84,24 +84,24 @@ const CadastroAdminPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-red-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
-        <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-teal to-transparent"></div>
+        <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-orange to-transparent"></div>
       </div>
 
-      <div className="bg-stone-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-stone-700 relative z-10">
+      <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-neutral-700 relative z-10">
         <div className="flex items-center justify-center mb-6">
-          <Shield className="w-12 h-12 text-orange-500 mr-3" />
+          <Shield className="w-12 h-12 text-itgeek-teal mr-3" />
           <h1 className="text-3xl font-bold text-white">Cadastro Admin</h1>
         </div>
 
-        <div className="bg-orange-900/20 border border-orange-700 rounded-lg p-4 mb-6">
+        <div className="bg-itgeek-orange/10 border border-itgeek-orange/30 rounded-lg p-4 mb-6">
           <div className="flex items-start">
-            <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5 mr-2 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-itgeek-orange mt-0.5 mr-2 flex-shrink-0" />
             <div className="text-sm">
-              <p className="text-orange-300 font-semibold mb-1">Aprovação Necessária</p>
-              <p className="text-orange-400/80">
+              <p className="text-itgeek-orange font-semibold mb-1">Aprovação Necessária</p>
+              <p className="text-itgeek-orange/80">
                 Após o cadastro, um administrador precisará aprovar seu acesso antes que você possa utilizar o sistema.
               </p>
             </div>
@@ -123,7 +123,7 @@ const CadastroAdminPage: React.FC = () => {
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'admin_master' })}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent"
               required
             >
               <option value="admin">Admin</option>
@@ -141,7 +141,7 @@ const CadastroAdminPage: React.FC = () => {
                 type="text"
                 value={empresaSlug}
                 onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
-                className="w-full pl-10 pr-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent"
                 placeholder="principal"
                 required
               />
@@ -161,7 +161,7 @@ const CadastroAdminPage: React.FC = () => {
                 type="text"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent"
                 placeholder="Seu nome completo"
                 required
               />
@@ -178,7 +178,7 @@ const CadastroAdminPage: React.FC = () => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent"
                 placeholder="seu@email.com"
                 required
               />
@@ -195,7 +195,7 @@ const CadastroAdminPage: React.FC = () => {
                 type="tel"
                 value={formData.telefone}
                 onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent"
                 placeholder="(00) 00000-0000"
               />
             </div>
@@ -211,7 +211,7 @@ const CadastroAdminPage: React.FC = () => {
                 type="password"
                 value={formData.senha}
                 onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent"
                 placeholder="Mínimo 6 caracteres"
                 required
                 minLength={6}
@@ -229,7 +229,7 @@ const CadastroAdminPage: React.FC = () => {
                 type="password"
                 value={formData.confirmarSenha}
                 onChange={(e) => setFormData({ ...formData, confirmarSenha: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent"
                 placeholder="Confirme sua senha"
                 required
                 minLength={6}
@@ -240,7 +240,7 @@ const CadastroAdminPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-itgeek-teal text-white py-3 rounded-lg font-semibold hover:bg-itgeek-teal-dark transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -261,7 +261,7 @@ const CadastroAdminPage: React.FC = () => {
             Já tem uma conta?{' '}
             <button
               onClick={() => navigate('/')}
-              className="text-orange-400 hover:text-orange-300 font-semibold transition"
+              className="text-itgeek-teal hover:text-itgeek-teal-light font-semibold transition"
             >
               Fazer login
             </button>

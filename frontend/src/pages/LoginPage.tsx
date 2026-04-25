@@ -112,18 +112,18 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-red-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
-        <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-teal to-transparent"></div>
+        <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-orange to-transparent"></div>
       </div>
 
-      <div className="bg-stone-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-amber-700 relative z-10">
+      <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-neutral-700 relative z-10">
         <div className="flex items-center justify-center mb-4">
-          <img src="/logo-garage95.png" alt="Garage95" style={{ height: 180, width: 'auto' }} />
+          <img src="/logo-itgeek-vertical.png" alt="ItGeek Store" style={{ height: 180, width: 'auto' }} />
         </div>
         <div className="text-center mb-8">
-          <p className="text-gray-500 text-sm">Ka-chow! Bem-vindo de volta.</p>
+          <p className="text-gray-500 text-sm">Bem-vindo de volta!</p>
         </div>
 
         <div className="flex gap-3 mb-8">
@@ -131,8 +131,8 @@ export const LoginPage = () => {
             onClick={() => setUserType('cliente')}
             className={`flex-1 py-2 px-4 rounded-lg font-bold uppercase tracking-wide transition ${
               userType === 'cliente'
-                ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                : 'bg-stone-700 text-stone-400 hover:bg-stone-600 hover:text-white'
+                ? 'bg-itgeek-teal text-white shadow-lg shadow-itgeek-teal/30'
+                : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600 hover:text-white'
             }`}
           >
             Cliente
@@ -141,8 +141,8 @@ export const LoginPage = () => {
             onClick={() => setUserType('admin')}
             className={`flex-1 py-2 px-4 rounded-lg font-bold uppercase tracking-wide transition ${
               userType === 'admin'
-                ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                : 'bg-stone-700 text-stone-400 hover:bg-stone-600 hover:text-white'
+                ? 'bg-itgeek-teal text-white shadow-lg shadow-itgeek-teal/30'
+                : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600 hover:text-white'
             }`}
           >
             Admin
@@ -156,7 +156,7 @@ export const LoginPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
               placeholder="seu@email.com"
               required
             />
@@ -168,7 +168,7 @@ export const LoginPage = () => {
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
               placeholder="••••••••"
               required
             />
@@ -183,7 +183,7 @@ export const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:from-red-700 hover:to-orange-600 transition disabled:opacity-50 uppercase tracking-wider shadow-lg shadow-red-600/20"
+            className="w-full bg-gradient-to-r from-itgeek-teal to-itgeek-teal-dark text-white font-bold py-3 px-4 rounded-lg hover:from-itgeek-teal-dark hover:to-itgeek-teal transition disabled:opacity-50 uppercase tracking-wider shadow-lg shadow-itgeek-teal/20"
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
@@ -194,7 +194,7 @@ export const LoginPage = () => {
             Não tem conta?{' '}
             <button
               onClick={() => navigate('/registro')}
-              className="text-red-400 hover:text-red-300 font-semibold transition"
+              className="text-itgeek-teal hover:text-itgeek-teal-light font-semibold transition"
             >
               Registre-se aqui
             </button>
@@ -206,7 +206,7 @@ export const LoginPage = () => {
             Quer se tornar admin?{' '}
             <button
               onClick={() => navigate('/cadastro-admin')}
-              className="text-orange-400 hover:text-orange-300 font-semibold transition"
+              className="text-itgeek-orange hover:text-itgeek-orange-light font-semibold transition"
             >
               Cadastre-se aqui
             </button>
@@ -217,9 +217,9 @@ export const LoginPage = () => {
       {/* Modal de Seleção de Empresa */}
       {showEmpresaModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-stone-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-stone-700">
+          <div className="bg-neutral-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-neutral-700">
             <div className="flex items-center gap-3 mb-4">
-              <Building2 className="text-red-500 w-8 h-8" />
+              <Building2 className="text-itgeek-teal w-8 h-8" />
               <h2 className="text-xl font-bold text-white">Selecione a Empresa</h2>
             </div>
             <p className="text-gray-400 mb-4">
@@ -233,8 +233,8 @@ export const LoginPage = () => {
                   onClick={() => setEmpresaSelecionada(empresa.slug)}
                   className={`w-full p-4 rounded-lg border-2 text-left transition ${
                     empresaSelecionada === empresa.slug
-                      ? 'border-red-500 bg-red-500/10 text-white'
-                      : 'border-stone-600 bg-stone-700 text-stone-300 hover:border-stone-500'
+                      ? 'border-itgeek-teal bg-itgeek-teal/10 text-white'
+                      : 'border-neutral-600 bg-neutral-700 text-neutral-300 hover:border-neutral-500'
                   }`}
                 >
                   <div className="font-semibold">{empresa.nome}</div>
@@ -252,14 +252,14 @@ export const LoginPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowEmpresaModal(false)}
-                className="flex-1 py-3 px-4 bg-stone-700 text-white rounded-lg font-semibold hover:bg-stone-600 transition"
+                className="flex-1 py-3 px-4 bg-neutral-700 text-white rounded-lg font-semibold hover:bg-neutral-600 transition"
               >
                 Cancelar
               </button>
               <button
                 onClick={confirmarEmpresa}
                 disabled={!empresaSelecionada || loading}
-                className="flex-1 py-3 px-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:from-red-700 hover:to-orange-600 transition disabled:opacity-50"
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-itgeek-teal to-itgeek-teal-dark text-white rounded-lg font-semibold hover:from-itgeek-teal-dark hover:to-itgeek-teal transition disabled:opacity-50"
               >
                 {loading ? 'Entrando...' : 'Confirmar'}
               </button>

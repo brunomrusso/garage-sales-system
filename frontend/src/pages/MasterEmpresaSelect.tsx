@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Crown, LogOut } from 'lucide-react';
-import { Garage95Logo } from '../components/Garage95Logo';
+import { ItGeekLogo } from '../components/ItGeekLogo';
 import { empresaService, authService } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -94,29 +94,29 @@ export const MasterEmpresaSelect = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-red-950 flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
         <div className="text-white">Carregando empresas...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-red-950 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4">
       <div className="absolute top-4 right-4">
         <button
           onClick={logout}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+          className="flex items-center gap-2 px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg transition"
         >
           <LogOut className="w-4 h-4" />
           Sair
         </button>
       </div>
 
-      <div className="bg-stone-900 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-amber-700">
+      <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-neutral-700">
         <div className="flex flex-col items-center gap-3 mb-2">
-          <Garage95Logo size="lg" showText={false} />
+          <ItGeekLogo size="lg" showText={false} />
           <div className="flex items-center gap-2">
-            <Crown className="text-yellow-500 w-6 h-6" />
+            <Crown className="text-itgeek-teal w-6 h-6" />
             <h1 className="text-xl font-bold text-white">Admin Master</h1>
           </div>
         </div>
@@ -152,19 +152,19 @@ export const MasterEmpresaSelect = () => {
               onClick={() => setEmpresaSelecionada(empresa.slug)}
               className={`p-6 rounded-xl border-2 text-left transition-all ${
                 empresaSelecionada === empresa.slug
-                  ? 'border-red-500 bg-red-500/10'
-                  : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                  ? 'border-itgeek-teal bg-itgeek-teal/10'
+                  : 'border-neutral-600 bg-neutral-800 hover:border-neutral-500'
               }`}
               style={{
                 borderColor: empresaSelecionada === empresa.slug 
-                  ? empresa.cor_primaria || '#ef4444'
+                  ? empresa.cor_primaria || '#19A6A6'
                   : undefined
               }}
             >
               <div className="flex items-start gap-3">
                 <Building2 
                   className="w-6 h-6 mt-1" 
-                  style={{ color: empresa.cor_primaria || '#ef4444' }}
+                  style={{ color: empresa.cor_primaria || '#19A6A6' }}
                 />
                 <div>
                   <div className="font-bold text-white text-lg">{empresa.nome}</div>
@@ -179,7 +179,7 @@ export const MasterEmpresaSelect = () => {
         <button
           onClick={selecionarEmpresa}
           disabled={!empresaSelecionada}
-          className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-bold text-lg hover:from-red-700 hover:to-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 bg-gradient-to-r from-itgeek-teal to-itgeek-teal-dark text-white rounded-xl font-bold text-lg hover:from-itgeek-teal-dark hover:to-itgeek-teal transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Acessar Empresa
         </button>

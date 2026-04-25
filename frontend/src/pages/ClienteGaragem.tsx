@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/useAuth';
 import { useTenant } from '../contexts/TenantContext';
 import { loteService, garagemService } from '../services/api';
 import { LogOut, ShoppingBag, Check, X, Eye, Image as ImageIcon, RefreshCw, Warehouse, Send, Package, Receipt } from 'lucide-react';
-import { Garage95Logo } from '../components/Garage95Logo';
 
 export const ClienteGaragem = () => {
   const { user, logout } = useAuth();
@@ -154,10 +153,10 @@ export const ClienteGaragem = () => {
   };
 
   return (
-    <div className="min-h-screen bg-red-950">
-      <nav className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
+    <div className="min-h-screen bg-neutral-950">
+      <nav className="bg-gradient-to-r from-itgeek-teal-dark via-itgeek-teal to-itgeek-teal-light text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
-          <img src="/logo-resumido-garage95.png" alt="Garage95" style={{ height: 30, width: 'auto' }} />
+          <img src="/logo-itgeek-horizontal.png" alt="ItGeek Store" style={{ height: 30, width: 'auto' }} />
           <div className="flex flex-col">
             {empresa && (
               <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">
@@ -165,7 +164,7 @@ export const ClienteGaragem = () => {
               </span>
             )}
             <span className="text-xs md:text-sm font-medium text-white/70 leading-tight">
-              Garage95
+              ItGeek Store
             </span>
           </div>
         </div>
@@ -202,20 +201,20 @@ export const ClienteGaragem = () => {
           </div>
           <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 text-center border border-stone-700">
             <p className="text-xs md:text-sm text-stone-400 mb-1">Na Garagem</p>
-            <p className="text-2xl md:text-3xl font-extrabold text-orange-400">{itensRecebidos.length}</p>
+            <p className="text-2xl md:text-3xl font-extrabold text-itgeek-orange">{itensRecebidos.length}</p>
           </div>
         </div>
 
         <div className="flex gap-2 md:gap-4 mb-6">
           <button onClick={() => setActiveTab('compras')}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide text-sm md:text-base ${
-              activeTab === 'compras' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white border border-stone-700'
+              activeTab === 'compras' ? 'bg-itgeek-teal text-white shadow-lg shadow-itgeek-teal/30' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white border border-neutral-700'
             }`}>
             <ShoppingBag size={18} /> Compras
           </button>
           <button onClick={() => { setActiveTab('garagem'); loadFotos(); loadSolicitacoes(); loadFotosNaoSolicitadas(); }}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-lg font-bold transition uppercase tracking-wide text-sm md:text-base ${
-              activeTab === 'garagem' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white border border-stone-700'
+              activeTab === 'garagem' ? 'bg-itgeek-teal text-white shadow-lg shadow-itgeek-teal/30' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white border border-neutral-700'
             }`}>
             <Warehouse size={18} /> Garagem
           </button>
@@ -238,14 +237,14 @@ export const ClienteGaragem = () => {
                 onClick={() => setComprasTab('andamento')}
                 className={`flex items-center gap-2 px-4 py-2 font-semibold transition border-b-2 -mb-px ${
                   comprasTab === 'andamento'
-                    ? 'text-red-400 border-red-400'
+                    ? 'text-itgeek-teal border-itgeek-teal'
                     : 'text-gray-400 border-transparent hover:text-gray-300'
                 }`}
               >
                 <ShoppingBag size={16} />
                 Em Andamento
                 {comprasEmAndamento.length > 0 && (
-                  <span className="bg-red-600/20 text-red-400 px-2 py-0.5 rounded-full text-xs font-semibold">
+                  <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-0.5 rounded-full text-xs font-semibold">
                     {comprasEmAndamento.length}
                   </span>
                 )}
@@ -270,7 +269,7 @@ export const ClienteGaragem = () => {
 
             {loading && vendas.length === 0 ? (
               <div className="text-center text-gray-400 py-8">
-                <RefreshCw size={32} className="animate-spin mx-auto mb-4 text-red-500" />
+                <RefreshCw size={32} className="animate-spin mx-auto mb-4 text-itgeek-teal" />
                 Carregando suas compras...
               </div>
             ) : vendas.length === 0 ? (
@@ -312,7 +311,7 @@ export const ClienteGaragem = () => {
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 flex-wrap mb-2">
-                              <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-xs font-semibold border border-red-600/30">
+                              <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-1 rounded text-xs font-semibold border border-itgeek-teal/30">
                                 {venda.lote_nome}
                               </span>
                               <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
@@ -346,7 +345,7 @@ export const ClienteGaragem = () => {
                               <button onClick={() => {
                                 const w = window.open('');
                                 w?.document.write(`<img src="data:image/jpeg;base64,${venda.comprovante_pagamento}" style="max-width:100%" />`);
-                              }} className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-sm mt-2 ml-auto transition">
+                              }} className="text-itgeek-teal hover:text-itgeek-teal-light flex items-center gap-1 text-sm mt-2 ml-auto transition">
                                 <Eye size={14} /> Ver Comprovante
                               </button>
                             )}
@@ -358,18 +357,18 @@ export const ClienteGaragem = () => {
                           const tributo = tributosCliente.find((t: any) => t.venda_id === venda.id);
                           if (!tributo) return null;
                           return (
-                            <div className="mt-3 p-3 bg-orange-600/10 border border-orange-600/20 rounded-lg">
+                            <div className="mt-3 p-3 bg-itgeek-orange/10 border border-itgeek-orange/20 rounded-lg">
                               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <Receipt size={16} className="text-orange-400" />
-                                  <span className="text-sm font-semibold text-orange-400">Tributo de Importação</span>
+                                  <Receipt size={16} className="text-itgeek-orange" />
+                                  <span className="text-sm font-semibold text-itgeek-orange">Tributo de Importação</span>
                                   <span className="text-xs text-gray-500">Rastreio: {tributo.rastreio_importacao}</span>
                                   <span className="text-xs text-gray-500">Cotas: {tributo.cotas}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                  <span className="text-lg font-bold text-orange-400">R$ {Number(tributo.valor_tributo).toFixed(2)}</span>
+                                  <span className="text-lg font-bold text-itgeek-orange">R$ {Number(tributo.valor_tributo).toFixed(2)}</span>
                                   <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                    tributo.tributo_pago ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-orange-600/20 text-orange-400 border border-orange-600/30'
+                                    tributo.tributo_pago ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-itgeek-orange/20 text-itgeek-orange border border-itgeek-orange/30'
                                   }`}>
                                     {tributo.tributo_pago ? 'Pago' : 'Pendente'}
                                   </span>
@@ -378,7 +377,7 @@ export const ClienteGaragem = () => {
                               {!tributo.tributo_pago && (
                                 <div className="mt-2 flex items-center gap-2">
                                   <button onClick={() => handleUploadComprovanteTributo(tributo.venda_id)}
-                                    className="text-xs bg-orange-600/20 text-orange-400 px-3 py-1 rounded hover:bg-orange-600/30 border border-orange-600/30 transition">
+                                    className="text-xs bg-itgeek-orange/20 text-itgeek-orange px-3 py-1 rounded hover:bg-itgeek-orange/30 border border-itgeek-orange/30 transition">
                                     Enviar Comprovante de Tributo
                                   </button>
                                 </div>
@@ -387,7 +386,7 @@ export const ClienteGaragem = () => {
                                 <button onClick={() => {
                                   const w = window.open('');
                                   w?.document.write(`<img src="data:image/jpeg;base64,${tributo.comprovante_tributo}" style="max-width:100%" />`);
-                                }} className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-xs mt-2 transition">
+                                }} className="text-itgeek-teal hover:text-itgeek-teal-light flex items-center gap-1 text-xs mt-2 transition">
                                   <Eye size={12} /> Ver Comprovante Tributo
                                 </button>
                               )}
@@ -533,9 +532,9 @@ export const ClienteGaragem = () => {
                       </div>
                       {sol.codigo_rastreio && (
                         <div className="mb-3 bg-stone-800 rounded p-3 flex items-center gap-2 border border-stone-700">
-                          <Package size={16} className="text-orange-400" />
+                          <Package size={16} className="text-itgeek-teal" />
                           <span className="text-sm text-gray-400">Código de rastreio:</span>
-                          <span className="font-mono font-semibold text-orange-400">{sol.codigo_rastreio}</span>
+                          <span className="font-mono font-semibold text-itgeek-teal">{sol.codigo_rastreio}</span>
                         </div>
                       )}
                       {sol.itens && sol.itens.length > 0 && (

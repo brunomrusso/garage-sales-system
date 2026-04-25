@@ -70,15 +70,15 @@ export const RegistroPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-red-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
-        <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-teal to-transparent"></div>
+        <div className="absolute top-[calc(50%+4px)] left-0 right-0 h-px bg-gradient-to-r from-transparent via-itgeek-orange to-transparent"></div>
       </div>
 
-      <div className="bg-stone-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-amber-700 relative z-10">
+      <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-neutral-700 relative z-10">
         <div className="flex items-center justify-center mb-6">
-          <img src="/logo-garage95.png" alt="Garage95" style={{ height: 180, width: 'auto' }} />
+          <img src="/logo-itgeek-vertical.png" alt="ItGeek Store" style={{ height: 180, width: 'auto' }} />
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-6">Criar Conta</h2>
@@ -96,7 +96,7 @@ export const RegistroPage = () => {
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
               placeholder="Seu nome"
               required
             />
@@ -108,7 +108,7 @@ export const RegistroPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
               placeholder="seu@email.com"
               required
             />
@@ -120,7 +120,7 @@ export const RegistroPage = () => {
               type="tel"
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
               placeholder="(11) 99999-9999"
             />
           </div>
@@ -131,7 +131,7 @@ export const RegistroPage = () => {
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
               placeholder="••••••••"
               required
             />
@@ -143,7 +143,7 @@ export const RegistroPage = () => {
               type="password"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
               placeholder="••••••••"
               required
             />
@@ -155,14 +155,14 @@ export const RegistroPage = () => {
               Empresa
             </label>
             {loadingEmpresas ? (
-              <div className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-stone-400">
+              <div className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg text-neutral-400">
                 Carregando empresas...
               </div>
             ) : empresas.length > 0 ? (
               <select
                 value={empresaSlug}
                 onChange={(e) => setEmpresaSlug(e.target.value)}
-                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white"
+                className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white"
                 required
               >
                 <option value="" disabled>Selecione uma empresa</option>
@@ -177,7 +177,7 @@ export const RegistroPage = () => {
                 type="text"
                 value={empresaSlug}
                 onChange={(e) => setEmpresaSlug(e.target.value.toLowerCase())}
-                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-stone-500"
+                className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-itgeek-teal focus:border-transparent text-white placeholder-neutral-500"
                 placeholder="principal"
                 required
               />
@@ -196,7 +196,7 @@ export const RegistroPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:from-red-700 hover:to-orange-600 transition disabled:opacity-50 uppercase tracking-wider shadow-lg shadow-red-600/20"
+            className="w-full bg-gradient-to-r from-itgeek-teal to-itgeek-teal-dark text-white font-bold py-3 px-4 rounded-lg hover:from-itgeek-teal-dark hover:to-itgeek-teal transition disabled:opacity-50 uppercase tracking-wider shadow-lg shadow-itgeek-teal/20"
           >
             {loading ? 'Registrando...' : 'Registrar'}
           </button>
@@ -206,7 +206,7 @@ export const RegistroPage = () => {
           Já tem conta?{' '}
           <button
             onClick={() => navigate('/')}
-            className="text-red-400 hover:text-red-300 font-semibold transition"
+            className="text-itgeek-teal hover:text-itgeek-teal-light font-semibold transition"
           >
             Faça login
           </button>
