@@ -1067,6 +1067,15 @@ export const AdminDashboard = () => {
                         </div>
                         {lote.descricao && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{lote.descricao}</p>}
                         <p className="text-xs text-gray-500 mt-0.5">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
+                        <div className="flex gap-3 mt-1">
+                          {lote.custo > 0 && <span className="text-xs font-semibold text-orange-400">Custo: R$ {Number(lote.custo).toFixed(2)}</span>}
+                          {lote.valor_total > 0 && <span className="text-xs font-semibold text-itgeek-teal">Receita: R$ {Number(lote.valor_total).toFixed(2)}</span>}
+                          {lote.custo > 0 && lote.valor_total > 0 && (
+                            <span className={`text-xs font-semibold ${lote.lucro >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              Lucro: R$ {Number(lote.lucro).toFixed(2)}
+                            </span>
+                          )}
+                        </div>
                         
                         {/* Indicadores do lote */}
                         <div className="mt-2 space-y-1">
@@ -1199,6 +1208,15 @@ export const AdminDashboard = () => {
                             </div>
                             {lote.descricao && <p className="text-sm text-gray-500 mt-1">{lote.descricao}</p>}
                             <p className="text-sm text-gray-600 mt-1">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
+                            <div className="flex gap-3 mt-1">
+                              {lote.custo > 0 && <span className="text-xs font-semibold text-orange-400">Custo: R$ {Number(lote.custo).toFixed(2)}</span>}
+                              {lote.valor_total > 0 && <span className="text-xs font-semibold text-itgeek-teal">Receita: R$ {Number(lote.valor_total).toFixed(2)}</span>}
+                              {lote.custo > 0 && lote.valor_total > 0 && (
+                                <span className={`text-xs font-semibold ${lote.lucro >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                  Lucro: R$ {Number(lote.lucro).toFixed(2)}
+                                </span>
+                              )}
+                            </div>
                             <div className="mt-2">
                               <span className="text-xs text-gray-500">{lote.total_vendas} vendas concluídas</span>
                             </div>
