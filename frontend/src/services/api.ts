@@ -102,6 +102,7 @@ export const loteService = {
   desarquivarTributo: (tributoId: number) => api.put(`/lotes/tributos/${tributoId}/desarquivar/`),
   deletarTributo: (tributoId: number) => api.delete(`/lotes/tributos/${tributoId}/`),
   obterTributosCliente: (clienteId: number) => api.get(`/lotes/vendas/cliente/${clienteId}/tributos/`),
+  obterFaturamento: () => api.get('/lotes/faturamento/'),
 };
 
 export const garagemService = {

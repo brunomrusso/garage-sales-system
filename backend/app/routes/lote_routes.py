@@ -91,6 +91,13 @@ def deletar_tributo(tributo_id: int, db: Session = Depends(get_db), current_user
     return lote_controller.deletar_tributo(db, tributo_id)
 
 
+# ========== FATURAMENTO ==========
+
+@router.get("/faturamento/")
+def obter_faturamento(db: Session = Depends(get_db), current_user: dict = Depends(verify_admin_token)):
+    return lote_controller.obter_faturamento(db)
+
+
 # ========== VENDAS ==========
 
 @router.post("/vendas/")

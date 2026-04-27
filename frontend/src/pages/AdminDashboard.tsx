@@ -508,18 +508,11 @@ export const AdminDashboard = () => {
   const loadFaturamento = async () => {
     setLoadingFaturamento(true);
     try {
-      const lotesResp = await loteService.listar();
-      const todosLotes = lotesResp.data;
-      setAllLotesFaturamento(todosLotes);
-
-      const vendasPromises = todosLotes.map((l: any) => loteService.listarVendas(l.id).catch(() => ({ data: [] })));
-      const results = await Promise.all(vendasPromises);
-      const todas = results.flatMap((r: any, i: number) =>
-        r.data.map((v: any) => ({ ...v, lote_nome: todosLotes[i].nome, lote_numero: todosLotes[i].numero_lote, lote_data: todosLotes[i].data_criacao }))
-      );
-      setAllVendas(todas);
-
-      if (!tributos.length) await loadTributos(true);
+      const resp = await loteService.obterFaturamento();
+      const { lotes, vendas, tributos: tributosData } = resp.data;
+      setAllLotesFaturamento(lotes);
+      setAllVendas(vendas);
+      setTributos(tributosData);
     } catch (err) {
       console.error('Erro ao carregar faturamento:', err);
     } finally {

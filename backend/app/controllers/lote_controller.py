@@ -219,6 +219,61 @@ def deletar_lote(db: Session, lote_id: int) -> dict:
     return {"message": "Lote deletado com sucesso"}
 
 
+def obter_faturamento(db: Session, empresa_id: int = None) -> dict:
+    """Retorna todos os dados de faturamento em uma única query"""
+    if empresa_id is None:
+        empresa_id = TenantContext.get_tenant_id()
+
+    if not empresa_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empresa não especificado")
+
+    # Todos os lotes (ativos + arquivados) em uma query
+    todos_lotes = db.query(Lote).filter(Lote.empresa_id == empresa_id)\
+        .options(joinedload(Lote.vendas).joinedload(VendaLote.cliente))\
+        .all()
+
+    lotes_data = []
+    vendas_data = []
+    for lote in todos_lotes:
+        lotes_data.append({
+            "id": lote.id,
+            "numero_lote": lote.numero_lote,
+            "nome": lote.nome,
+            "data_criacao": lote.data_criacao,
+            "custo": float(lote.custo or 0),
+            "valor_total": lote.valor_total,
+            "lucro": lote.lucro,
+            "total_vendas": lote.total_vendas,
+            "arquivado": lote.arquivado,
+        })
+        for v in (lote.vendas or []):
+            vendas_data.append({
+                "id": v.id,
+                "lote_id": v.lote_id,
+                "lote_numero": lote.numero_lote,
+                "lote_nome": lote.nome,
+                "lote_data": lote.data_criacao,
+                "cliente_nome": v.cliente.nome if v.cliente else "Desconhecido",
+                "preco": float(v.preco or 0),
+                "pago": v.pago,
+                "tributo_pago": v.tributo_pago,
+                "data_venda": v.data_venda,
+            })
+
+    # Tributos
+    tributos_all = db.query(TributoImportacao).filter(
+        TributoImportacao.empresa_id == empresa_id
+    ).all()
+    tributos_data = [{
+        "id": t.id,
+        "rastreio_importacao": t.rastreio_importacao,
+        "valor_total_imposto": float(t.valor_total_imposto or 0),
+        "arquivado": t.arquivado,
+    } for t in tributos_all]
+
+    return {"lotes": lotes_data, "vendas": vendas_data, "tributos": tributos_data}
+
+
 def criar_venda(db: Session, venda_data: VendaLoteCreate) -> dict:
     lote = db.query(Lote).filter(Lote.id == venda_data.lote_id).first()
     if not lote:
