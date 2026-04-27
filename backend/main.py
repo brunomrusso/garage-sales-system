@@ -20,8 +20,8 @@ def run_migrations():
         print(f"[MIGRATIONS] Error: {str(e)}")
 
 def run_schema_migration():
-    """Adiciona colunas empresa_id às tabelas existentes via SQL direto"""
-    print("[SCHEMA-MIGRATE] Verificando/criando colunas empresa_id...")
+    """Adiciona colunas faltantes às tabelas existentes via SQL direto"""
+    print("[SCHEMA-MIGRATE] Verificando/criando colunas...")
     
     db = SessionLocal()
     try:
@@ -31,18 +31,20 @@ def run_schema_migration():
         
         # Tabelas que precisam da coluna empresa_id
         tabelas_colunas = [
-            ("clientes", "empresa_id"),
-            ("compras", "empresa_id"),
-            ("pagamentos", "empresa_id"),
-            ("solicitacoes_envio", "empresa_id"),
-            ("lotes", "empresa_id"),
-            ("vendas_lote", "empresa_id"),
-            ("fotos_garagem", "empresa_id"),
+            ("clientes", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
+            ("compras", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
+            ("pagamentos", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
+            ("solicitacoes_envio", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
+            ("lotes", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
+            ("vendas_lote", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
+            ("fotos_garagem", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
+            # Novas colunas de features
+            ("lotes", "custo", "NUMERIC(10, 2) DEFAULT 0"),
         ]
         
         colunas_criadas = 0
         
-        for tabela, coluna in tabelas_colunas:
+        for tabela, coluna, col_type in tabelas_colunas:
             try:
                 # Verificar se coluna já existe
                 colunas = [c['name'] for c in inspector.get_columns(tabela)]
@@ -51,7 +53,7 @@ def run_schema_migration():
                     print(f"[SCHEMA-MIGRATE] Adicionando {coluna} à tabela {tabela}...")
                     
                     # Adicionar coluna via SQL
-                    sql = text(f"ALTER TABLE {tabela} ADD COLUMN {coluna} INTEGER REFERENCES empresas(id) ON DELETE CASCADE")
+                    sql = text(f"ALTER TABLE {tabela} ADD COLUMN {coluna} {col_type}")
                     db.execute(sql)
                     colunas_criadas += 1
                     print(f"[SCHEMA-MIGRATE] ✅ Coluna {coluna} adicionada em {tabela}")
@@ -60,7 +62,7 @@ def run_schema_migration():
                     
             except Exception as e:
                 print(f"[SCHEMA-MIGRATE] ⚠️ Erro ao processar {tabela}.{coluna}: {e}")
-                # Continuar mesmo com erro
+                db.rollback()
         
         if colunas_criadas > 0:
             db.commit()
