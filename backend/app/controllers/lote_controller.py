@@ -150,6 +150,10 @@ def atualizar_lote(db: Session, lote_id: int, lote_data: LoteUpdate, empresa_id:
     if not lote:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote não encontrado")
 
+    if lote_data.numero_lote is not None:
+        lote.numero_lote = lote_data.numero_lote
+    if lote_data.nome is not None:
+        lote.nome = lote_data.nome
     if lote_data.descricao is not None:
         lote.descricao = lote_data.descricao
     if lote_data.foto is not None:

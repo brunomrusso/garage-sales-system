@@ -59,7 +59,7 @@ export const AdminDashboard = () => {
   const [editingTributo, setEditingTributo] = useState<any>(null);
   const [mensagemCobranca, setMensagemCobranca] = useState<{ tributo: any; texto: string } | null>(null);
   const [editingLote, setEditingLote] = useState(false);
-  const [editLoteData, setEditLoteData] = useState({ nome: '', descricao: '', status_lote: '', rastreio_importacao: '', foto: '', custo: '' });
+  const [editLoteData, setEditLoteData] = useState({ numero_lote: '', nome: '', descricao: '', status_lote: '', rastreio_importacao: '', foto: '', custo: '' });
   const [savingFoto, setSavingFoto] = useState(false);
 
   // Faturamento state
@@ -192,6 +192,7 @@ export const AdminDashboard = () => {
     setSelectedLote(lote);
     setEditingLote(false);
     setEditLoteData({
+      numero_lote: lote.numero_lote || '',
       nome: lote.nome || '',
       descricao: lote.descricao || '',
       status_lote: lote.status_lote || '',
@@ -1265,6 +1266,12 @@ export const AdminDashboard = () => {
                     <div className="bg-stone-900/50 p-4 rounded-lg mb-4 border border-stone-600">
                       <h4 className="font-semibold mb-3 text-white">Editar Lote</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Número do Lote</label>
+                          <input type="text" value={editLoteData.numero_lote}
+                            onChange={(e) => setEditLoteData({ ...editLoteData, numero_lote: e.target.value })}
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
+                        </div>
                         <div>
                           <label className="block text-sm text-gray-400 mb-1">Nome</label>
                           <input type="text" value={editLoteData.nome}
