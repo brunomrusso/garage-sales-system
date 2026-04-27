@@ -5,6 +5,7 @@ import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
 import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -2152,6 +2153,63 @@ export const AdminDashboard = () => {
                           R$ {lucroLiquido.toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">Receita - Custos - Tributos</p>
+                      </div>
+                    </div>
+
+                    {/* Gráficos */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                      {/* Bar Chart - Receita vs Custo por Lote */}
+                      <div className="bg-stone-800 rounded-lg p-4 md:p-6 border border-stone-700">
+                        <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Receita vs Custo por Lote</h3>
+                        <ResponsiveContainer width="100%" height={280}>
+                          <BarChart data={lotesFiltrados.filter((l: any) => l.total_vendas > 0).map((l: any) => ({
+                            nome: l.numero_lote,
+                            Receita: Number(l.valor_total),
+                            Custo: Number(l.custo || 0),
+                            Lucro: Number(l.lucro || 0),
+                          }))}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#44403c" />
+                            <XAxis dataKey="nome" tick={{ fill: '#a8a29e', fontSize: 11 }} />
+                            <YAxis tick={{ fill: '#a8a29e', fontSize: 11 }} />
+                            <Tooltip
+                              contentStyle={{ backgroundColor: '#292524', border: '1px solid #44403c', borderRadius: 8, color: '#fff' }}
+                              formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+                            />
+                            <Bar dataKey="Receita" fill="#2dd4bf" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="Custo" fill="#fb923c" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="Lucro" fill="#4ade80" radius={[4, 4, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* Pie Chart - Recebido vs Pendente */}
+                      <div className="bg-stone-800 rounded-lg p-4 md:p-6 border border-stone-700">
+                        <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Recebido vs Pendente</h3>
+                        <ResponsiveContainer width="100%" height={280}>
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: 'Recebido', value: totalRecebido },
+                                { name: 'Pendente', value: totalPendente },
+                              ].filter(d => d.value > 0)}
+                              cx="50%" cy="50%"
+                              innerRadius={60} outerRadius={100}
+                              paddingAngle={3}
+                              dataKey="value"
+                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            >
+                              <Cell fill="#4ade80" />
+                              <Cell fill="#f87171" />
+                            </Pie>
+                            <Tooltip
+                              contentStyle={{ backgroundColor: '#292524', border: '1px solid #44403c', borderRadius: 8, color: '#fff' }}
+                              formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+                            />
+                            <Legend
+                              formatter={(value: string) => <span style={{ color: '#d6d3d1', fontSize: 12 }}>{value}</span>}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
                     </div>
 
