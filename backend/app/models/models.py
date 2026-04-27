@@ -88,6 +88,7 @@ class Lote(Base):
     status_lote = Column(String(50), nullable=True)  # Chegou EUA, Importado Brasil, Alfandega/Tributação, Centro Distribuição
     arquivado = Column(Boolean, default=False)
     rastreio_importacao = Column(String(100), nullable=True)  # Vincula lotes importados juntos
+    custo = Column(Numeric(10, 2), nullable=True, default=0)  # Custo de aquisição do lote
     
     # Campos calculados (não armazenados no banco, calculados em tempo real)
     @property
@@ -133,6 +134,10 @@ class Lote(Base):
     @property
     def percentual_tributo_pago(self):
         return (self.tributos_pagos / self.total_vendas * 100) if self.total_vendas > 0 else 0
+
+    @property
+    def lucro(self):
+        return self.valor_total - float(self.custo or 0)
 
     vendas = relationship("VendaLote", back_populates="lote", cascade="all, delete-orphan")
 

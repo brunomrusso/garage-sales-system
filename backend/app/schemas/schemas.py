@@ -129,6 +129,7 @@ class LoteCreate(BaseModel):
     foto: Optional[str] = None
     status_lote: Optional[str] = None
     rastreio_importacao: Optional[str] = None
+    custo: Optional[Decimal] = None
 
 
 class LoteUpdate(BaseModel):
@@ -137,6 +138,7 @@ class LoteUpdate(BaseModel):
     status_lote: Optional[str] = None
     arquivado: Optional[bool] = None
     rastreio_importacao: Optional[str] = None
+    custo: Optional[Decimal] = None
 
 
 class LoteResponse(BaseModel):
@@ -157,6 +159,8 @@ class LoteResponse(BaseModel):
     percentual_pago: float
     vendas_entregues: int
     percentual_entregue: float
+    custo: Optional[float] = 0
+    lucro: Optional[float] = 0
 
     class Config:
         from_attributes = True

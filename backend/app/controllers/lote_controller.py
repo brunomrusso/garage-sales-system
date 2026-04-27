@@ -89,7 +89,8 @@ def criar_lote(db: Session, lote_data: LoteCreate, empresa_id: int = None) -> di
         descricao=lote_data.descricao,
         foto=foto_bytes,
         status_lote=lote_data.status_lote,
-        rastreio_importacao=lote_data.rastreio_importacao
+        rastreio_importacao=lote_data.rastreio_importacao,
+        custo=lote_data.custo
     )
     db.add(novo_lote)
     db.commit()
@@ -159,6 +160,8 @@ def atualizar_lote(db: Session, lote_id: int, lote_data: LoteUpdate, empresa_id:
         lote.arquivado = lote_data.arquivado
     if lote_data.rastreio_importacao is not None:
         lote.rastreio_importacao = lote_data.rastreio_importacao
+    if lote_data.custo is not None:
+        lote.custo = lote_data.custo
 
     db.commit()
     db.refresh(lote)
@@ -353,7 +356,9 @@ def _lote_to_response(lote: Lote) -> dict:
         "percentual_entregue": lote.percentual_entregue,
         "tributos_pagos": lote.tributos_pagos,
         "tributos_pendentes": lote.tributos_pendentes,
-        "percentual_tributo_pago": lote.percentual_tributo_pago
+        "percentual_tributo_pago": lote.percentual_tributo_pago,
+        "custo": float(lote.custo or 0),
+        "lucro": lote.lucro
     }
 
 

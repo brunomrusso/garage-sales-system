@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 
 export const AdminDashboard = () => {
@@ -19,7 +19,7 @@ export const AdminDashboard = () => {
   } = usePermissions(user?.id || 0);
   const [clientes, setClientes] = useState<any[]>([]);
   const [adminsPendentes, setAdminsPendentes] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins' | 'tributos'>('clientes');
+  const [activeTab, setActiveTab] = useState<'clientes' | 'vendas' | 'garagem' | 'admins' | 'tributos' | 'faturamento'>('clientes');
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '' });
@@ -33,7 +33,7 @@ export const AdminDashboard = () => {
   const [vendasLote, setVendasLote] = useState<any[]>([]);
   const [showLoteForm, setShowLoteForm] = useState(false);
   const [showVendaForm, setShowVendaForm] = useState(false);
-  const [loteFormData, setLoteFormData] = useState({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '', rastreio_importacao: '' });
+  const [loteFormData, setLoteFormData] = useState({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '', rastreio_importacao: '', custo: '' });
   const [vendaFormData, setVendaFormData] = useState({
     cliente_id: '', carrinhos_comprados: '', preco: '', pago: false,
     comprovante_pagamento: '', data_pagamento: '', observacoes: '', cotas: '1'
@@ -58,8 +58,14 @@ export const AdminDashboard = () => {
   const [editingTributo, setEditingTributo] = useState<any>(null);
   const [mensagemCobranca, setMensagemCobranca] = useState<{ tributo: any; texto: string } | null>(null);
   const [editingLote, setEditingLote] = useState(false);
-  const [editLoteData, setEditLoteData] = useState({ nome: '', descricao: '', status_lote: '', rastreio_importacao: '', foto: '' });
+  const [editLoteData, setEditLoteData] = useState({ nome: '', descricao: '', status_lote: '', rastreio_importacao: '', foto: '', custo: '' });
   const [savingFoto, setSavingFoto] = useState(false);
+
+  // Faturamento state
+  const [allVendas, setAllVendas] = useState<any[]>([]);
+  const [allLotesFaturamento, setAllLotesFaturamento] = useState<any[]>([]);
+  const [faturamentoPeriodo, setFaturamentoPeriodo] = useState('todos');
+  const [loadingFaturamento, setLoadingFaturamento] = useState(false);
 
   useEffect(() => {
     loadClientes();
@@ -190,6 +196,7 @@ export const AdminDashboard = () => {
       status_lote: lote.status_lote || '',
       foto: '',
       rastreio_importacao: lote.rastreio_importacao || '',
+      custo: lote.custo?.toString() || '',
     });
     await loadVendasLote(lote.id);
   };
@@ -213,7 +220,7 @@ export const AdminDashboard = () => {
     e.preventDefault();
     try {
       await loteService.criar(loteFormData);
-      setLoteFormData({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '', rastreio_importacao: '' });
+      setLoteFormData({ numero_lote: '', nome: '', descricao: '', foto: '', status_lote: '', rastreio_importacao: '', custo: '' });
       setShowLoteForm(false);
       loadLotes();
     } catch (error) {
@@ -496,6 +503,30 @@ export const AdminDashboard = () => {
     }
   };
 
+  // ========== FATURAMENTO ==========
+  const loadFaturamento = async () => {
+    setLoadingFaturamento(true);
+    try {
+      const lotesResp = await loteService.listar();
+      const arquivadosResp = await loteService.listarArquivados();
+      const todosLotes = [...lotesResp.data, ...arquivadosResp.data];
+      setAllLotesFaturamento(todosLotes);
+
+      const vendasPromises = todosLotes.map((l: any) => loteService.listarVendas(l.id).catch(() => ({ data: [] })));
+      const results = await Promise.all(vendasPromises);
+      const todas = results.flatMap((r: any, i: number) =>
+        r.data.map((v: any) => ({ ...v, lote_nome: todosLotes[i].nome, lote_numero: todosLotes[i].numero_lote, lote_data: todosLotes[i].data_criacao }))
+      );
+      setAllVendas(todas);
+
+      if (!tributos.length) await loadTributos(true);
+    } catch (err) {
+      console.error('Erro ao carregar faturamento:', err);
+    } finally {
+      setLoadingFaturamento(false);
+    }
+  };
+
   const handleCreateTributo = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -683,6 +714,15 @@ export const AdminDashboard = () => {
               Tributos
             </button>
             )}
+            <button
+              onClick={() => { setActiveTab('faturamento'); loadFaturamento(); }}
+              className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
+                activeTab === 'faturamento' ? 'bg-itgeek-teal text-white shadow-md' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+              }`}
+            >
+              <DollarSign size={18} />
+              Faturamento
+            </button>
             <button
               onClick={() => { setActiveTab('admins'); loadAdminsPendentes(); }}
               className={`flex items-center gap-2 p-2 md:p-3 rounded font-semibold transition whitespace-nowrap text-sm md:text-base md:w-full ${
@@ -972,6 +1012,12 @@ export const AdminDashboard = () => {
                         className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
                     </div>
                     <div>
+                      <label className="block text-sm text-gray-400 mb-1">Custo do Lote (R$)</label>
+                      <input type="number" step="0.01" placeholder="0.00" value={loteFormData.custo}
+                        onChange={(e) => setLoteFormData({ ...loteFormData, custo: e.target.value })}
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
+                    </div>
+                    <div>
                       <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
                       <input type="file" accept="image/*" onChange={handleLoteFoto} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 text-sm" />
                     </div>
@@ -1237,6 +1283,12 @@ export const AdminDashboard = () => {
                           <input type="text" value={editLoteData.descricao}
                             onChange={(e) => setEditLoteData({ ...editLoteData, descricao: e.target.value })}
                             className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Custo do Lote (R$)</label>
+                          <input type="number" step="0.01" placeholder="0.00" value={editLoteData.custo}
+                            onChange={(e) => setEditLoteData({ ...editLoteData, custo: e.target.value })}
+                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
                         </div>
                         <div className="sm:col-span-2">
                           <label className="block text-sm text-gray-400 mb-1">Foto do Lote</label>
@@ -1949,6 +2001,235 @@ export const AdminDashboard = () => {
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'faturamento' && (
+            <div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2 className="text-lg md:text-3xl font-extrabold text-white uppercase tracking-wide">Faturamento</h2>
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    value={faturamentoPeriodo}
+                    onChange={(e) => setFaturamentoPeriodo(e.target.value)}
+                    className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white text-sm focus:border-itgeek-teal focus:outline-none"
+                  >
+                    <option value="todos">Todos os períodos</option>
+                    {(() => {
+                      const meses: string[] = [];
+                      const now = new Date();
+                      for (let i = 0; i < 12; i++) {
+                        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                        const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                        meses.push(val);
+                      }
+                      return meses.map(m => {
+                        const [y, mo] = m.split('-');
+                        const d = new Date(Number(y), Number(mo) - 1, 1);
+                        return <option key={m} value={m}>{d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</option>;
+                      });
+                    })()}
+                  </select>
+                  <button onClick={loadFaturamento} className="flex items-center gap-1.5 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 transition text-sm">
+                    <RefreshCw size={16} />
+                    <span className="hidden sm:inline">Atualizar</span>
+                  </button>
+                </div>
+              </div>
+
+              {loadingFaturamento ? (
+                <div className="text-center text-gray-400 py-12">
+                  <RefreshCw size={32} className="mx-auto mb-3 animate-spin text-itgeek-teal" />
+                  <p>Carregando dados financeiros...</p>
+                </div>
+              ) : (() => {
+                // Filtrar vendas por período
+                const vendasFiltradas = faturamentoPeriodo === 'todos'
+                  ? allVendas
+                  : allVendas.filter(v => {
+                      const dv = new Date(v.data_venda || v.lote_data);
+                      return `${dv.getFullYear()}-${String(dv.getMonth() + 1).padStart(2, '0')}` === faturamentoPeriodo;
+                    });
+
+                const lotesFiltrados = faturamentoPeriodo === 'todos'
+                  ? allLotesFaturamento
+                  : allLotesFaturamento.filter(l => {
+                      const dl = new Date(l.data_criacao);
+                      return `${dl.getFullYear()}-${String(dl.getMonth() + 1).padStart(2, '0')}` === faturamentoPeriodo;
+                    });
+
+                const totalReceita = vendasFiltradas.reduce((s, v) => s + Number(v.preco || 0), 0);
+                const totalRecebido = vendasFiltradas.filter(v => v.pago).reduce((s, v) => s + Number(v.preco || 0), 0);
+                const totalPendente = totalReceita - totalRecebido;
+                const totalCusto = lotesFiltrados.reduce((s, l) => s + Number(l.custo || 0), 0);
+                const lucroTotal = totalReceita - totalCusto;
+                const totalTributos = tributos.reduce((s, t) => s + Number(t.valor_total_imposto || 0), 0);
+                const lucroLiquido = lucroTotal - totalTributos;
+
+                // Agrupar por cliente
+                const porCliente: Record<string, { nome: string; vendas: number; total: number; pago: number; pendente: number; tributo_pago: number; tributo_pendente: number }> = {};
+                vendasFiltradas.forEach(v => {
+                  const nome = v.cliente_nome || 'Desconhecido';
+                  if (!porCliente[nome]) porCliente[nome] = { nome, vendas: 0, total: 0, pago: 0, pendente: 0, tributo_pago: 0, tributo_pendente: 0 };
+                  porCliente[nome].vendas++;
+                  porCliente[nome].total += Number(v.preco || 0);
+                  if (v.pago) porCliente[nome].pago += Number(v.preco || 0);
+                  else porCliente[nome].pendente += Number(v.preco || 0);
+                  if (v.tributo_pago) porCliente[nome].tributo_pago++;
+                  else porCliente[nome].tributo_pendente++;
+                });
+                const clientesRanking = Object.values(porCliente).sort((a, b) => b.total - a.total);
+
+                return (
+                  <>
+                    {/* Cards de resumo */}
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
+                      <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <DollarSign size={18} className="text-itgeek-teal" />
+                          <span className="text-xs text-gray-400 uppercase font-bold">Receita Total</span>
+                        </div>
+                        <p className="text-xl md:text-2xl font-bold text-white">R$ {totalReceita.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{vendasFiltradas.length} vendas</p>
+                      </div>
+                      <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Check size={18} className="text-green-400" />
+                          <span className="text-xs text-gray-400 uppercase font-bold">Recebido</span>
+                        </div>
+                        <p className="text-xl md:text-2xl font-bold text-green-400">R$ {totalRecebido.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{vendasFiltradas.filter(v => v.pago).length} pagas</p>
+                      </div>
+                      <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <X size={18} className="text-red-400" />
+                          <span className="text-xs text-gray-400 uppercase font-bold">Pendente</span>
+                        </div>
+                        <p className="text-xl md:text-2xl font-bold text-red-400">R$ {totalPendente.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{vendasFiltradas.filter(v => !v.pago).length} pendentes</p>
+                      </div>
+                      <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingDown size={18} className="text-orange-400" />
+                          <span className="text-xs text-gray-400 uppercase font-bold">Custo Lotes</span>
+                        </div>
+                        <p className="text-xl md:text-2xl font-bold text-orange-400">R$ {totalCusto.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{lotesFiltrados.length} lotes</p>
+                      </div>
+                      <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Receipt size={18} className="text-yellow-400" />
+                          <span className="text-xs text-gray-400 uppercase font-bold">Tributos</span>
+                        </div>
+                        <p className="text-xl md:text-2xl font-bold text-yellow-400">R$ {totalTributos.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{tributos.length} registros</p>
+                      </div>
+                      <div className={`bg-stone-800 rounded-lg p-4 border ${lucroLiquido >= 0 ? 'border-green-600/40' : 'border-red-600/40'}`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingUp size={18} className={lucroLiquido >= 0 ? 'text-green-400' : 'text-red-400'} />
+                          <span className="text-xs text-gray-400 uppercase font-bold">Lucro Líquido</span>
+                        </div>
+                        <p className={`text-xl md:text-2xl font-bold ${lucroLiquido >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          R$ {lucroLiquido.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Receita - Custos - Tributos</p>
+                      </div>
+                    </div>
+
+                    {/* Lucro por Lote */}
+                    <div className="bg-stone-800 rounded-lg p-4 md:p-6 border border-stone-700 mb-6">
+                      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <ShoppingBag size={20} className="text-itgeek-teal" />
+                        Lucro por Lote
+                      </h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[600px]">
+                          <thead className="bg-stone-900/50">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Lote</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Vendas</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Receita</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Custo</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Lucro</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Margem</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {lotesFiltrados.map((lote: any) => {
+                              const margem = lote.valor_total > 0 ? ((lote.lucro / lote.valor_total) * 100) : 0;
+                              return (
+                                <tr key={lote.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
+                                  <td className="px-3 py-2 font-medium text-white">{lote.numero_lote} {lote.nome ? `· ${lote.nome}` : ''}</td>
+                                  <td className="px-3 py-2 text-sm text-gray-300">{lote.total_vendas}</td>
+                                  <td className="px-3 py-2 text-sm font-semibold text-white">R$ {Number(lote.valor_total).toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-sm font-semibold text-orange-400">R$ {Number(lote.custo || 0).toFixed(2)}</td>
+                                  <td className={`px-3 py-2 text-sm font-bold ${lote.lucro >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    R$ {Number(lote.lucro).toFixed(2)}
+                                  </td>
+                                  <td className={`px-3 py-2 text-sm font-semibold ${margem >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {margem.toFixed(1)}%
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            {lotesFiltrados.length === 0 && (
+                              <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-500">Nenhum lote encontrado no período</td></tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Ranking por Cliente */}
+                    <div className="bg-stone-800 rounded-lg p-4 md:p-6 border border-stone-700">
+                      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <Users size={20} className="text-itgeek-teal" />
+                        Faturamento por Cliente
+                      </h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[600px]">
+                          <thead className="bg-stone-900/50">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">#</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Vendas</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Total</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Pago</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Pendente</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Tributos</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {clientesRanking.map((c, i) => (
+                              <tr key={c.nome} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
+                                <td className="px-3 py-2 text-sm text-gray-500 font-mono">{i + 1}</td>
+                                <td className="px-3 py-2 font-medium text-white">{c.nome}</td>
+                                <td className="px-3 py-2 text-sm text-gray-300">{c.vendas}</td>
+                                <td className="px-3 py-2 text-sm font-semibold text-white">R$ {c.total.toFixed(2)}</td>
+                                <td className="px-3 py-2 text-sm font-semibold text-green-400">R$ {c.pago.toFixed(2)}</td>
+                                <td className="px-3 py-2 text-sm font-semibold text-red-400">
+                                  {c.pendente > 0 ? `R$ ${c.pendente.toFixed(2)}` : '-'}
+                                </td>
+                                <td className="px-3 py-2">
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <span className="text-green-400">{c.tributo_pago} pago</span>
+                                    {c.tributo_pendente > 0 && <span className="text-orange-400">{c.tributo_pendente} pend.</span>}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                            {clientesRanking.length === 0 && (
+                              <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-500">Nenhuma venda encontrada no período</td></tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           )}
 
