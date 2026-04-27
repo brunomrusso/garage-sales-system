@@ -2074,10 +2074,10 @@ export const AdminDashboard = () => {
                 const totalReceita = vendasFiltradas.reduce((s, v) => s + Number(v.preco || 0), 0);
                 const totalRecebido = vendasFiltradas.filter(v => v.pago).reduce((s, v) => s + Number(v.preco || 0), 0);
                 const totalPendente = totalReceita - totalRecebido;
-                const totalCusto = lotesFiltrados.reduce((s, l) => s + Number(l.custo || 0), 0);
-                const lucroTotal = totalReceita - totalCusto;
-                const totalTributos = tributos.reduce((s, t) => s + Number(t.valor_total_imposto || 0), 0);
-                const lucroLiquido = lucroTotal - totalTributos;
+                const totalCustoAquisicao = lotesFiltrados.reduce((s, l) => s + Number(l.custo || 0), 0);
+                const totalCustoTributo = lotesFiltrados.reduce((s, l) => s + Number(l.custo_tributo || 0), 0);
+                const totalCustoTotal = lotesFiltrados.reduce((s, l) => s + Number(l.custo_total || 0), 0);
+                const lucroLiquido = totalReceita - totalCustoTotal;
 
                 // Agrupar por cliente
                 const porCliente: Record<string, { nome: string; vendas: number; total: number; pago: number; pendente: number; tributo_pago: number; tributo_pendente: number }> = {};
@@ -2124,18 +2124,18 @@ export const AdminDashboard = () => {
                       <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
                         <div className="flex items-center gap-2 mb-2">
                           <TrendingDown size={18} className="text-orange-400" />
-                          <span className="text-xs text-gray-400 uppercase font-bold">Custo Lotes</span>
+                          <span className="text-xs text-gray-400 uppercase font-bold">Custo Aquisição</span>
                         </div>
-                        <p className="text-xl md:text-2xl font-bold text-orange-400">R$ {totalCusto.toFixed(2)}</p>
+                        <p className="text-xl md:text-2xl font-bold text-orange-400">R$ {totalCustoAquisicao.toFixed(2)}</p>
                         <p className="text-xs text-gray-500 mt-1">{lotesFiltrados.length} lotes</p>
                       </div>
                       <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
                         <div className="flex items-center gap-2 mb-2">
                           <Receipt size={18} className="text-yellow-400" />
-                          <span className="text-xs text-gray-400 uppercase font-bold">Tributos</span>
+                          <span className="text-xs text-gray-400 uppercase font-bold">Tributos (rateio)</span>
                         </div>
-                        <p className="text-xl md:text-2xl font-bold text-yellow-400">R$ {totalTributos.toFixed(2)}</p>
-                        <p className="text-xs text-gray-500 mt-1">{tributos.length} registros</p>
+                        <p className="text-xl md:text-2xl font-bold text-yellow-400">R$ {totalCustoTributo.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">Total: R$ {totalCustoTotal.toFixed(2)}</p>
                       </div>
                       <div className={`bg-stone-800 rounded-lg p-4 border ${lucroLiquido >= 0 ? 'border-green-600/40' : 'border-red-600/40'}`}>
                         <div className="flex items-center gap-2 mb-2">
@@ -2158,7 +2158,8 @@ export const AdminDashboard = () => {
                           <BarChart data={lotesFiltrados.filter((l: any) => l.total_vendas > 0).map((l: any) => ({
                             nome: l.numero_lote,
                             Receita: Number(l.valor_total),
-                            Custo: Number(l.custo || 0),
+                            Aquisição: Number(l.custo || 0),
+                            Tributo: Number(l.custo_tributo || 0),
                             Lucro: Number(l.lucro || 0),
                           }))}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#44403c" />
@@ -2166,10 +2167,11 @@ export const AdminDashboard = () => {
                             <YAxis tick={{ fill: '#a8a29e', fontSize: 11 }} />
                             <Tooltip
                               contentStyle={{ backgroundColor: '#292524', border: '1px solid #44403c', borderRadius: 8, color: '#fff' }}
-                              formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+                              formatter={(value: any) => `R$ ${Number(value).toFixed(2)}`}
                             />
                             <Bar dataKey="Receita" fill="#2dd4bf" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="Custo" fill="#fb923c" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="Aquisição" fill="#fb923c" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="Tributo" fill="#facc15" radius={[4, 4, 0, 0]} />
                             <Bar dataKey="Lucro" fill="#4ade80" radius={[4, 4, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
@@ -2189,14 +2191,14 @@ export const AdminDashboard = () => {
                               innerRadius={60} outerRadius={100}
                               paddingAngle={3}
                               dataKey="value"
-                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                              label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                             >
                               <Cell fill="#4ade80" />
                               <Cell fill="#f87171" />
                             </Pie>
                             <Tooltip
                               contentStyle={{ backgroundColor: '#292524', border: '1px solid #44403c', borderRadius: 8, color: '#fff' }}
-                              formatter={(value: number) => `R$ ${value.toFixed(2)}`}
+                              formatter={(value: any) => `R$ ${Number(value).toFixed(2)}`}
                             />
                             <Legend
                               formatter={(value: string) => <span style={{ color: '#d6d3d1', fontSize: 12 }}>{value}</span>}
@@ -2219,7 +2221,9 @@ export const AdminDashboard = () => {
                               <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Lote</th>
                               <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Vendas</th>
                               <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Receita</th>
-                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Custo</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Aquisição</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Tributo</th>
+                              <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Custo Total</th>
                               <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Lucro</th>
                               <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Margem</th>
                             </tr>
@@ -2233,6 +2237,8 @@ export const AdminDashboard = () => {
                                   <td className="px-3 py-2 text-sm text-gray-300">{lote.total_vendas}</td>
                                   <td className="px-3 py-2 text-sm font-semibold text-white">R$ {Number(lote.valor_total).toFixed(2)}</td>
                                   <td className="px-3 py-2 text-sm font-semibold text-orange-400">R$ {Number(lote.custo || 0).toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-sm font-semibold text-yellow-400">R$ {Number(lote.custo_tributo || 0).toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-sm font-bold text-orange-300">R$ {Number(lote.custo_total || 0).toFixed(2)}</td>
                                   <td className={`px-3 py-2 text-sm font-bold ${lote.lucro >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                     R$ {Number(lote.lucro).toFixed(2)}
                                   </td>
@@ -2243,7 +2249,7 @@ export const AdminDashboard = () => {
                               );
                             })}
                             {lotesFiltrados.length === 0 && (
-                              <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-500">Nenhum lote encontrado no período</td></tr>
+                              <tr><td colSpan={8} className="px-3 py-6 text-center text-gray-500">Nenhum lote encontrado no período</td></tr>
                             )}
                           </tbody>
                         </table>

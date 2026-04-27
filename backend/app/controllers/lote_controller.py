@@ -232,19 +232,54 @@ def obter_faturamento(db: Session, empresa_id: int = None) -> dict:
         .options(joinedload(Lote.vendas).joinedload(VendaLote.cliente))\
         .all()
 
+    # Tributos
+    tributos_all = db.query(TributoImportacao).filter(
+        TributoImportacao.empresa_id == empresa_id
+    ).all()
+    tributos_por_rastreio = {}
+    for t in tributos_all:
+        tributos_por_rastreio[t.rastreio_importacao] = float(t.valor_total_imposto or 0)
+
+    # Pré-calcular total de cotas por rastreio (soma de todas as cotas de vendas de todos os lotes com esse rastreio)
+    cotas_por_rastreio = {}
+    for lote in todos_lotes:
+        if lote.rastreio_importacao:
+            rastreio = lote.rastreio_importacao
+            if rastreio not in cotas_por_rastreio:
+                cotas_por_rastreio[rastreio] = 0
+            for v in (lote.vendas or []):
+                cotas_por_rastreio[rastreio] += float(v.cotas or 1)
+
     lotes_data = []
     vendas_data = []
     for lote in todos_lotes:
+        # Calcular custo do tributo proporcional às cotas deste lote
+        custo_tributo_lote = 0
+        if lote.rastreio_importacao:
+            rastreio = lote.rastreio_importacao
+            valor_tributo = tributos_por_rastreio.get(rastreio, 0)
+            total_cotas_rastreio = cotas_por_rastreio.get(rastreio, 0)
+            if total_cotas_rastreio > 0 and valor_tributo > 0:
+                cotas_lote = sum(float(v.cotas or 1) for v in (lote.vendas or []))
+                custo_tributo_lote = valor_tributo * (cotas_lote / total_cotas_rastreio)
+
+        custo_aquisicao = float(lote.custo or 0)
+        custo_total = custo_aquisicao + custo_tributo_lote
+        lucro_com_tributo = lote.valor_total - custo_total
+
         lotes_data.append({
             "id": lote.id,
             "numero_lote": lote.numero_lote,
             "nome": lote.nome,
             "data_criacao": lote.data_criacao,
-            "custo": float(lote.custo or 0),
+            "custo": custo_aquisicao,
+            "custo_tributo": round(custo_tributo_lote, 2),
+            "custo_total": round(custo_total, 2),
             "valor_total": lote.valor_total,
-            "lucro": lote.lucro,
+            "lucro": round(lucro_com_tributo, 2),
             "total_vendas": lote.total_vendas,
             "arquivado": lote.arquivado,
+            "rastreio_importacao": lote.rastreio_importacao,
         })
         for v in (lote.vendas or []):
             vendas_data.append({
@@ -260,10 +295,6 @@ def obter_faturamento(db: Session, empresa_id: int = None) -> dict:
                 "data_venda": v.data_venda,
             })
 
-    # Tributos
-    tributos_all = db.query(TributoImportacao).filter(
-        TributoImportacao.empresa_id == empresa_id
-    ).all()
     tributos_data = [{
         "id": t.id,
         "rastreio_importacao": t.rastreio_importacao,
