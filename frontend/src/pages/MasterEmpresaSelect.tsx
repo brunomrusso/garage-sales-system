@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Crown, LogOut } from 'lucide-react';
-import { ItGeekLogo } from '../components/ItGeekLogo';
+
 import { empresaService, authService } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -114,7 +114,7 @@ export const MasterEmpresaSelect = () => {
 
       <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-2xl p-8 border border-neutral-700">
         <div className="flex flex-col items-center gap-3 mb-2">
-          <ItGeekLogo size="lg" showText={false} />
+          <img src="/itgeeksystem.png" alt="ItGeek System" style={{ height: 80, width: 'auto' }} />
           <div className="flex items-center gap-2">
             <Crown className="text-itgeek-teal w-6 h-6" />
             <h1 className="text-xl font-bold text-white">Admin Master</h1>

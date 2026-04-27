@@ -120,7 +120,7 @@ export const LoginPage = () => {
 
       <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-neutral-700 relative z-10">
         <div className="flex items-center justify-center mb-4">
-          <img src="/itgeeksystem.png" alt="ItGeek Store" style={{ height: 180, width: 'auto' }} />
+          <img src="/itgeeksystem.png" alt="ItGeek System" style={{ height: 180, width: 'auto' }} />
         </div>
         <div className="text-center mb-8">
           <p className="text-gray-500 text-sm">Bem-vindo de volta!</p>

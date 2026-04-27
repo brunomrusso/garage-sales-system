@@ -610,7 +610,7 @@ export const AdminDashboard = () => {
     <div className="min-h-screen bg-neutral-950">
       <nav className="bg-gradient-to-r from-itgeek-teal-dark via-itgeek-teal to-itgeek-teal-light text-white p-3 md:p-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2 md:gap-3">
-          <img src="/logo-itgeek-icon.png" alt="ItGeek Store" style={{ height: 30, width: 'auto' }} />
+          <img src="/logo-itgeek-icon.png" alt="ItGeek System" style={{ height: 30, width: 'auto' }} />
           <div className="flex flex-col">
             {empresa && (
               <span className="text-lg md:text-2xl font-extrabold tracking-wider uppercase leading-none">
@@ -618,7 +618,7 @@ export const AdminDashboard = () => {
               </span>
             )}
             <span className="text-xs md:text-sm font-medium text-white/70 leading-tight">
-              ItGeek Store
+              ItGeek System
             </span>
           </div>
           <span className="text-xs bg-black/30 px-2 py-1 rounded font-mono hidden sm:inline">ADMIN</span>
