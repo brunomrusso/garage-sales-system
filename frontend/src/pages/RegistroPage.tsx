@@ -78,7 +78,7 @@ export const RegistroPage = () => {
 
       <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-neutral-700 relative z-10">
         <div className="flex items-center justify-center mb-6">
-          <img src="/logo-itgeek-vertical.png" alt="ItGeek Store" style={{ height: 180, width: 'auto' }} />
+          <img src="/itgeeksystem.png" alt="ItGeek Store" style={{ height: 180, width: 'auto' }} />
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-6">Criar Conta</h2>
