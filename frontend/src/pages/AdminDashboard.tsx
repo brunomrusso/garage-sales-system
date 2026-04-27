@@ -508,8 +508,7 @@ export const AdminDashboard = () => {
     setLoadingFaturamento(true);
     try {
       const lotesResp = await loteService.listar();
-      const arquivadosResp = await loteService.listarArquivados();
-      const todosLotes = [...lotesResp.data, ...arquivadosResp.data];
+      const todosLotes = lotesResp.data;
       setAllLotesFaturamento(todosLotes);
 
       const vendasPromises = todosLotes.map((l: any) => loteService.listarVendas(l.id).catch(() => ({ data: [] })));
@@ -2161,7 +2160,7 @@ export const AdminDashboard = () => {
                               const margem = lote.valor_total > 0 ? ((lote.lucro / lote.valor_total) * 100) : 0;
                               return (
                                 <tr key={lote.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
-                                  <td className="px-3 py-2 font-medium text-white">{lote.numero_lote} {lote.nome ? `· ${lote.nome}` : ''}</td>
+                                  <td className="px-3 py-2 font-medium text-white">{lote.numero_lote}{lote.nome && lote.nome !== lote.numero_lote ? ` · ${lote.nome}` : ''}</td>
                                   <td className="px-3 py-2 text-sm text-gray-300">{lote.total_vendas}</td>
                                   <td className="px-3 py-2 text-sm font-semibold text-white">R$ {Number(lote.valor_total).toFixed(2)}</td>
                                   <td className="px-3 py-2 text-sm font-semibold text-orange-400">R$ {Number(lote.custo || 0).toFixed(2)}</td>
