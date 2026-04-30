@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.core.auth import verify_token
+from app.core.security import verify_token
 from app.schemas.schemas import EnderecoCreate, EnderecoUpdate
 from app.controllers import endereco_controller
 
