@@ -26,6 +26,7 @@ export const ClienteGaragem = () => {
   const [editingEndereco, setEditingEndereco] = useState<any>(null);
   const [selectedEnderecoId, setSelectedEnderecoId] = useState<number | null>(null);
   const [showEnderecoModal, setShowEnderecoModal] = useState(false);
+  const [tipoEntrega, setTipoEntrega] = useState<'correios' | 'em_maos'>('correios');
 
   useEffect(() => {
     if (user) {
@@ -106,7 +107,7 @@ export const ClienteGaragem = () => {
     
     if (window.confirm(mensagem)) {
       try {
-        await garagemService.criarSolicitacao({ cliente_id: user!.id, endereco_id: selectedEnderecoId });
+        await garagemService.criarSolicitacao({ cliente_id: user!.id, endereco_id: selectedEnderecoId, tipo_entrega: tipoEntrega });
         loadSolicitacoes();
         loadFotosNaoSolicitadas();
         setShowEnderecoModal(false);
@@ -846,7 +847,7 @@ export const ClienteGaragem = () => {
                 <p className="text-sm mt-2 text-gray-600">Cadastre endereços para solicitar envio da garagem</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
                 {enderecos.map((endereco) => (
                   <div key={endereco.id} className={`border rounded-lg p-4 bg-stone-900/50 ${endereco.padrao ? 'border-itgeek-teal/50' : 'border-stone-700'}`}>
                     <div className="flex items-start justify-between gap-4">
@@ -906,8 +907,27 @@ export const ClienteGaragem = () => {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
           onClick={() => setShowEnderecoModal(false)}>
           <div className="max-w-md w-full bg-stone-800 rounded-lg shadow-2xl p-6 border border-stone-700" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-bold mb-4 text-white">Selecione o Endereço para Envio</h3>
+            <h3 className="text-xl font-bold mb-4 text-white">Selecione o Endereço e Tipo de Entrega</h3>
             <p className="text-gray-400 mb-4">Escolha o endereço onde deseja receber sua garagem:</p>
+            
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2 font-medium">Tipo de entrega:</p>
+              <div className="flex gap-4">
+                <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition ${tipoEntrega === 'correios' ? 'border-itgeek-teal bg-itgeek-teal/10' : 'border-stone-700 bg-stone-900/50 hover:border-stone-600'}`}>
+                  <input type="radio" name="tipo_entrega" checked={tipoEntrega === 'correios'}
+                    onChange={() => setTipoEntrega('correios')}
+                    className="accent-itgeek-teal" />
+                  <span className="text-white text-sm">Correios</span>
+                </label>
+                <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition ${tipoEntrega === 'em_maos' ? 'border-itgeek-teal bg-itgeek-teal/10' : 'border-stone-700 bg-stone-900/50 hover:border-stone-600'}`}>
+                  <input type="radio" name="tipo_entrega" checked={tipoEntrega === 'em_maos'}
+                    onChange={() => setTipoEntrega('em_maos')}
+                    className="accent-itgeek-teal" />
+                  <span className="text-white text-sm">Em Mãos</span>
+                </label>
+              </div>
+            </div>
+
             <div className="space-y-3 mb-6">
               {enderecos.map((endereco) => (
                 <label key={endereco.id} className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition ${

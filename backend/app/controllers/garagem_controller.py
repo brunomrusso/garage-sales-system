@@ -145,6 +145,8 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
         solicitacao_pendente.data_solicitacao = datetime.utcnow()
         if data.endereco_id is not None:
             solicitacao_pendente.endereco_id = data.endereco_id
+        if data.tipo_entrega:
+            solicitacao_pendente.tipo_entrega = data.tipo_entrega
         db.commit()
         db.refresh(solicitacao_pendente)
         
@@ -158,7 +160,8 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
             cliente_id=data.cliente_id,
             status="pendente",
             vendas_ids=json.dumps(ids) if ids else None,
-            endereco_id=data.endereco_id
+            endereco_id=data.endereco_id,
+            tipo_entrega=data.tipo_entrega or "correios"
         )
         db.add(nova)
         db.commit()
@@ -284,5 +287,6 @@ def _solicitacao_to_response(sol: SolicitacaoEnvio, db: Session = None) -> dict:
         "codigo_rastreio": sol.codigo_rastreio,
         "cliente_nome": sol.cliente.nome if sol.cliente else None,
         "itens": itens,
-        "endereco": endereco_data
+        "endereco": endereco_data,
+        "tipo_entrega": sol.tipo_entrega
     }

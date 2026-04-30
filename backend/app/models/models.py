@@ -73,6 +73,7 @@ class SolicitacaoEnvio(Base):
     codigo_rastreio = Column(String(100), nullable=True)
     vendas_ids = Column(Text, nullable=True)
     endereco_id = Column(Integer, ForeignKey("enderecos_cliente.id", ondelete="SET NULL"), nullable=True)
+    tipo_entrega = Column(String(20), default="correios")  # "correios" ou "em_maos"
 
     cliente = relationship("Cliente", back_populates="solicitacoes")
     endereco = relationship("EnderecoCliente")

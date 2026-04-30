@@ -268,6 +268,7 @@ class SolicitacaoEnvioCreate(BaseModel):
     cliente_id: int
     observacoes: Optional[str] = None
     endereco_id: Optional[int] = None
+    tipo_entrega: Optional[str] = "correios"  # "correios" ou "em_maos"
 
 
 class SolicitacaoEnvioUpdate(BaseModel):

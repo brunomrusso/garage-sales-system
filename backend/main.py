@@ -65,6 +65,7 @@ def run_schema_migration():
             # Novas colunas de features
             ("lotes", "custo", "NUMERIC(10, 2) DEFAULT 0"),
             ("solicitacoes_envio", "endereco_id", "INTEGER REFERENCES enderecos_cliente(id) ON DELETE SET NULL"),
+            ("solicitacoes_envio", "tipo_entrega", "VARCHAR(20) DEFAULT 'correios'"),
         ]
         
         colunas_criadas = 0

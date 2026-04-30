@@ -1916,6 +1916,7 @@ export const AdminDashboard = () => {
                         <tr>
                           <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
                           <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Data</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Tipo Entrega</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Endereço</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Rastreio</th>
@@ -1927,6 +1928,13 @@ export const AdminDashboard = () => {
                           <tr key={sol.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
                             <td className="px-4 py-2 font-medium text-white">{sol.cliente_nome}</td>
                             <td className="px-4 py-2 text-sm text-gray-400">{new Date(sol.data_solicitacao).toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-2">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                sol.tipo_entrega === 'correios' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                              }`}>
+                                {sol.tipo_entrega === 'correios' ? '📦 Correios' : '🤝 Em Mãos'}
+                              </span>
+                            </td>
                             <td className="px-4 py-2">
                               {sol.endereco ? (
                                 <div className="text-sm text-gray-300">
