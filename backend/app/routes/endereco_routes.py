@@ -8,6 +8,11 @@ from app.controllers import endereco_controller
 router = APIRouter(prefix="/enderecos", tags=["Endereços"])
 
 
+@router.get("/consultar-cep")
+def validar_cep(cep: str, current_user: dict = Depends(verify_token)):
+    return endereco_controller.validar_cep(cep)
+
+
 @router.post("/")
 def criar_endereco(data: EnderecoCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return endereco_controller.criar_endereco(db, data)
