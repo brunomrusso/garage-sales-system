@@ -18,7 +18,7 @@ def criar_endereco(data: EnderecoCreate, db: Session = Depends(get_db), current_
     return endereco_controller.criar_endereco(db, data)
 
 
-@router.get("/cliente/{cliente_id}/")
+@router.get("/cliente/{cliente_id}")
 def listar_enderecos(cliente_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return endereco_controller.listar_enderecos(db, cliente_id)
 
