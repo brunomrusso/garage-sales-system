@@ -9,6 +9,8 @@ router = APIRouter(prefix="/enderecos", tags=["Endereços"])
 
 cep_router = APIRouter(prefix="/cep", tags=["CEP"])
 
+__all__ = ['router', 'cep_router']
+
 
 @cep_router.get("/validar/{cep}")
 def validar_cep(cep: str, current_user: dict = Depends(verify_token)):
