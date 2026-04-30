@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.models.models import FotoGaragem, SolicitacaoEnvio, Cliente, VendaLote, Lote
+from app.models.models import FotoGaragem, SolicitacaoEnvio, Cliente, VendaLote, Lote, EnderecoCliente
 from app.schemas.schemas import FotoGaragemCreate, SolicitacaoEnvioCreate
 from app.core.tenant import TenantContext
 from datetime import datetime
@@ -143,6 +143,8 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
         # Se existe solicitação pendente, substituir com todos os itens
         solicitacao_pendente.vendas_ids = json.dumps(ids) if ids else None
         solicitacao_pendente.data_solicitacao = datetime.utcnow()
+        if data.endereco_id is not None:
+            solicitacao_pendente.endereco_id = data.endereco_id
         db.commit()
         db.refresh(solicitacao_pendente)
         
@@ -155,7 +157,8 @@ def criar_solicitacao(db: Session, data: SolicitacaoEnvioCreate) -> dict:
         nova = SolicitacaoEnvio(
             cliente_id=data.cliente_id,
             status="pendente",
-            vendas_ids=json.dumps(ids) if ids else None
+            vendas_ids=json.dumps(ids) if ids else None,
+            endereco_id=data.endereco_id
         )
         db.add(nova)
         db.commit()
@@ -258,6 +261,21 @@ def _solicitacao_to_response(sol: SolicitacaoEnvio, db: Session = None) -> dict:
                 })
         except (json.JSONDecodeError, Exception):
             pass
+    endereco_data = None
+    if sol.endereco_id and db:
+        endereco = db.query(EnderecoCliente).filter(EnderecoCliente.id == sol.endereco_id).first()
+        if endereco:
+            endereco_data = {
+                "id": endereco.id,
+                "apelido": endereco.apelido,
+                "cep": endereco.cep,
+                "logradouro": endereco.logradouro,
+                "numero": endereco.numero,
+                "complemento": endereco.complemento,
+                "bairro": endereco.bairro,
+                "cidade": endereco.cidade,
+                "estado": endereco.estado,
+            }
     return {
         "id": sol.id,
         "cliente_id": sol.cliente_id,
@@ -265,5 +283,6 @@ def _solicitacao_to_response(sol: SolicitacaoEnvio, db: Session = None) -> dict:
         "status": sol.status,
         "codigo_rastreio": sol.codigo_rastreio,
         "cliente_nome": sol.cliente.nome if sol.cliente else None,
-        "itens": itens
+        "itens": itens,
+        "endereco": endereco_data
     }

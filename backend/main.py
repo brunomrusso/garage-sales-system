@@ -6,7 +6,7 @@ from app.core.config import settings
 from app.core.security import hash_password
 from app.models.models import UsuarioAdmin, Cliente
 from app.core.permissions import initialize_admin_permissions
-from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes, permission_routes, admin_routes, empresa_routes
+from app.routes import auth_routes, cliente_routes, compra_routes, pagamento_routes, solicitacao_routes, lote_routes, garagem_routes, permission_routes, admin_routes, empresa_routes, endereco_routes
 from app.core.tenant import tenant_middleware
 
 Base.metadata.create_all(bind=engine)
@@ -29,6 +29,30 @@ def run_schema_migration():
         
         inspector = inspect(db.bind)
         
+        # Criar tabela enderecos_cliente se não existir
+        tabelas_existentes = inspector.get_table_names()
+        if "enderecos_cliente" not in tabelas_existentes:
+            print("[SCHEMA-MIGRATE] Criando tabela enderecos_cliente...")
+            db.execute(text("""
+                CREATE TABLE enderecos_cliente (
+                    id SERIAL PRIMARY KEY,
+                    empresa_id INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+                    cliente_id INTEGER NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+                    apelido VARCHAR(100),
+                    cep VARCHAR(9) NOT NULL,
+                    logradouro VARCHAR(255) NOT NULL,
+                    numero VARCHAR(20) NOT NULL,
+                    complemento VARCHAR(255),
+                    bairro VARCHAR(255) NOT NULL,
+                    cidade VARCHAR(255) NOT NULL,
+                    estado VARCHAR(2) NOT NULL,
+                    padrao BOOLEAN DEFAULT FALSE,
+                    data_cadastro TIMESTAMP DEFAULT NOW()
+                )
+            """))
+            db.commit()
+            print("[SCHEMA-MIGRATE] ✅ Tabela enderecos_cliente criada")
+        
         # Tabelas que precisam da coluna empresa_id
         tabelas_colunas = [
             ("clientes", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
@@ -40,6 +64,7 @@ def run_schema_migration():
             ("fotos_garagem", "empresa_id", "INTEGER REFERENCES empresas(id) ON DELETE CASCADE"),
             # Novas colunas de features
             ("lotes", "custo", "NUMERIC(10, 2) DEFAULT 0"),
+            ("solicitacoes_envio", "endereco_id", "INTEGER REFERENCES enderecos_cliente(id) ON DELETE SET NULL"),
         ]
         
         colunas_criadas = 0
@@ -292,6 +317,7 @@ app.include_router(garagem_routes.router)
 app.include_router(permission_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(empresa_routes.router)
+app.include_router(endereco_routes.router)
 
 
 @app.get("/health")

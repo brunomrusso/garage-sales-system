@@ -267,6 +267,7 @@ class FotoGaragemResponse(BaseModel):
 class SolicitacaoEnvioCreate(BaseModel):
     cliente_id: int
     observacoes: Optional[str] = None
+    endereco_id: Optional[int] = None
 
 
 class SolicitacaoEnvioUpdate(BaseModel):
@@ -281,6 +282,49 @@ class SolicitacaoEnvioResponse(BaseModel):
     status: str
     codigo_rastreio: Optional[str] = None
     cliente_nome: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class EnderecoCreate(BaseModel):
+    cliente_id: int
+    apelido: Optional[str] = None
+    cep: str
+    logradouro: str
+    numero: str
+    complemento: Optional[str] = None
+    bairro: str
+    cidade: str
+    estado: str
+    padrao: Optional[bool] = False
+
+
+class EnderecoUpdate(BaseModel):
+    apelido: Optional[str] = None
+    cep: Optional[str] = None
+    logradouro: Optional[str] = None
+    numero: Optional[str] = None
+    complemento: Optional[str] = None
+    bairro: Optional[str] = None
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    padrao: Optional[bool] = None
+
+
+class EnderecoResponse(BaseModel):
+    id: int
+    cliente_id: int
+    apelido: Optional[str] = None
+    cep: str
+    logradouro: str
+    numero: str
+    complemento: Optional[str] = None
+    bairro: str
+    cidade: str
+    estado: str
+    padrao: bool
+    data_cadastro: datetime
 
     class Config:
         from_attributes = True

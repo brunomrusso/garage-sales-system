@@ -131,4 +131,13 @@ export const empresaService = {
   obterPorId: (id: number) => api.get(`/empresas/${id}`),
 };
 
+export const enderecoService = {
+  criar: (data: any) => api.post('/enderecos/', data),
+  listar: (clienteId: number) => api.get(`/enderecos/cliente/${clienteId}/`),
+  atualizar: (enderecoId: number, data: any) => api.put(`/enderecos/${enderecoId}/`, data),
+  deletar: (enderecoId: number) => api.delete(`/enderecos/${enderecoId}/`),
+  definirPadrao: (enderecoId: number) => api.put(`/enderecos/${enderecoId}/padrao/`),
+  validarCep: (cep: string) => api.get(`/enderecos/validar-cep/${cep}/`),
+};
+
 export default api;

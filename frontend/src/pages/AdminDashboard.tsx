@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
-import { clienteService, loteService, garagemService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { clienteService, loteService, garagemService, enderecoService } from '../services/api';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare, DollarSign, TrendingUp, TrendingDown, MapPin, Star, Edit } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
@@ -61,6 +61,12 @@ export const AdminDashboard = () => {
   const [editingLote, setEditingLote] = useState(false);
   const [editLoteData, setEditLoteData] = useState({ numero_lote: '', nome: '', descricao: '', status_lote: '', rastreio_importacao: '', foto: '', custo: '' });
   const [savingFoto, setSavingFoto] = useState(false);
+
+  // Enderecos state
+  const [enderecosCliente, setEnderecosCliente] = useState<any[]>([]);
+  const [showEnderecoForm, setShowEnderecoForm] = useState(false);
+  const [enderecoFormData, setEnderecoFormData] = useState({ apelido: '', cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', padrao: false });
+  const [editingEndereco, setEditingEndereco] = useState<any>(null);
 
   // Faturamento state
   const [allVendas, setAllVendas] = useState<any[]>([]);
@@ -397,6 +403,99 @@ export const AdminDashboard = () => {
     }
   };
 
+  const loadEnderecosCliente = async (clienteId: number) => {
+    try {
+      const response = await enderecoService.listar(clienteId);
+      setEnderecosCliente(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar endereços:', error);
+    }
+  };
+
+  const handleCepValidationAdmin = async () => {
+    const cep = enderecoFormData.cep.replace(/\D/g, '');
+    if (cep.length !== 8) {
+      alert('CEP inválido. Deve conter 8 dígitos.');
+      return;
+    }
+    try {
+      const response = await enderecoService.validarCep(cep);
+      const data = response.data;
+      setEnderecoFormData({
+        ...enderecoFormData,
+        cep: data.cep,
+        logradouro: data.logradouro,
+        bairro: data.bairro,
+        cidade: data.cidade,
+        estado: data.estado,
+      });
+    } catch (error) {
+      alert('CEP não encontrado. Verifique o número digitado.');
+    }
+  };
+
+  const handleCriarEnderecoAdmin = async () => {
+    if (!selectedClienteGaragem) return;
+    if (!enderecoFormData.cep || !enderecoFormData.numero || !enderecoFormData.logradouro || !enderecoFormData.bairro || !enderecoFormData.cidade || !enderecoFormData.estado) {
+      alert('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    try {
+      await enderecoService.criar({ ...enderecoFormData, cliente_id: selectedClienteGaragem.id });
+      loadEnderecosCliente(selectedClienteGaragem.id);
+      setShowEnderecoForm(false);
+      setEnderecoFormData({ apelido: '', cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', padrao: false });
+      alert('Endereço cadastrado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao cadastrar endereço:', error);
+      alert('Erro ao cadastrar endereço.');
+    }
+  };
+
+  const handleAtualizarEnderecoAdmin = async () => {
+    if (!selectedClienteGaragem || !editingEndereco) return;
+    try {
+      await enderecoService.atualizar(editingEndereco.id, enderecoFormData);
+      loadEnderecosCliente(selectedClienteGaragem.id);
+      setShowEnderecoForm(false);
+      setEditingEndereco(null);
+      setEnderecoFormData({ apelido: '', cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', padrao: false });
+      alert('Endereço atualizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao atualizar endereço:', error);
+      alert('Erro ao atualizar endereço.');
+    }
+  };
+
+  const handleDeletarEnderecoAdmin = async (id: number) => {
+    if (!window.confirm('Tem certeza que deseja excluir este endereço?')) return;
+    try {
+      await enderecoService.deletar(id);
+      if (selectedClienteGaragem) loadEnderecosCliente(selectedClienteGaragem.id);
+      alert('Endereço excluído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao excluir endereço:', error);
+      alert('Erro ao excluir endereço.');
+    }
+  };
+
+  const handleDefinirPadraoAdmin = async (id: number) => {
+    try {
+      await enderecoService.definirPadrao(id);
+      if (selectedClienteGaragem) loadEnderecosCliente(selectedClienteGaragem.id);
+      alert('Endereço definido como padrão!');
+    } catch (error) {
+      console.error('Erro ao definir padrão:', error);
+      alert('Erro ao definir padrão.');
+    }
+  };
+
+  const handleEditEnderecoAdmin = (endereco: any) => {
+    setEditingEndereco(endereco);
+    setEnderecoFormData(endereco);
+    setShowEnderecoForm(true);
+  };
+
   const loadSolicitacoes = async () => {
     try {
       const response = await garagemService.listarTodasSolicitacoes();
@@ -409,6 +508,7 @@ export const AdminDashboard = () => {
   const handleSelectClienteGaragem = async (cliente: any) => {
     setSelectedClienteGaragem(cliente);
     await loadFotosGaragem(cliente.id);
+    await loadEnderecosCliente(cliente.id);
   };
 
   const handleAddFotoGaragem = async (e: React.FormEvent) => {
@@ -1650,6 +1750,143 @@ export const AdminDashboard = () => {
                           </div>
                         </div>
                       )}
+
+                      {/* Enderecos section */}
+                      <div className="mt-6">
+                        <div className="flex justify-between items-center mb-3">
+                          <h3 className="text-lg font-semibold text-white">Endereços</h3>
+                          <button onClick={() => { setEditingEndereco(null); setEnderecoFormData({ apelido: '', cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', padrao: false }); setShowEnderecoForm(true); }}
+                            className="flex items-center gap-2 bg-itgeek-teal text-white px-3 py-1.5 rounded hover:bg-itgeek-teal-dark text-sm font-semibold transition">
+                            <Plus size={14} /> Novo Endereço
+                          </button>
+                        </div>
+
+                        {showEnderecoForm && (
+                          <div className="bg-stone-900/50 p-4 rounded-lg mb-4 border border-stone-700">
+                            <h4 className="font-semibold mb-3 text-white">{editingEndereco ? 'Editar Endereço' : 'Novo Endereço'}</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">CEP</label>
+                                <div className="flex gap-2">
+                                  <input type="text" value={enderecoFormData.cep}
+                                    onChange={(e) => setEnderecoFormData({ ...enderecoFormData, cep: e.target.value })}
+                                    placeholder="00000-000"
+                                    className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                                  <button type="button" onClick={handleCepValidationAdmin}
+                                    className="bg-stone-700 hover:bg-stone-600 text-white px-3 py-1.5 rounded border border-stone-600 text-xs transition">
+                                    Buscar
+                                  </button>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Apelido</label>
+                                <input type="text" value={enderecoFormData.apelido}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, apelido: e.target.value })}
+                                  placeholder="Casa, Trabalho..."
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                              <div className="md:col-span-2">
+                                <label className="block text-xs text-gray-400 mb-1">Logradouro</label>
+                                <input type="text" value={enderecoFormData.logradouro}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, logradouro: e.target.value })}
+                                  placeholder="Rua, Avenida..."
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Número</label>
+                                <input type="text" value={enderecoFormData.numero}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, numero: e.target.value })}
+                                  placeholder="123"
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Complemento</label>
+                                <input type="text" value={enderecoFormData.complemento}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, complemento: e.target.value })}
+                                  placeholder="Apto, Bloco..."
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Bairro</label>
+                                <input type="text" value={enderecoFormData.bairro}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, bairro: e.target.value })}
+                                  placeholder="Centro"
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Cidade</label>
+                                <input type="text" value={enderecoFormData.cidade}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, cidade: e.target.value })}
+                                  placeholder="São Paulo"
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Estado</label>
+                                <input type="text" value={enderecoFormData.estado}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, estado: e.target.value.toUpperCase() })}
+                                  placeholder="SP"
+                                  maxLength={2}
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-1.5 w-full text-white text-sm focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                              <div className="flex items-center gap-2 mt-4">
+                                <input type="checkbox" id="padrao" checked={enderecoFormData.padrao}
+                                  onChange={(e) => setEnderecoFormData({ ...enderecoFormData, padrao: e.target.checked })}
+                                  className="w-4 h-4 accent-itgeek-teal" />
+                                <label htmlFor="padrao" className="text-xs text-gray-300">Definir como padrão</label>
+                              </div>
+                            </div>
+                            <div className="flex gap-2 mt-3">
+                              <button onClick={editingEndereco ? handleAtualizarEnderecoAdmin : handleCriarEnderecoAdmin}
+                                className="bg-itgeek-teal text-white px-4 py-1.5 rounded hover:bg-itgeek-teal-dark font-semibold text-sm transition">
+                                {editingEndereco ? 'Atualizar' : 'Salvar'}
+                              </button>
+                              <button onClick={() => { setShowEnderecoForm(false); setEditingEndereco(null); setEnderecoFormData({ apelido: '', cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', padrao: false }); }}
+                                className="bg-stone-700 text-white px-4 py-1.5 rounded hover:bg-stone-600 text-sm transition">
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {enderecosCliente.length === 0 ? (
+                          <div className="text-center text-gray-500 py-6 bg-stone-800 rounded border border-stone-700">
+                            <MapPin size={32} className="mx-auto mb-2 text-gray-600" />
+                            <p className="text-sm">Nenhum endereço cadastrado</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {enderecosCliente.map((endereco) => (
+                              <div key={endereco.id} className={`border rounded-lg p-3 bg-stone-900/50 ${endereco.padrao ? 'border-itgeek-teal/50' : 'border-stone-700'}`}>
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      {endereco.apelido && <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-0.5 rounded text-xs font-semibold">{endereco.apelido}</span>}
+                                      {endereco.padrao && <span className="flex items-center gap-1 text-xs text-itgeek-teal"><Star size={12} fill="currentColor" /> Padrão</span>}
+                                    </div>
+                                    <p className="text-white text-sm">{endereco.logradouro}, {endereco.numero}{endereco.complemento && ` - ${endereco.complemento}`}</p>
+                                    <p className="text-gray-400 text-xs">{endereco.bairro}</p>
+                                    <p className="text-gray-400 text-xs">{endereco.cidade} - {endereco.estado}</p>
+                                    <p className="text-gray-500 text-xs">CEP: {endereco.cep}</p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button onClick={() => handleEditEnderecoAdmin(endereco)} className="text-itgeek-teal hover:text-itgeek-teal-light transition">
+                                      <Edit size={16} />
+                                    </button>
+                                    {!endereco.padrao && (
+                                      <button onClick={() => handleDefinirPadraoAdmin(endereco.id)} className="text-yellow-400 hover:text-yellow-300 transition" title="Definir como padrão">
+                                        <Star size={16} />
+                                      </button>
+                                    )}
+                                    <button onClick={() => handleDeletarEnderecoAdmin(endereco.id)} className="text-red-500 hover:text-red-400 transition">
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div className="bg-stone-800 rounded-lg shadow p-8 text-center text-gray-500 border border-stone-700 flex-1 flex items-center justify-center">
@@ -1679,6 +1916,7 @@ export const AdminDashboard = () => {
                         <tr>
                           <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
                           <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Data</th>
+                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Endereço</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Status</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Rastreio</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
@@ -1689,6 +1927,17 @@ export const AdminDashboard = () => {
                           <tr key={sol.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
                             <td className="px-4 py-2 font-medium text-white">{sol.cliente_nome}</td>
                             <td className="px-4 py-2 text-sm text-gray-400">{new Date(sol.data_solicitacao).toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-2">
+                              {sol.endereco ? (
+                                <div className="text-sm text-gray-300">
+                                  <p>{sol.endereco.logradouro}, {sol.endereco.numero}{sol.endereco.complemento && ` - ${sol.endereco.complemento}`}</p>
+                                  <p className="text-xs text-gray-500">{sol.endereco.bairro}, {sol.endereco.cidade} - {sol.endereco.estado}</p>
+                                  <p className="text-xs text-gray-500">CEP: {sol.endereco.cep}</p>
+                                </div>
+                              ) : (
+                                <span className="text-gray-500 text-sm">-</span>
+                              )}
+                            </td>
                             <td className="px-4 py-2">
                               <span className={`px-2 py-1 rounded text-xs font-semibold ${
                                 sol.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :

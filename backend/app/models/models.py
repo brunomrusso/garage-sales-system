@@ -32,6 +32,7 @@ class Cliente(Base):
     solicitacoes = relationship("SolicitacaoEnvio", back_populates="cliente", cascade="all, delete-orphan")
     vendas_lote = relationship("VendaLote", back_populates="cliente", cascade="all, delete-orphan")
     fotos_garagem = relationship("FotoGaragem", back_populates="cliente", cascade="all, delete-orphan")
+    enderecos = relationship("EnderecoCliente", back_populates="cliente", cascade="all, delete-orphan")
 
 
 class Compra(Base):
@@ -71,8 +72,10 @@ class SolicitacaoEnvio(Base):
     status = Column(String(50), default="pendente")
     codigo_rastreio = Column(String(100), nullable=True)
     vendas_ids = Column(Text, nullable=True)
+    endereco_id = Column(Integer, ForeignKey("enderecos_cliente.id", ondelete="SET NULL"), nullable=True)
 
     cliente = relationship("Cliente", back_populates="solicitacoes")
+    endereco = relationship("EnderecoCliente")
 
 
 class Lote(Base):
@@ -176,6 +179,26 @@ class TributoImportacao(Base):
     data_registro = Column(DateTime, default=datetime.utcnow)
     observacoes = Column(Text, nullable=True)
     arquivado = Column(Boolean, default=False)
+
+
+class EnderecoCliente(Base):
+    __tablename__ = "enderecos_cliente"
+
+    id = Column(Integer, primary_key=True, index=True)
+    empresa_id = Column(Integer, ForeignKey("empresas.id", ondelete="CASCADE"), nullable=False)
+    cliente_id = Column(Integer, ForeignKey("clientes.id", ondelete="CASCADE"), nullable=False)
+    apelido = Column(String(100), nullable=True)  # Ex: "Casa", "Trabalho"
+    cep = Column(String(9), nullable=False)
+    logradouro = Column(String(255), nullable=False)
+    numero = Column(String(20), nullable=False)
+    complemento = Column(String(255), nullable=True)
+    bairro = Column(String(255), nullable=False)
+    cidade = Column(String(255), nullable=False)
+    estado = Column(String(2), nullable=False)
+    padrao = Column(Boolean, default=False)
+    data_cadastro = Column(DateTime, default=datetime.utcnow)
+
+    cliente = relationship("Cliente", back_populates="enderecos")
 
 
 class FotoGaragem(Base):
