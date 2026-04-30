@@ -23,6 +23,11 @@ def listar_enderecos(cliente_id: int, db: Session = Depends(get_db), current_use
     return endereco_controller.listar_enderecos(db, cliente_id)
 
 
+@router.put("/{endereco_id}/padrao/")
+def definir_padrao(endereco_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
+    return endereco_controller.definir_padrao(db, endereco_id)
+
+
 @router.put("/{endereco_id}/")
 def atualizar_endereco(endereco_id: int, data: EnderecoUpdate, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return endereco_controller.atualizar_endereco(db, endereco_id, data)
@@ -31,8 +36,3 @@ def atualizar_endereco(endereco_id: int, data: EnderecoUpdate, db: Session = Dep
 @router.delete("/{endereco_id}/")
 def deletar_endereco(endereco_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
     return endereco_controller.deletar_endereco(db, endereco_id)
-
-
-@router.put("/{endereco_id}/padrao/")
-def definir_padrao(endereco_id: int, db: Session = Depends(get_db), current_user: dict = Depends(verify_token)):
-    return endereco_controller.definir_padrao(db, endereco_id)
