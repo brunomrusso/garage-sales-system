@@ -8,8 +8,13 @@ from app.controllers import endereco_controller
 router = APIRouter(prefix="/enderecos", tags=["Endereços"])
 
 
+@router.get("/test")
+def test():
+    return {"status": "ok", "message": "Router funcionando"}
+
+
 @router.get("/consultar-cep")
-def validar_cep(cep: str, current_user: dict = Depends(verify_token)):
+def validar_cep(cep: str):
     return endereco_controller.validar_cep(cep)
 
 
