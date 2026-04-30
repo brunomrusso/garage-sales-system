@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
@@ -1437,70 +1437,110 @@ export const AdminDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {vendasLote.map((venda) => {
-                          const tributoLote = tributos.find(t => t.rastreio_importacao === selectedLote?.rastreio_importacao);
-                          const valorTributoVenda = tributoLote ? (Number(venda.cotas || 1) * Number(tributoLote.valor_por_cota)) : null;
-                          return (
-                          <tr key={venda.id} className="border-t border-gray-700 hover:bg-stone-700/50 transition">
-                            <td className="px-4 py-2 font-medium text-white">{venda.cliente_nome}</td>
-                            <td className="px-4 py-2 text-sm max-w-xs truncate text-gray-300">{venda.carrinhos_comprados}</td>
-                            <td className="px-4 py-2 font-semibold text-green-400">R$ {Number(venda.preco).toFixed(2)}</td>
-                            <td className="px-4 py-2 text-sm text-gray-300">{venda.cotas || 1}</td>
-                            <td className="px-4 py-2">
-                              <button onClick={() => handleTogglePago(venda)}
-                                className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
-                                  venda.pago ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                }`}>
-                                {venda.pago ? <><Check size={14} /> Pago</> : <><X size={14} /> Pendente</>}
-                              </button>
-                            </td>
-                            <td className="px-4 py-2">
-                              <div className="flex flex-col gap-1">
-                                {valorTributoVenda !== null && (
-                                  <span className="text-sm font-bold text-orange-400">
-                                    R$ {valorTributoVenda.toFixed(2)}
-                                  </span>
+                        {(() => {
+                          const gruposPorCliente: Record<string, any[]> = {};
+                          vendasLote.forEach((v: any) => {
+                            const nome = v.cliente_nome || 'Desconhecido';
+                            if (!gruposPorCliente[nome]) gruposPorCliente[nome] = [];
+                            gruposPorCliente[nome].push(v);
+                          });
+                          return Object.entries(gruposPorCliente).map(([clienteNome, vendas]) => {
+                            const isGrupo = vendas.length > 1;
+                            const totalGrupo = vendas.reduce((s, v) => s + Number(v.preco || 0), 0);
+                            const totalCotas = vendas.reduce((s, v) => s + Number(v.cotas || 1), 0);
+                            const todosPagos = vendas.every(v => v.pago);
+                            const tributoLote = tributos.find(t => t.rastreio_importacao === selectedLote?.rastreio_importacao);
+                            return (
+                              <React.Fragment key={clienteNome}>
+                                {isGrupo && (
+                                  <tr className="bg-itgeek-teal/10 border-t-2 border-itgeek-teal/30">
+                                    <td className="px-4 py-2 font-bold text-itgeek-teal border-l-4 border-itgeek-teal">
+                                      {clienteNome}
+                                      <span className="ml-2 text-xs font-semibold bg-itgeek-teal/20 text-itgeek-teal px-2 py-0.5 rounded-full border border-itgeek-teal/30">
+                                        {vendas.length} compras
+                                      </span>
+                                    </td>
+                                    <td className="px-4 py-2 text-sm text-gray-400 italic">{vendas.length} itens</td>
+                                    <td className="px-4 py-2 font-bold text-green-400">R$ {totalGrupo.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-sm font-semibold text-gray-300">{totalCotas}</td>
+                                    <td className="px-4 py-2">
+                                      <span className={`px-2 py-1 rounded text-xs font-semibold ${todosPagos ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                        {todosPagos ? 'Todos pagos' : `${vendas.filter(v => v.pago).length}/${vendas.length} pagos`}
+                                      </span>
+                                    </td>
+                                    <td colSpan={6} className="px-4 py-2"></td>
+                                  </tr>
                                 )}
-                                <button onClick={() => handleToggleTributo(venda)}
-                                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold w-fit ${
-                                    venda.tributo_pago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                                  }`}>
-                                  {venda.tributo_pago ? <><Check size={12} /> Pago</> : <><X size={12} /> Pendente</>}
-                                </button>
-                              </div>
-                            </td>
-                            <td className="px-4 py-2 text-sm text-gray-400">
-                              {venda.data_pagamento ? new Date(venda.data_pagamento).toLocaleString('pt-BR') : '-'}
-                            </td>
-                            <td className="px-4 py-2">
-                              {venda.comprovante_pagamento ? (
-                                <button onClick={() => {
-                                  const w = window.open('');
-                                  w?.document.write(`<img src="data:image/jpeg;base64,${venda.comprovante_pagamento}" />`);
-                                }} className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-sm transition">
-                                  <Eye size={14} /> Ver
-                                </button>
-                              ) : <span className="text-gray-600">-</span>}
-                            </td>
-                            <td className="px-4 py-2">
-                              <select value={venda.status_entrega || 'aguardando_pagamento'}
-                                onChange={(e) => handleChangeStatusEntrega(venda.id, e.target.value)}
-                                className={`text-xs font-semibold px-2 py-1 rounded border-0 cursor-pointer ${
-                                  statusEntregaOptions.find(o => o.value === venda.status_entrega)?.color || 'bg-gray-100 text-gray-700'
-                                }`}>
-                                {statusEntregaOptions.map((opt) => (
-                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                              </select>
-                            </td>
-                            <td className="px-4 py-2 text-sm text-gray-500 max-w-xs truncate">{venda.observacoes || '-'}</td>
-                            <td className="px-4 py-2">
-                              <button onClick={() => handleDeleteVenda(venda.id)} className="text-red-500 hover:text-red-400 transition">
-                                <Trash2 size={16} />
-                              </button>
-                            </td>
-                          </tr>
-                        ); })}
+                                {vendas.map((venda) => {
+                                  const valorTributoVenda = tributoLote ? (Number(venda.cotas || 1) * Number(tributoLote.valor_por_cota)) : null;
+                                  return (
+                                    <tr key={venda.id} className={`border-t border-gray-700 hover:bg-stone-700/50 transition ${isGrupo ? 'bg-stone-800/30' : ''}`}>
+                                      <td className={`px-4 py-2 font-medium text-white ${isGrupo ? 'pl-8 text-sm text-gray-300' : ''}`}>
+                                        {isGrupo ? '↳' : venda.cliente_nome}
+                                      </td>
+                                      <td className="px-4 py-2 text-sm max-w-xs truncate text-gray-300">{venda.carrinhos_comprados}</td>
+                                      <td className="px-4 py-2 font-semibold text-green-400">R$ {Number(venda.preco).toFixed(2)}</td>
+                                      <td className="px-4 py-2 text-sm text-gray-300">{venda.cotas || 1}</td>
+                                      <td className="px-4 py-2">
+                                        <button onClick={() => handleTogglePago(venda)}
+                                          className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
+                                            venda.pago ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                          }`}>
+                                          {venda.pago ? <><Check size={14} /> Pago</> : <><X size={14} /> Pendente</>}
+                                        </button>
+                                      </td>
+                                      <td className="px-4 py-2">
+                                        <div className="flex flex-col gap-1">
+                                          {valorTributoVenda !== null && (
+                                            <span className="text-sm font-bold text-orange-400">
+                                              R$ {valorTributoVenda.toFixed(2)}
+                                            </span>
+                                          )}
+                                          <button onClick={() => handleToggleTributo(venda)}
+                                            className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold w-fit ${
+                                              venda.tributo_pago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                            }`}>
+                                            {venda.tributo_pago ? <><Check size={12} /> Pago</> : <><X size={12} /> Pendente</>}
+                                          </button>
+                                        </div>
+                                      </td>
+                                      <td className="px-4 py-2 text-sm text-gray-400">
+                                        {venda.data_pagamento ? new Date(venda.data_pagamento).toLocaleString('pt-BR') : '-'}
+                                      </td>
+                                      <td className="px-4 py-2">
+                                        {venda.comprovante_pagamento ? (
+                                          <button onClick={() => {
+                                            const w = window.open('');
+                                            w?.document.write(`<img src="data:image/jpeg;base64,${venda.comprovante_pagamento}" />`);
+                                          }} className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-sm transition">
+                                            <Eye size={14} /> Ver
+                                          </button>
+                                        ) : <span className="text-gray-600">-</span>}
+                                      </td>
+                                      <td className="px-4 py-2">
+                                        <select value={venda.status_entrega || 'aguardando_pagamento'}
+                                          onChange={(e) => handleChangeStatusEntrega(venda.id, e.target.value)}
+                                          className={`text-xs font-semibold px-2 py-1 rounded border-0 cursor-pointer ${
+                                            statusEntregaOptions.find(o => o.value === venda.status_entrega)?.color || 'bg-gray-100 text-gray-700'
+                                          }`}>
+                                          {statusEntregaOptions.map((opt) => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                          ))}
+                                        </select>
+                                      </td>
+                                      <td className="px-4 py-2 text-sm text-gray-500 max-w-xs truncate">{venda.observacoes || '-'}</td>
+                                      <td className="px-4 py-2">
+                                        <button onClick={() => handleDeleteVenda(venda.id)} className="text-red-500 hover:text-red-400 transition">
+                                          <Trash2 size={16} />
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </React.Fragment>
+                            );
+                          });
+                        })()}
                       </tbody>
                     </table>
                     </div>

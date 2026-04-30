@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTenant } from '../contexts/TenantContext';
 import { loteService, garagemService } from '../services/api';
@@ -298,105 +298,159 @@ export const ClienteGaragem = () => {
 
                 {(comprasTab === 'andamento' ? comprasEmAndamento : comprasEntregues).length > 0 && (
                   <div className="space-y-4">
-                    {(comprasTab === 'andamento' ? comprasEmAndamento : comprasEntregues).map((venda) => (
-                  <div key={venda.id} className="border border-stone-700 rounded-lg overflow-hidden hover:shadow-xl hover:border-stone-600 transition bg-stone-900/50">
-                    <div className="flex flex-col sm:flex-row">
-                      {venda.lote_foto && (
-                        <div className="w-full sm:w-48 flex-shrink-0">
-                          <img src={`data:image/jpeg;base64,${venda.lote_foto}`} alt={venda.lote_nome}
-                            className="w-full h-40 sm:h-full object-cover" />
-                        </div>
-                      )}
-                      <div className="flex-1 p-4">
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap mb-2">
-                              <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-1 rounded text-xs font-semibold border border-itgeek-teal/30">
-                                {venda.lote_nome}
-                              </span>
-                              <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
-                                venda.pago ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-red-600/20 text-red-400 border border-red-600/30'
-                              }`}>
-                                {venda.pago ? <><Check size={12} /> Pago</> : <><X size={12} /> Pendente</>}
-                              </span>
-                              {venda.status_entrega && (
-                                <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
-                                  statusLabels[venda.status_entrega]?.color || 'bg-gray-100 text-gray-700'
-                                }`}>
-                                  {statusLabels[venda.status_entrega]?.label || venda.status_entrega}
-                                </span>
-                              )}
-                            </div>
-                            <h3 className="font-semibold text-lg mb-1 text-white">Carrinhos Comprados</h3>
-                            <p className="text-gray-300 mb-2">{venda.carrinhos_comprados}</p>
-                            <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 text-sm text-gray-500">
-                              <span>Comprado em: <strong className="text-gray-400">{new Date(venda.data_venda).toLocaleString('pt-BR')}</strong></span>
-                              {venda.data_pagamento && (
-                                <span>Pago em: <strong className="text-gray-400">{new Date(venda.data_pagamento).toLocaleString('pt-BR')}</strong></span>
-                              )}
-                            </div>
-                            {venda.observacoes && (
-                              <p className="text-sm text-gray-500 mt-2 italic">Obs: {venda.observacoes}</p>
-                            )}
-                          </div>
-                          <div className="text-left sm:text-right sm:ml-4">
-                            <p className="text-xl md:text-2xl font-extrabold text-green-400">R$ {Number(venda.preco).toFixed(2)}</p>
-                            {venda.comprovante_pagamento && (
-                              <button onClick={() => {
-                                const w = window.open('');
-                                w?.document.write(`<img src="data:image/jpeg;base64,${venda.comprovante_pagamento}" style="max-width:100%" />`);
-                              }} className="text-itgeek-teal hover:text-itgeek-teal-light flex items-center gap-1 text-sm mt-2 ml-auto transition">
-                                <Eye size={14} /> Ver Comprovante
-                              </button>
-                            )}
-                          </div>
-                        </div>
+                    {(() => {
+                      const listaAtual = comprasTab === 'andamento' ? comprasEmAndamento : comprasEntregues;
+                      const gruposPorLote: Record<string, any[]> = {};
+                      const ordemLotes: string[] = [];
+                      listaAtual.forEach((v: any) => {
+                        const key = v.lote_id || v.lote_nome || 'sem-lote';
+                        if (!gruposPorLote[key]) { gruposPorLote[key] = []; ordemLotes.push(key); }
+                        gruposPorLote[key].push(v);
+                      });
+                      return ordemLotes.map((loteKey) => {
+                        const vendas = gruposPorLote[loteKey];
+                        const isGrupo = vendas.length > 1;
+                        const primeiraVenda = vendas[0];
+                        const totalGrupo = vendas.reduce((s: number, v: any) => s + Number(v.preco || 0), 0);
 
-                        {/* Tributo info */}
-                        {(() => {
-                          const tributo = tributosCliente.find((t: any) => t.venda_id === venda.id);
-                          if (!tributo) return null;
-                          return (
-                            <div className="mt-3 p-3 bg-itgeek-orange/10 border border-itgeek-orange/20 rounded-lg">
-                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <Receipt size={16} className="text-itgeek-orange" />
-                                  <span className="text-sm font-semibold text-itgeek-orange">Tributo de Importação</span>
-                                  <span className="text-xs text-gray-500">Rastreio: {tributo.rastreio_importacao}</span>
-                                  <span className="text-xs text-gray-500">Cotas: {tributo.cotas}</span>
+                        const renderVendaCard = (venda: any, compacto: boolean) => (
+                          <div key={venda.id} className={`border border-stone-700 rounded-lg overflow-hidden hover:shadow-xl hover:border-stone-600 transition bg-stone-900/50 ${compacto ? '' : ''}`}>
+                            <div className="flex flex-col sm:flex-row">
+                              {!compacto && venda.lote_foto && (
+                                <div className="w-full sm:w-48 flex-shrink-0">
+                                  <img src={`data:image/jpeg;base64,${venda.lote_foto}`} alt={venda.lote_nome}
+                                    className="w-full h-40 sm:h-full object-cover" />
                                 </div>
-                                <div className="flex items-center gap-3">
-                                  <span className="text-lg font-bold text-itgeek-orange">R$ {Number(tributo.valor_tributo).toFixed(2)}</span>
-                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                    tributo.tributo_pago ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-itgeek-orange/20 text-itgeek-orange border border-itgeek-orange/30'
-                                  }`}>
-                                    {tributo.tributo_pago ? 'Pago' : 'Pendente'}
+                              )}
+                              <div className="flex-1 p-4">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                                      {!compacto && (
+                                        <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-1 rounded text-xs font-semibold border border-itgeek-teal/30">
+                                          {venda.lote_nome}
+                                        </span>
+                                      )}
+                                      <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
+                                        venda.pago ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-red-600/20 text-red-400 border border-red-600/30'
+                                      }`}>
+                                        {venda.pago ? <><Check size={12} /> Pago</> : <><X size={12} /> Pendente</>}
+                                      </span>
+                                      {venda.status_entrega && (
+                                        <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
+                                          statusLabels[venda.status_entrega]?.color || 'bg-gray-100 text-gray-700'
+                                        }`}>
+                                          {statusLabels[venda.status_entrega]?.label || venda.status_entrega}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <h3 className={`font-semibold mb-1 text-white ${compacto ? 'text-base' : 'text-lg'}`}>Carrinhos Comprados</h3>
+                                    <p className="text-gray-300 mb-2">{venda.carrinhos_comprados}</p>
+                                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 text-sm text-gray-500">
+                                      <span>Comprado em: <strong className="text-gray-400">{new Date(venda.data_venda).toLocaleString('pt-BR')}</strong></span>
+                                      {venda.data_pagamento && (
+                                        <span>Pago em: <strong className="text-gray-400">{new Date(venda.data_pagamento).toLocaleString('pt-BR')}</strong></span>
+                                      )}
+                                    </div>
+                                    {venda.observacoes && (
+                                      <p className="text-sm text-gray-500 mt-2 italic">Obs: {venda.observacoes}</p>
+                                    )}
+                                  </div>
+                                  <div className="text-left sm:text-right sm:ml-4">
+                                    <p className={`font-extrabold text-green-400 ${compacto ? 'text-lg' : 'text-xl md:text-2xl'}`}>R$ {Number(venda.preco).toFixed(2)}</p>
+                                    {venda.comprovante_pagamento && (
+                                      <button onClick={() => {
+                                        const w = window.open('');
+                                        w?.document.write(`<img src="data:image/jpeg;base64,${venda.comprovante_pagamento}" style="max-width:100%" />`);
+                                      }} className="text-itgeek-teal hover:text-itgeek-teal-light flex items-center gap-1 text-sm mt-2 ml-auto transition">
+                                        <Eye size={14} /> Ver Comprovante
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Tributo info */}
+                                {(() => {
+                                  const tributo = tributosCliente.find((t: any) => t.venda_id === venda.id);
+                                  if (!tributo) return null;
+                                  return (
+                                    <div className="mt-3 p-3 bg-itgeek-orange/10 border border-itgeek-orange/20 rounded-lg">
+                                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <Receipt size={16} className="text-itgeek-orange" />
+                                          <span className="text-sm font-semibold text-itgeek-orange">Tributo de Importação</span>
+                                          <span className="text-xs text-gray-500">Rastreio: {tributo.rastreio_importacao}</span>
+                                          <span className="text-xs text-gray-500">Cotas: {tributo.cotas}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                          <span className="text-lg font-bold text-itgeek-orange">R$ {Number(tributo.valor_tributo).toFixed(2)}</span>
+                                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                            tributo.tributo_pago ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-itgeek-orange/20 text-itgeek-orange border border-itgeek-orange/30'
+                                          }`}>
+                                            {tributo.tributo_pago ? 'Pago' : 'Pendente'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      {!tributo.tributo_pago && (
+                                        <div className="mt-2 flex items-center gap-2">
+                                          <button onClick={() => handleUploadComprovanteTributo(tributo.venda_id)}
+                                            className="text-xs bg-itgeek-orange/20 text-itgeek-orange px-3 py-1 rounded hover:bg-itgeek-orange/30 border border-itgeek-orange/30 transition">
+                                            Enviar Comprovante de Tributo
+                                          </button>
+                                        </div>
+                                      )}
+                                      {tributo.comprovante_tributo && (
+                                        <button onClick={() => {
+                                          const w = window.open('');
+                                          w?.document.write(`<img src="data:image/jpeg;base64,${tributo.comprovante_tributo}" style="max-width:100%" />`);
+                                        }} className="text-itgeek-teal hover:text-itgeek-teal-light flex items-center gap-1 text-xs mt-2 transition">
+                                          <Eye size={12} /> Ver Comprovante Tributo
+                                        </button>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          </div>
+                        );
+
+                        if (!isGrupo) {
+                          return <React.Fragment key={loteKey}>{renderVendaCard(primeiraVenda, false)}</React.Fragment>;
+                        }
+
+                        return (
+                          <div key={loteKey} className="border-2 border-itgeek-teal/30 rounded-xl overflow-hidden bg-stone-900/30">
+                            {/* Group header */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 bg-itgeek-teal/10 border-b border-itgeek-teal/20">
+                              {primeiraVenda.lote_foto && (
+                                <img src={`data:image/jpeg;base64,${primeiraVenda.lote_foto}`} alt={primeiraVenda.lote_nome}
+                                  className="w-16 h-16 object-cover rounded-lg border border-stone-600 flex-shrink-0" />
+                              )}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="bg-itgeek-teal/20 text-itgeek-teal px-3 py-1 rounded text-sm font-bold border border-itgeek-teal/30">
+                                    {primeiraVenda.lote_nome}
+                                  </span>
+                                  <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-0.5 rounded-full text-xs font-semibold border border-itgeek-teal/30">
+                                    {vendas.length} compras
                                   </span>
                                 </div>
+                                <p className="text-xs text-gray-500 mt-1">Você comprou {vendas.length} vezes neste lote</p>
                               </div>
-                              {!tributo.tributo_pago && (
-                                <div className="mt-2 flex items-center gap-2">
-                                  <button onClick={() => handleUploadComprovanteTributo(tributo.venda_id)}
-                                    className="text-xs bg-itgeek-orange/20 text-itgeek-orange px-3 py-1 rounded hover:bg-itgeek-orange/30 border border-itgeek-orange/30 transition">
-                                    Enviar Comprovante de Tributo
-                                  </button>
-                                </div>
-                              )}
-                              {tributo.comprovante_tributo && (
-                                <button onClick={() => {
-                                  const w = window.open('');
-                                  w?.document.write(`<img src="data:image/jpeg;base64,${tributo.comprovante_tributo}" style="max-width:100%" />`);
-                                }} className="text-itgeek-teal hover:text-itgeek-teal-light flex items-center gap-1 text-xs mt-2 transition">
-                                  <Eye size={12} /> Ver Comprovante Tributo
-                                </button>
-                              )}
+                              <div className="text-left sm:text-right">
+                                <p className="text-xs text-gray-500 uppercase font-bold">Total no lote</p>
+                                <p className="text-xl font-extrabold text-green-400">R$ {totalGrupo.toFixed(2)}</p>
+                              </div>
                             </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                            {/* Individual purchases */}
+                            <div className="p-3 space-y-3">
+                              {vendas.map((v: any) => renderVendaCard(v, true))}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 )}
               </>
