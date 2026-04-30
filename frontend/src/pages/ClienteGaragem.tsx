@@ -84,20 +84,15 @@ export const ClienteGaragem = () => {
   };
 
   const handleSolicitarEnvio = async () => {
-    if (enderecos.length === 0) {
-      alert('Você precisa cadastrar pelo menos um endereço antes de solicitar o envio.');
-      setShowEnderecoForm(true);
-      return;
-    }
-    
     const padrao = enderecos.find(e => e.padrao);
-    setSelectedEnderecoId(padrao?.id || enderecos[0].id);
+    setSelectedEnderecoId(padrao?.id || (enderecos.length > 0 ? enderecos[0].id : null));
+    setTipoEntrega('correios');
     setShowEnderecoModal(true);
   };
 
   const confirmarSolicitacaoEnvio = async () => {
-    if (!selectedEnderecoId) {
-      alert('Selecione um endereço para o envio.');
+    if (tipoEntrega === 'correios' && !selectedEnderecoId) {
+      alert('Selecione um endereço para o envio via Correios.');
       return;
     }
     
@@ -107,7 +102,11 @@ export const ClienteGaragem = () => {
     
     if (window.confirm(mensagem)) {
       try {
-        await garagemService.criarSolicitacao({ cliente_id: user!.id, endereco_id: selectedEnderecoId, tipo_entrega: tipoEntrega });
+        await garagemService.criarSolicitacao({ 
+          cliente_id: user!.id, 
+          endereco_id: tipoEntrega === 'correios' ? selectedEnderecoId : null,
+          tipo_entrega: tipoEntrega 
+        });
         loadSolicitacoes();
         loadFotosNaoSolicitadas();
         setShowEnderecoModal(false);
@@ -907,8 +906,7 @@ export const ClienteGaragem = () => {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
           onClick={() => setShowEnderecoModal(false)}>
           <div className="max-w-md w-full bg-stone-800 rounded-lg shadow-2xl p-6 border border-stone-700" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-bold mb-4 text-white">Selecione o Endereço e Tipo de Entrega</h3>
-            <p className="text-gray-400 mb-4">Escolha o endereço onde deseja receber sua garagem:</p>
+            <h3 className="text-xl font-bold mb-4 text-white">Selecione o Tipo de Entrega</h3>
             
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2 font-medium">Tipo de entrega:</p>
@@ -917,46 +915,69 @@ export const ClienteGaragem = () => {
                   <input type="radio" name="tipo_entrega" checked={tipoEntrega === 'correios'}
                     onChange={() => setTipoEntrega('correios')}
                     className="accent-itgeek-teal" />
-                  <span className="text-white text-sm">Correios</span>
+                  <span className="text-white text-sm">📦 Correios</span>
                 </label>
                 <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition ${tipoEntrega === 'em_maos' ? 'border-itgeek-teal bg-itgeek-teal/10' : 'border-stone-700 bg-stone-900/50 hover:border-stone-600'}`}>
                   <input type="radio" name="tipo_entrega" checked={tipoEntrega === 'em_maos'}
                     onChange={() => setTipoEntrega('em_maos')}
                     className="accent-itgeek-teal" />
-                  <span className="text-white text-sm">Em Mãos</span>
+                  <span className="text-white text-sm">🤝 Em Mãos</span>
                 </label>
               </div>
             </div>
 
-            <div className="space-y-3 mb-6">
-              {enderecos.map((endereco) => (
-                <label key={endereco.id} className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition ${
-                  selectedEnderecoId === endereco.id 
-                    ? 'border-itgeek-teal bg-itgeek-teal/10' 
-                    : 'border-stone-700 bg-stone-900/50 hover:border-stone-600'
-                }`}>
-                  <input type="radio" name="endereco" checked={selectedEnderecoId === endereco.id}
-                    onChange={() => setSelectedEnderecoId(endereco.id)}
-                    className="mt-1 accent-itgeek-teal" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      {endereco.apelido && <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-0.5 rounded text-xs font-semibold">{endereco.apelido}</span>}
-                      {endereco.padrao && <span className="flex items-center gap-1 text-xs text-itgeek-teal"><Star size={12} fill="currentColor" /> Padrão</span>}
-                    </div>
-                    <p className="text-white text-sm">{endereco.logradouro}, {endereco.numero}{endereco.complemento && ` - ${endereco.complemento}`}</p>
-                    <p className="text-gray-400 text-xs">{endereco.bairro}, {endereco.cidade} - {endereco.estado}</p>
-                    <p className="text-gray-500 text-xs">CEP: {endereco.cep}</p>
+            {tipoEntrega === 'correios' && (
+              <>
+                <p className="text-gray-400 mb-4">Escolha o endereço onde deseja receber sua garagem:</p>
+                {enderecos.length === 0 ? (
+                  <div className="bg-stone-900/50 p-4 rounded-lg mb-6 border border-stone-700">
+                    <p className="text-gray-400 text-sm">Nenhum endereço cadastrado. Cadastre um endereço para envio via Correios.</p>
+                    <button onClick={() => { setShowEnderecoModal(false); setShowEnderecoForm(true); }}
+                      className="mt-3 text-itgeek-teal text-sm hover:underline">
+                      Cadastrar endereço
+                    </button>
                   </div>
-                </label>
-              ))}
-            </div>
+                ) : (
+                  <div className="space-y-3 mb-6">
+                    {enderecos.map((endereco) => (
+                      <label key={endereco.id} className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition ${
+                        selectedEnderecoId === endereco.id 
+                          ? 'border-itgeek-teal bg-itgeek-teal/10' 
+                          : 'border-stone-700 bg-stone-900/50 hover:border-stone-600'
+                      }`}>
+                        <input type="radio" name="endereco" checked={selectedEnderecoId === endereco.id}
+                          onChange={() => setSelectedEnderecoId(endereco.id)}
+                          className="mt-1 accent-itgeek-teal" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {endereco.apelido && <span className="bg-itgeek-teal/20 text-itgeek-teal px-2 py-0.5 rounded text-xs font-semibold">{endereco.apelido}</span>}
+                            {endereco.padrao && <span className="flex items-center gap-1 text-xs text-itgeek-teal"><Star size={12} fill="currentColor" /> Padrão</span>}
+                          </div>
+                          <p className="text-white text-sm">{endereco.logradouro}, {endereco.numero}{endereco.complemento && ` - ${endereco.complemento}`}</p>
+                          <p className="text-gray-400 text-xs">{endereco.bairro}, {endereco.cidade} - {endereco.estado}</p>
+                          <p className="text-gray-500 text-xs">CEP: {endereco.cep}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {tipoEntrega === 'em_maos' && (
+              <div className="bg-stone-900/50 p-4 rounded-lg mb-6 border border-stone-700">
+                <p className="text-gray-300 text-sm">A entrega será feita pessoalmente. Você não precisa selecionar um endereço.</p>
+              </div>
+            )}
+
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowEnderecoModal(false)}
                 className="bg-stone-700 text-white px-4 py-2 rounded hover:bg-stone-600 transition">
                 Cancelar
               </button>
               <button onClick={confirmarSolicitacaoEnvio}
-                className="bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition">
+                disabled={tipoEntrega === 'correios' && (!selectedEnderecoId || enderecos.length === 0)}
+                className="bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed">
                 Confirmar Envio
               </button>
             </div>
