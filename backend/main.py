@@ -319,6 +319,7 @@ app.include_router(permission_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(empresa_routes.router)
 app.include_router(endereco_routes.router)
+app.include_router(endereco_routes.cep_router)
 
 
 @app.get("/health")

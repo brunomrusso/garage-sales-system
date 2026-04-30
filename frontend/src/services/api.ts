@@ -137,7 +137,7 @@ export const enderecoService = {
   atualizar: (enderecoId: number, data: any) => api.put(`/enderecos/${enderecoId}/`, data),
   deletar: (enderecoId: number) => api.delete(`/enderecos/${enderecoId}/`),
   definirPadrao: (enderecoId: number) => api.put(`/enderecos/${enderecoId}/padrao/`),
-  validarCep: (cep: string) => api.get(`/enderecos/validar-cep/${cep}`),
+  validarCep: (cep: string) => api.get(`/cep/validar/${cep}`),
 };
 
 export default api;
