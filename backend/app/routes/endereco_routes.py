@@ -5,12 +5,7 @@ from app.core.security import verify_token
 from app.schemas.schemas import EnderecoCreate, EnderecoUpdate
 from app.controllers import endereco_controller
 
-router = APIRouter(prefix="/enderecos", tags=["Endereços"])
-
-
-@router.get("/test")
-def test():
-    return {"status": "ok", "message": "Router funcionando"}
+router = APIRouter(prefix="/api/enderecos", tags=["Endereços"])
 
 
 @router.get("/consultar-cep")
