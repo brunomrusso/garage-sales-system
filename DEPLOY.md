@@ -1,9 +1,15 @@
 # 🏎️ Deploy GarageSales - Guia Passo a Passo
 
+## Stack de Deploy
+- **Frontend** → [Vercel](https://vercel.com)
+- **Backend** → [Railway](https://railway.app)
+- **Banco de Dados** → [Supabase](https://supabase.com) (PostgreSQL)
+
 ## Pré-requisitos
-- Conta no [GitHub](https://github.com) 
-- Conta no [Render](https://render.com) (login com GitHub)
+- Conta no [GitHub](https://github.com)
 - Conta no [Vercel](https://vercel.com) (login com GitHub)
+- Conta no [Railway](https://railway.app) (login com GitHub)
+- Conta no [Supabase](https://supabase.com) (login com GitHub)
 
 ---
 
@@ -25,54 +31,44 @@ git push -u origin main
 
 ---
 
-## Passo 2: Deploy do Backend + Banco (Render)
+## Passo 2: Banco de Dados (Supabase)
 
-### Opção A: Deploy automático via render.yaml (recomendado)
+1. Acesse https://supabase.com/dashboard e crie um novo projeto
+2. Escolha a região mais próxima (ex: `South America (São Paulo)`)
+3. Defina uma senha forte para o banco
+4. Aguarde o projeto inicializar (~2 min)
+5. Vá em **Project Settings** → **Database** → **Connection string** → **URI**
+6. Copie a string de conexão direta (porta **5432**, não 6543)
+   - Formato: `postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres`
+   - Substitua `[PASSWORD]` pela senha que você definiu
 
-1. Acesse https://dashboard.render.com
-2. Clique em **New** → **Blueprint**
-3. Conecte seu repositório GitHub `garage-sales-system`
-4. O Render vai detectar o `render.yaml` automaticamente
-5. Clique **Apply** - ele vai criar o banco e o backend juntos
-6. Aguarde o deploy (pode levar 5-10 minutos)
-
-### Opção B: Deploy manual
-
-#### 2a. Criar o banco PostgreSQL
-1. No dashboard do Render, clique **New** → **PostgreSQL**
-2. Nome: `garagesales-db`
-3. Plano: **Free**
-4. Clique **Create Database**
-5. Copie a **Internal Database URL** (começa com `postgresql://`)
-
-#### 2b. Criar o Web Service (Backend)
-1. Clique **New** → **Web Service**
-2. Conecte o repositório GitHub
-3. Configure:
-   - **Name**: `garagesales-api`
-   - **Root Directory**: `backend`
-   - **Runtime**: Python
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-4. Em **Environment Variables**, adicione:
-   - `DATABASE_URL` = (cole a URL do banco do passo 2a)
-   - `SECRET_KEY` = (gere uma chave aleatória segura)
-   - `FRONTEND_URL` = (será preenchido após o deploy do frontend)
-5. Clique **Create Web Service**
-
-#### 2c. Criar o admin de produção
-Após o deploy, no Render, vá em **Shell** do seu web service e execute:
-```bash
-python seed_admin.py
-```
-Ou defina as variáveis antes:
-```bash
-ADMIN_EMAIL=seu@email.com ADMIN_SENHA=suasenha python seed_admin.py
-```
+> **Importante**: As tabelas serão criadas automaticamente pelo backend na primeira inicialização (SQLAlchemy `create_all`). Não precisa rodar SQL manualmente.
 
 ---
 
-## Passo 3: Deploy do Frontend (Vercel)
+## Passo 3: Backend (Railway)
+
+1. Acesse https://railway.app/new e clique em **Deploy from GitHub repo**
+2. Selecione o repositório `garage-sales-system`
+3. Railway vai detectar o projeto. Configure:
+   - **Root Directory**: `backend`
+4. Vá em **Variables** e adicione:
+
+| Variável | Valor |
+|---|---|
+| `DATABASE_URL` | URL copiada do Supabase (passo 2) |
+| `SECRET_KEY` | Uma string aleatória longa (ex: gere em https://randomkeygen.com) |
+| `FRONTEND_URL` | `https://seu-frontend.vercel.app` (preencher após passo 4) |
+| `ADMIN_EMAIL` | seu email de admin |
+| `ADMIN_SENHA` | senha do admin |
+
+5. O deploy inicia automaticamente. Aguarde (~3 min)
+6. Em **Settings** → **Networking** → **Generate Domain** para obter a URL pública
+   - Anote a URL (ex: `garagesales-api.up.railway.app`)
+
+---
+
+## Passo 4: Frontend (Vercel)
 
 1. Acesse https://vercel.com/new
 2. Importe o repositório `garage-sales-system`
@@ -80,36 +76,37 @@ ADMIN_EMAIL=seu@email.com ADMIN_SENHA=suasenha python seed_admin.py
    - **Framework Preset**: Vite
    - **Root Directory**: `frontend`
 4. Em **Environment Variables**, adicione:
-   - `VITE_API_URL` = `https://garagesales-api.onrender.com/api`
-   (substitua pelo URL real do seu backend no Render)
+   - `VITE_API_URL` = `https://garagesales-api.up.railway.app/api`
+   (use a URL do Railway do passo 3)
 5. Clique **Deploy**
-6. Após o deploy, copie a URL do frontend (ex: `garagesales.vercel.app`)
+6. Copie a URL gerada (ex: `garage-sales-system.vercel.app`)
 
 ---
 
-## Passo 4: Conectar tudo
+## Passo 5: Conectar tudo
 
-1. Volte ao Render, no seu Web Service
-2. Em **Environment Variables**, atualize:
-   - `FRONTEND_URL` = `https://garagesales.vercel.app` (URL real do Vercel)
-3. O serviço vai reiniciar automaticamente
+1. Volte ao Railway, no seu serviço
+2. Em **Variables**, atualize:
+   - `FRONTEND_URL` = `https://garage-sales-system.vercel.app` (URL real do Vercel)
+3. O Railway faz redeploy automaticamente
 
 ---
 
-## Passo 5: Testar
+## Passo 6: Testar
 
-1. Acesse a URL do Vercel (seu frontend)
-2. Faça login como Admin com as credenciais criadas no seed
+1. Acesse a URL do Vercel
+2. Faça login com o `ADMIN_EMAIL` e `ADMIN_SENHA` configurados no Railway
 3. Cadastre clientes e comece a usar!
 
 ---
 
 ## Dicas importantes
 
-- **Free tier do Render**: O backend "dorme" após 15min sem uso. O primeiro acesso após dormir demora ~30s.
-- **Banco de dados free**: 256MB de storage e expira após 90 dias. Renove ou faça upgrade quando necessário.
-- **Para atualizar o sistema**: Faça `git push` e tanto Render quanto Vercel fazem deploy automático.
-- **Logs**: No Render, vá em seu Web Service → Logs para ver erros.
+- **Railway**: Incluído nos $5/mês de crédito do plano Hobby (compartilhado com outros projetos)
+- **Supabase free tier**: 500MB de storage, sem expiração (diferente do Render que expira em 90 dias)
+- **Para atualizar o sistema**: Faça `git push` e Railway + Vercel fazem deploy automático
+- **Logs**: No Railway, vá em seu serviço → **Deployments** → clique no deploy atual → **View Logs**
+- **CORS**: Se adicionar domínio customizado no Vercel, adicione-o também em `main.py` na lista `allowed_origins`
 
 ---
 
@@ -118,5 +115,5 @@ ADMIN_EMAIL=seu@email.com ADMIN_SENHA=suasenha python seed_admin.py
 Após o deploy, anote aqui:
 
 - **Frontend**: https://________________.vercel.app
-- **Backend API**: https://________________.onrender.com
+- **Backend API**: https://________________.up.railway.app
 - **Admin**: Email: __________ / Senha: __________
