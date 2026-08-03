@@ -20,10 +20,10 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/logo-itgeek-icon.png',
+            src: '/logo-itgeek-vertical.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable',
+            purpose: 'any',
           },
           {
             src: '/logo-itgeek-vertical.png',
