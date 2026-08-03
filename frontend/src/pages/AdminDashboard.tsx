@@ -1140,10 +1140,10 @@ export const AdminDashboard = () => {
               )}
 
               {/* ── Main lote layout wrapper (flex in detail/master-detail mode) ── */}
-              <div className={loteViewMode === 'detail' ? 'flex gap-4 items-start' : 'block'}>
+              <div className={loteViewMode === 'detail' ? 'flex flex-col lg:flex-row gap-4 lg:items-start' : 'block'}>
 
                 {/* Left column: lote list */}
-                <div className={loteViewMode === 'detail' ? 'w-80 flex-shrink-0 space-y-2' : 'w-full'}>
+                <div className={loteViewMode === 'detail' ? 'w-full lg:w-80 lg:flex-shrink-0 space-y-2' : 'w-full'}>
 
                   {/* CARDS VIEW */}
                   {loteViewMode === 'cards' && (
