@@ -92,6 +92,73 @@ def obter_empresa(
     }
 
 
+CAMPOS_CLIENTE_TOGGLEABLE = ["telefone"]
+CAMPOS_VENDA_TOGGLEABLE = ["cotas", "carrinhos_comprados", "comprovante_pagamento", "data_pagamento", "observacoes"]
+
+
+@router.get("/config/campos")
+def obter_campos_config(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_admin_token)
+):
+    """Retorna configuração de visibilidade de campos para o tenant atual"""
+    empresa_id = TenantContext.get_tenant_id()
+    if not empresa_id:
+        raise HTTPException(status_code=400, detail="Empresa não identificada")
+
+    config = db.query(EmpresaConfig).filter(EmpresaConfig.empresa_id == empresa_id).first()
+    return {
+        "campos_cliente": config.campos_custom_cliente if config and config.campos_custom_cliente else {},
+        "campos_venda": config.campos_custom_venda if config and config.campos_custom_venda else {},
+        "campos_cliente_toggleable": CAMPOS_CLIENTE_TOGGLEABLE,
+        "campos_venda_toggleable": CAMPOS_VENDA_TOGGLEABLE,
+    }
+
+
+@router.put("/config/campos-cliente")
+def atualizar_campos_cliente(
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_admin_token)
+):
+    """Atualiza visibilidade de campos do cliente para o tenant atual"""
+    empresa_id = TenantContext.get_tenant_id()
+    if not empresa_id:
+        raise HTTPException(status_code=400, detail="Empresa não identificada")
+
+    campos: dict = payload.get("campos", {})
+    config = db.query(EmpresaConfig).filter(EmpresaConfig.empresa_id == empresa_id).first()
+    if not config:
+        config = EmpresaConfig(empresa_id=empresa_id, campos_custom_cliente=campos)
+        db.add(config)
+    else:
+        config.campos_custom_cliente = campos
+    db.commit()
+    return {"campos_cliente": campos}
+
+
+@router.put("/config/campos-venda")
+def atualizar_campos_venda(
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_admin_token)
+):
+    """Atualiza visibilidade de campos da venda para o tenant atual"""
+    empresa_id = TenantContext.get_tenant_id()
+    if not empresa_id:
+        raise HTTPException(status_code=400, detail="Empresa não identificada")
+
+    campos: dict = payload.get("campos", {})
+    config = db.query(EmpresaConfig).filter(EmpresaConfig.empresa_id == empresa_id).first()
+    if not config:
+        config = EmpresaConfig(empresa_id=empresa_id, campos_custom_venda=campos)
+        db.add(config)
+    else:
+        config.campos_custom_venda = campos
+    db.commit()
+    return {"campos_venda": campos}
+
+
 DEFAULT_STATUS_LOTE = [
     "Comprado/Aguardando",
     "Chegou EUA",

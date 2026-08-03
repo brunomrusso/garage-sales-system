@@ -129,6 +129,9 @@ export const empresaService = {
   obterPorId: (id: number) => api.get(`/empresas/${id}`),
   obterStatusLote: () => api.get('/empresas/config/status-lote'),
   atualizarStatusLote: (opcoes: string[]) => api.put('/empresas/config/status-lote', { opcoes }),
+  obterCampos: () => api.get('/empresas/config/campos'),
+  atualizarCamposCliente: (campos: Record<string, boolean>) => api.put('/empresas/config/campos-cliente', { campos }),
+  atualizarCamposVenda: (campos: Record<string, boolean>) => api.put('/empresas/config/campos-venda', { campos }),
 };
 
 export const enderecoService = {

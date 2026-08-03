@@ -31,6 +31,13 @@ export const AdminDashboard = () => {
   const [statusLoteOpcoes, setStatusLoteOpcoes] = useState<string[]>(DEFAULT_STATUS_LOTE);
   const [showStatusConfig, setShowStatusConfig] = useState(false);
   const [newStatusInput, setNewStatusInput] = useState('');
+  const [camposClienteConfig, setCamposClienteConfig] = useState<Record<string, boolean>>({});
+  const [camposVendaConfig, setCamposVendaConfig] = useState<Record<string, boolean>>({});
+  const [showCamposClienteConfig, setShowCamposClienteConfig] = useState(false);
+  const [showCamposVendaConfig, setShowCamposVendaConfig] = useState(false);
+  const CAMPOS_CLIENTE_INFO: Record<string, string> = { telefone: 'Telefone' };
+  const CAMPOS_VENDA_INFO: Record<string, string> = { cotas: 'Cotas', carrinhos_comprados: 'Carrinhos/Itens', comprovante_pagamento: 'Comprovante de Pagamento', data_pagamento: 'Data do Pagamento', observacoes: 'Observações' };
+  const fieldVisible = (config: Record<string, boolean>, field: string) => config[field] !== false;
   const [selectedAdminForPerms, setSelectedAdminForPerms] = useState<any>(null);
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [lotesArquivados, setLotesArquivados] = useState<any[]>([]);
@@ -85,6 +92,10 @@ export const AdminDashboard = () => {
     loadAdminsPendentes();
     empresaService.obterStatusLote().then(r => {
       if (r.data?.opcoes?.length > 0) setStatusLoteOpcoes(r.data.opcoes);
+    }).catch(() => {});
+    empresaService.obterCampos().then(r => {
+      if (r.data?.campos_cliente) setCamposClienteConfig(r.data.campos_cliente);
+      if (r.data?.campos_venda) setCamposVendaConfig(r.data.campos_venda);
     }).catch(() => {});
     const interval = setInterval(loadClientes, 30000);
     return () => clearInterval(interval);
@@ -884,6 +895,11 @@ export const AdminDashboard = () => {
                       </div>
                     )}
                   </div>
+                  <button onClick={() => setShowCamposClienteConfig(!showCamposClienteConfig)}
+                    title="Configurar campos visíveis"
+                    className={`p-2 rounded transition border ${showCamposClienteConfig ? 'bg-itgeek-teal/20 border-itgeek-teal text-itgeek-teal' : 'border-stone-600 text-gray-400 hover:text-white hover:border-stone-400'}`}>
+                    <Settings size={16} />
+                  </button>
                   <button
                     onClick={loadClientes}
                     disabled={loading}
@@ -907,6 +923,27 @@ export const AdminDashboard = () => {
                   </button>
                 </div>
               </div>
+
+              {showCamposClienteConfig && (
+                <div className="bg-stone-800 border border-stone-600 rounded-xl p-4 mb-6">
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Settings size={14} className="text-itgeek-teal" /> Campos Visíveis — Clientes</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {Object.entries(CAMPOS_CLIENTE_INFO).map(([campo, label]) => {
+                      const visivel = fieldVisible(camposClienteConfig, campo);
+                      return (
+                        <label key={campo} className="flex items-center gap-2 cursor-pointer select-none">
+                          <div onClick={() => { const novo = { ...camposClienteConfig, [campo]: !visivel }; setCamposClienteConfig(novo); empresaService.atualizarCamposCliente(novo).catch(() => {}); }}
+                            className={`w-10 h-5 rounded-full transition-colors relative ${visivel ? 'bg-itgeek-teal' : 'bg-stone-600'}`}>
+                            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${visivel ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          </div>
+                          <span className="text-sm text-gray-200">{label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="text-gray-500 text-xs mt-2">Campos desativados são ocultados na interface. Dados existentes são preservados.</p>
+                </div>
+              )}
 
               {showForm && (
                 <form onSubmit={handleCreateCliente} className="bg-stone-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-stone-700">
@@ -935,13 +972,15 @@ export const AdminDashboard = () => {
                       className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none"
                       required
                     />
-                    <input
-                      type="tel"
-                      placeholder="Telefone"
-                      value={formData.telefone}
-                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                      className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none"
-                    />
+                    {fieldVisible(camposClienteConfig, 'telefone') && (
+                      <input
+                        type="tel"
+                        placeholder="Telefone"
+                        value={formData.telefone}
+                        onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                        className="bg-stone-700 border border-stone-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none"
+                      />
+                    )}
                   </div>
                   <button
                     type="submit"
@@ -970,7 +1009,7 @@ export const AdminDashboard = () => {
                       <tr>
                         <th className="px-3 md:px-6 py-3 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Nome</th>
                         <th className="px-3 md:px-6 py-3 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Email</th>
-                        <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden sm:table-cell">Telefone</th>
+                        {fieldVisible(camposClienteConfig, 'telefone') && <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden sm:table-cell">Telefone</th>}
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden md:table-cell">Role</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider hidden md:table-cell">Data Cadastro</th>
                         <th className="px-3 md:px-6 py-3 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Ações</th>
@@ -994,7 +1033,7 @@ export const AdminDashboard = () => {
                             </div>
                           </td>
                           <td className="px-3 md:px-6 py-3 text-gray-300 text-sm">{cliente.email}</td>
-                          <td className="px-3 md:px-6 py-3 text-gray-300 hidden sm:table-cell">{cliente.telefone || '-'}</td>
+                          {fieldVisible(camposClienteConfig, 'telefone') && <td className="px-3 md:px-6 py-3 text-gray-300 hidden sm:table-cell">{cliente.telefone || '-'}</td>}
                           <td className="px-3 md:px-6 py-3 text-gray-400 text-sm hidden md:table-cell">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded ${
                               cliente.role === 'admin_master' 
@@ -1643,7 +1682,33 @@ export const AdminDashboard = () => {
 
                   {showVendaForm && (
                     <form onSubmit={handleCreateVenda} className="bg-stone-900/50 p-4 rounded-lg mb-4 border border-stone-600">
-                      <h4 className="font-semibold mb-3 text-white">Nova Venda</h4>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-white">Nova Venda</h4>
+                        <button type="button" onClick={() => setShowCamposVendaConfig(!showCamposVendaConfig)}
+                          title="Configurar campos visíveis"
+                          className={`p-1.5 rounded transition border ${showCamposVendaConfig ? 'bg-itgeek-teal/20 border-itgeek-teal text-itgeek-teal' : 'border-stone-600 text-gray-500 hover:text-white hover:border-stone-400'}`}>
+                          <Settings size={13} />
+                        </button>
+                      </div>
+                      {showCamposVendaConfig && (
+                        <div className="bg-stone-800 border border-stone-700 rounded-lg p-3 mb-4">
+                          <p className="text-xs font-bold text-white mb-2 flex items-center gap-1"><Settings size={11} className="text-itgeek-teal" /> Campos Visíveis — Vendas</p>
+                          <div className="flex flex-wrap gap-3">
+                            {Object.entries(CAMPOS_VENDA_INFO).map(([campo, label]) => {
+                              const visivel = fieldVisible(camposVendaConfig, campo);
+                              return (
+                                <label key={campo} className="flex items-center gap-2 cursor-pointer select-none">
+                                  <div onClick={() => { const novo = { ...camposVendaConfig, [campo]: !visivel }; setCamposVendaConfig(novo); empresaService.atualizarCamposVenda(novo).catch(() => {}); }}
+                                    className={`w-9 h-5 rounded-full transition-colors relative flex-shrink-0 ${visivel ? 'bg-itgeek-teal' : 'bg-stone-600'}`}>
+                                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${visivel ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                                  </div>
+                                  <span className="text-xs text-gray-300">{label}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm text-gray-400 mb-1">Cliente</label>
@@ -1657,20 +1722,22 @@ export const AdminDashboard = () => {
                           </select>
                         </div>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div>
+                        <div className="flex flex-wrap gap-4 items-end">
+                          <div className="flex-1 min-w-[120px]">
                             <label className="block text-sm text-gray-400 mb-1">Preço (R$)</label>
                             <input type="number" step="0.01" placeholder="0.00" value={vendaFormData.preco}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, preco: e.target.value })}
                               className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" required />
                           </div>
-                          <div>
-                            <label className="block text-sm text-gray-400 mb-1">Cotas (padrão: 1)</label>
-                            <input type="number" step="0.1" min="0.1" placeholder="1" value={vendaFormData.cotas}
-                              onChange={(e) => setVendaFormData({ ...vendaFormData, cotas: e.target.value })}
-                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
-                          </div>
-                          <div className="flex items-center gap-2 mt-6">
+                          {fieldVisible(camposVendaConfig, 'cotas') && (
+                            <div className="flex-1 min-w-[100px]">
+                              <label className="block text-sm text-gray-400 mb-1">Cotas (padrão: 1)</label>
+                              <input type="number" step="0.1" min="0.1" placeholder="1" value={vendaFormData.cotas}
+                                onChange={(e) => setVendaFormData({ ...vendaFormData, cotas: e.target.value })}
+                                className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 pb-2">
                             <input type="checkbox" id="pago" checked={vendaFormData.pago}
                               onChange={(e) => setVendaFormData({ ...vendaFormData, pago: e.target.checked })}
                               className="w-4 h-4 accent-[#19A6A6]" />
@@ -1678,32 +1745,43 @@ export const AdminDashboard = () => {
                           </div>
                         </div>
                         
-                        <div>
-                          <label className="block text-sm text-gray-400 mb-1">Carrinhos comprados</label>
-                          <textarea placeholder="Ex: Hot Wheels Camaro, Matchbox Fusca" value={vendaFormData.carrinhos_comprados}
-                            onChange={(e) => setVendaFormData({ ...vendaFormData, carrinhos_comprados: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={2} required />
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {fieldVisible(camposVendaConfig, 'carrinhos_comprados') && (
                           <div>
-                            <label className="block text-sm text-gray-400 mb-1">Data do Pagamento</label>
-                            <input type="datetime-local" value={vendaFormData.data_pagamento}
-                              onChange={(e) => setVendaFormData({ ...vendaFormData, data_pagamento: e.target.value })}
-                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
+                            <label className="block text-sm text-gray-400 mb-1">Carrinhos comprados</label>
+                            <textarea placeholder="Ex: Hot Wheels Camaro, Matchbox Fusca" value={vendaFormData.carrinhos_comprados}
+                              onChange={(e) => setVendaFormData({ ...vendaFormData, carrinhos_comprados: e.target.value })}
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={2}
+                              required={fieldVisible(camposVendaConfig, 'carrinhos_comprados')} />
                           </div>
-                          <div>
-                            <label className="block text-sm text-gray-400 mb-1">Comprovante de Pagamento</label>
-                            <input type="file" accept="image/*" onChange={handleComprovante} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-itgeek-teal file:text-white hover:file:bg-itgeek-teal-dark" />
-                          </div>
-                        </div>
+                        )}
                         
-                        <div>
-                          <label className="block text-sm text-gray-400 mb-1">Observações</label>
-                          <textarea placeholder="Informações adicionais (opcional)" value={vendaFormData.observacoes}
-                            onChange={(e) => setVendaFormData({ ...vendaFormData, observacoes: e.target.value })}
-                            className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={2} />
-                        </div>
+                        {(fieldVisible(camposVendaConfig, 'data_pagamento') || fieldVisible(camposVendaConfig, 'comprovante_pagamento')) && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {fieldVisible(camposVendaConfig, 'data_pagamento') && (
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">Data do Pagamento</label>
+                                <input type="datetime-local" value={vendaFormData.data_pagamento}
+                                  onChange={(e) => setVendaFormData({ ...vendaFormData, data_pagamento: e.target.value })}
+                                  className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none" />
+                              </div>
+                            )}
+                            {fieldVisible(camposVendaConfig, 'comprovante_pagamento') && (
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">Comprovante de Pagamento</label>
+                                <input type="file" accept="image/*" onChange={handleComprovante} className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-itgeek-teal file:text-white hover:file:bg-itgeek-teal-dark" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {fieldVisible(camposVendaConfig, 'observacoes') && (
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-1">Observações</label>
+                            <textarea placeholder="Informações adicionais (opcional)" value={vendaFormData.observacoes}
+                              onChange={(e) => setVendaFormData({ ...vendaFormData, observacoes: e.target.value })}
+                              className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white placeholder-gray-400 focus:border-itgeek-teal focus:outline-none" rows={2} />
+                          </div>
+                        )}
                       </div>
                       <button type="submit" className="mt-4 bg-itgeek-teal text-white px-4 py-2 rounded hover:bg-itgeek-teal-dark font-semibold transition w-full sm:w-auto">
                         Salvar Venda
@@ -1722,9 +1800,9 @@ export const AdminDashboard = () => {
                       <thead className="bg-stone-900/50">
                         <tr>
                           <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Cliente</th>
-                          <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>
+                          {fieldVisible(camposVendaConfig, 'carrinhos_comprados') && <th className="px-3 py-2 text-left text-stone-400 uppercase text-xs font-bold tracking-wider">Carrinhos</th>}
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Preço</th>
-                          <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cotas</th>
+                          {fieldVisible(camposVendaConfig, 'cotas') && <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Cotas</th>}
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Pago</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Tributo</th>
                           <th className="px-3 py-2 text-left text-gray-400 uppercase text-xs font-bold tracking-wider">Data Pgto</th>
@@ -1760,7 +1838,7 @@ export const AdminDashboard = () => {
                                     </td>
                                     <td className="px-4 py-2 text-sm text-gray-400 italic">{vendas.length} itens</td>
                                     <td className="px-4 py-2 font-bold text-green-400">R$ {totalGrupo.toFixed(2)}</td>
-                                    <td className="px-4 py-2 text-sm font-semibold text-gray-300">{totalCotas}</td>
+                                    {fieldVisible(camposVendaConfig, 'cotas') && <td className="px-4 py-2 text-sm font-semibold text-gray-300">{totalCotas}</td>}
                                     <td className="px-4 py-2">
                                       <span className={`px-2 py-1 rounded text-xs font-semibold ${todosPagos ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                         {todosPagos ? 'Todos pagos' : `${vendas.filter(v => v.pago).length}/${vendas.length} pagos`}
@@ -1776,9 +1854,9 @@ export const AdminDashboard = () => {
                                       <td className={`px-4 py-2 font-medium text-white ${isGrupo ? 'pl-8 text-sm text-gray-300' : ''}`}>
                                         {isGrupo ? '↳' : venda.cliente_nome}
                                       </td>
-                                      <td className="px-4 py-2 text-sm max-w-xs truncate text-gray-300">{venda.carrinhos_comprados}</td>
+                                      {fieldVisible(camposVendaConfig, 'carrinhos_comprados') && <td className="px-4 py-2 text-sm max-w-xs truncate text-gray-300">{venda.carrinhos_comprados}</td>}
                                       <td className="px-4 py-2 font-semibold text-green-400">R$ {Number(venda.preco).toFixed(2)}</td>
-                                      <td className="px-4 py-2 text-sm text-gray-300">{venda.cotas || 1}</td>
+                                      {fieldVisible(camposVendaConfig, 'cotas') && <td className="px-4 py-2 text-sm text-gray-300">{venda.cotas || 1}</td>}
                                       <td className="px-4 py-2">
                                         <button onClick={() => handleTogglePago(venda)}
                                           className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
