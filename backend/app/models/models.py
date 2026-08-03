@@ -397,6 +397,7 @@ class EmpresaConfig(Base):
     # Campos customizáveis por empresa
     campos_custom_cliente = Column(JSON, default=list)
     campos_custom_venda = Column(JSON, default=list)
+    status_lote_opcoes = Column(JSON, default=lambda: ["Comprado/Aguardando", "Chegou EUA", "Em Trânsito", "Alfandega/Tributação", "Importado Brasil", "Centro Distribuição", "Entregue aos Clientes"])
 
     # Fluxos customizáveis
     fluxo_aprovacao = Column(JSON, default=dict)

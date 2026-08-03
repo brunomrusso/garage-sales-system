@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
-import { clienteService, loteService, garagemService, enderecoService } from '../services/api';
+import { clienteService, loteService, garagemService, enderecoService, empresaService } from '../services/api';
 import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare, DollarSign, TrendingUp, TrendingDown, MapPin, Star, Edit, LayoutGrid, List, Columns } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -27,6 +27,10 @@ export const AdminDashboard = () => {
 
   const [lotes, setLotes] = useState<any[]>([]);
   const [loteViewMode, setLoteViewMode] = useState<'cards' | 'list' | 'detail'>(() => (localStorage.getItem('loteViewMode') as 'cards' | 'list' | 'detail') || 'cards');
+  const DEFAULT_STATUS_LOTE = ['Comprado/Aguardando', 'Chegou EUA', 'Em Trânsito', 'Alfandega/Tributação', 'Importado Brasil', 'Centro Distribuição', 'Entregue aos Clientes'];
+  const [statusLoteOpcoes, setStatusLoteOpcoes] = useState<string[]>(DEFAULT_STATUS_LOTE);
+  const [showStatusConfig, setShowStatusConfig] = useState(false);
+  const [newStatusInput, setNewStatusInput] = useState('');
   const [selectedAdminForPerms, setSelectedAdminForPerms] = useState<any>(null);
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [lotesArquivados, setLotesArquivados] = useState<any[]>([]);
@@ -79,6 +83,9 @@ export const AdminDashboard = () => {
     loadClientes();
     loadLotes();
     loadAdminsPendentes();
+    empresaService.obterStatusLote().then(r => {
+      if (r.data?.opcoes?.length > 0) setStatusLoteOpcoes(r.data.opcoes);
+    }).catch(() => {});
     const interval = setInterval(loadClientes, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -1057,6 +1064,11 @@ export const AdminDashboard = () => {
                       </button>
                     ))}
                   </div>
+                  <button onClick={() => setShowStatusConfig(!showStatusConfig)}
+                    title="Gerenciar status de lote"
+                    className={`p-1.5 rounded transition border ${showStatusConfig ? 'bg-itgeek-teal/20 border-itgeek-teal text-itgeek-teal' : 'border-stone-600 text-gray-400 hover:text-white hover:border-stone-400'}`}>
+                    <Settings size={15} />
+                  </button>
                   <button onClick={loadLotes} className="flex items-center gap-1.5 bg-green-600 text-white px-2.5 md:px-4 py-2 rounded hover:bg-green-700 transition text-xs md:text-sm">
                     <RefreshCw size={16} />
                     <span className="hidden sm:inline">Atualizar</span>
@@ -1082,6 +1094,44 @@ export const AdminDashboard = () => {
                 </div>
               </div>
 
+              {showStatusConfig && (
+                <div className="bg-stone-800 border border-stone-600 rounded-xl p-4 mb-6">
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Settings size={14} className="text-itgeek-teal" /> Gerenciar Status de Lote</h3>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {statusLoteOpcoes.map((s, i) => (
+                      <span key={i} className="flex items-center gap-1.5 bg-stone-700 border border-stone-600 rounded-full px-3 py-1 text-xs text-gray-200">
+                        {s}
+                        <button type="button" onClick={() => {
+                          const novas = statusLoteOpcoes.filter((_, idx) => idx !== i);
+                          setStatusLoteOpcoes(novas);
+                          empresaService.atualizarStatusLote(novas).catch(() => {});
+                        }} className="text-red-400 hover:text-red-300 ml-0.5"><X size={11} /></button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="text" value={newStatusInput} onChange={(e) => setNewStatusInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') { e.preventDefault(); const v = newStatusInput.trim(); if (v && !statusLoteOpcoes.includes(v)) { const novas = [...statusLoteOpcoes, v]; setStatusLoteOpcoes(novas); empresaService.atualizarStatusLote(novas).catch(() => {}); setNewStatusInput(''); } }
+                      }}
+                      placeholder="Novo status... (Enter para adicionar)"
+                      className="flex-1 bg-stone-700 border border-stone-600 rounded px-3 py-1.5 text-white text-sm placeholder-gray-500 focus:border-itgeek-teal focus:outline-none" />
+                    <button type="button" onClick={() => {
+                      const v = newStatusInput.trim();
+                      if (v && !statusLoteOpcoes.includes(v)) {
+                        const novas = [...statusLoteOpcoes, v];
+                        setStatusLoteOpcoes(novas);
+                        empresaService.atualizarStatusLote(novas).catch(() => {});
+                        setNewStatusInput('');
+                      }
+                    }} className="flex items-center gap-1 bg-itgeek-teal text-white px-3 py-1.5 rounded text-sm hover:bg-itgeek-teal-dark transition">
+                      <Plus size={13} /> Adicionar
+                    </button>
+                  </div>
+                  <p className="text-gray-500 text-xs mt-2">As alterações são salvas automaticamente para este tenant.</p>
+                </div>
+              )}
+
               {showLoteForm && (
                 <form onSubmit={handleCreateLote} className="bg-stone-800 p-4 md:p-6 rounded-lg shadow-lg mb-6 border border-stone-700">
                   <h3 className="text-lg font-bold mb-4 text-white">Cadastrar Novo Lote</h3>
@@ -1104,10 +1154,7 @@ export const AdminDashboard = () => {
                         onChange={(e) => setLoteFormData({ ...loteFormData, status_lote: e.target.value })}
                         className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none">
                         <option value="">Selecione um status</option>
-                        <option value="Chegou EUA">Chegou EUA</option>
-                        <option value="Importado Brasil">Importado Brasil</option>
-                        <option value="Alfandega/Tributação">Alfandega/Tributação</option>
-                        <option value="Centro Distribuição">Centro Distribuição</option>
+                        {statusLoteOpcoes.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
                     <div>
@@ -1538,10 +1585,7 @@ export const AdminDashboard = () => {
                             onChange={(e) => setEditLoteData({ ...editLoteData, status_lote: e.target.value })}
                             className="bg-stone-700 border border-stone-600 rounded px-3 py-2 w-full text-white focus:border-itgeek-teal focus:outline-none">
                             <option value="">Selecione um status</option>
-                            <option value="Chegou EUA">Chegou EUA</option>
-                            <option value="Importado Brasil">Importado Brasil</option>
-                            <option value="Alfandega/Tributação">Alfandega/Tributação</option>
-                            <option value="Centro Distribuição">Centro Distribuição</option>
+                            {statusLoteOpcoes.map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </div>
                         <div>

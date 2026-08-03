@@ -36,8 +36,6 @@ export const authService = {
 
 export const clienteService = {
   criar: (data: any, empresaSlug?: string) => {
-    console.log('[CLIENTE-SERVICE] empresaSlug:', empresaSlug);
-    console.log('[CLIENTE-SERVICE] headers:', empresaSlug ? { 'X-Empresa-Slug': empresaSlug } : {});
     return api.post('/clientes/', data, {
       headers: empresaSlug ? { 'X-Empresa-Slug': empresaSlug } : {}
     });
@@ -129,6 +127,8 @@ export const empresaService = {
   listarPublicas: () => api.get('/empresas/publicas/listar'),
   buscarEmpresasUsuario: (email: string) => api.get(`/empresas/usuario/buscar-por-email?email=${email}`),
   obterPorId: (id: number) => api.get(`/empresas/${id}`),
+  obterStatusLote: () => api.get('/empresas/config/status-lote'),
+  atualizarStatusLote: (opcoes: string[]) => api.put('/empresas/config/status-lote', { opcoes }),
 };
 
 export const enderecoService = {

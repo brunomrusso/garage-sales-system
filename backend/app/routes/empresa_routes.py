@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from typing import List
 from app.db.database import get_db
-from app.models.models import Empresa, Cliente
-from app.core.security import verify_token
+from app.models.models import Empresa, Cliente, EmpresaConfig
+from app.core.security import verify_token, verify_admin_token
+from app.core.tenant import TenantContext
 
 router = APIRouter(prefix="/api/empresas", tags=["empresas"])
 
@@ -88,3 +90,62 @@ def obter_empresa(
         "ativa": empresa.ativa,
         "cor_primaria": empresa.cor_primaria
     }
+
+
+DEFAULT_STATUS_LOTE = [
+    "Comprado/Aguardando",
+    "Chegou EUA",
+    "Em Trânsito",
+    "Alfandega/Tributação",
+    "Importado Brasil",
+    "Centro Distribuição",
+    "Entregue aos Clientes",
+]
+
+
+@router.get("/config/status-lote")
+def obter_status_lote(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_admin_token)
+):
+    """Retorna as opções de status de lote para o tenant atual"""
+    empresa_id = TenantContext.get_tenant_id()
+    if not empresa_id:
+        raise HTTPException(status_code=400, detail="Empresa não identificada")
+
+    config = db.query(EmpresaConfig).filter(EmpresaConfig.empresa_id == empresa_id).first()
+    if not config:
+        return {"opcoes": DEFAULT_STATUS_LOTE}
+
+    opcoes = config.status_lote_opcoes
+    if not opcoes:
+        return {"opcoes": DEFAULT_STATUS_LOTE}
+
+    return {"opcoes": opcoes}
+
+
+@router.put("/config/status-lote")
+def atualizar_status_lote(
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(verify_admin_token)
+):
+    """Atualiza as opções de status de lote para o tenant atual"""
+    empresa_id = TenantContext.get_tenant_id()
+    if not empresa_id:
+        raise HTTPException(status_code=400, detail="Empresa não identificada")
+
+    opcoes: List[str] = payload.get("opcoes", [])
+    if not isinstance(opcoes, list):
+        raise HTTPException(status_code=422, detail="opcoes deve ser uma lista de strings")
+    opcoes = [str(o).strip() for o in opcoes if str(o).strip()]
+
+    config = db.query(EmpresaConfig).filter(EmpresaConfig.empresa_id == empresa_id).first()
+    if not config:
+        config = EmpresaConfig(empresa_id=empresa_id, status_lote_opcoes=opcoes)
+        db.add(config)
+    else:
+        config.status_lote_opcoes = opcoes
+
+    db.commit()
+    return {"opcoes": opcoes}
