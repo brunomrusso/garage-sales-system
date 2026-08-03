@@ -37,13 +37,6 @@ def login_admin(db: Session, request: LoginRequest, empresa_slug: str = None) ->
             expires_delta=access_token_expires
         )
         
-        # Garantir que permissoes existem
-        from app.models.models import AdminPermission
-        from app.core.permissions import initialize_admin_permissions
-        existing = db.query(AdminPermission).filter(AdminPermission.admin_id == admin.id).first()
-        if not existing:
-            initialize_admin_permissions(db, admin.id, is_master=True)
-        
         return TokenResponse(
             token=access_token,
             user={"id": admin.id, "email": admin.email, "role": "admin_master", "empresa_id": empresa_id}
