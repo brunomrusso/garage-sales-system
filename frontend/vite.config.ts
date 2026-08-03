@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo-itgeek-icon.png', 'logo-itgeek-vertical.png'],
+      includeAssets: ['logo_colorido.png', 'logo-itgeek-icon.png'],
       manifest: {
         name: 'ItGeek Store - Sistema de Gestão',
         short_name: 'ItGeek',
@@ -20,20 +20,14 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/logo-itgeek-icon.png',
+            src: '/logo_colorido.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'maskable',
+            purpose: 'any',
           },
           {
-            src: '/logo-itgeek-icon.png',
+            src: '/logo_colorido.png',
             sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-          {
-            src: '/logo-itgeek-icon.png',
-            sizes: '192x192',
             type: 'image/png',
             purpose: 'any',
           },
