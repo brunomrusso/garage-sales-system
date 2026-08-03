@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useTenant } from '../contexts/TenantContext';
 import { clienteService, loteService, garagemService, enderecoService } from '../services/api';
-import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare, DollarSign, TrendingUp, TrendingDown, MapPin, Star, Edit } from 'lucide-react';
+import { LogOut, Users, ShoppingBag, RefreshCw, Plus, Trash2, Eye, Check, X, Image, Warehouse, Send, Archive, Search, Shield, Settings, Receipt, Pencil, Save, MessageSquare, DollarSign, TrendingUp, TrendingDown, MapPin, Star, Edit, LayoutGrid, List, Columns } from 'lucide-react';
 import { PermissionsModal } from '../components/PermissionsModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
@@ -26,6 +26,7 @@ export const AdminDashboard = () => {
   const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '' });
 
   const [lotes, setLotes] = useState<any[]>([]);
+  const [loteViewMode, setLoteViewMode] = useState<'cards' | 'list' | 'detail'>(() => (localStorage.getItem('loteViewMode') as 'cards' | 'list' | 'detail') || 'cards');
   const [selectedAdminForPerms, setSelectedAdminForPerms] = useState<any>(null);
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [lotesArquivados, setLotesArquivados] = useState<any[]>([]);
@@ -1045,7 +1046,17 @@ export const AdminDashboard = () => {
                     {lotes.length} lote{lotes.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
+                  {/* View mode toggle */}
+                  <div className="flex bg-stone-700 rounded-lg p-1 gap-0.5">
+                    {([['cards', LayoutGrid], ['list', List], ['detail', Columns]] as const).map(([mode, Icon]) => (
+                      <button key={mode} onClick={() => { setLoteViewMode(mode); localStorage.setItem('loteViewMode', mode); }}
+                        title={mode === 'cards' ? 'Visualização em Cards' : mode === 'list' ? 'Visualização em Lista' : 'Visualização Mestre/Detalhe'}
+                        className={`p-1.5 rounded transition ${loteViewMode === mode ? 'bg-itgeek-teal text-white' : 'text-gray-400 hover:text-white'}`}>
+                        <Icon size={15} />
+                      </button>
+                    ))}
+                  </div>
                   <button onClick={loadLotes} className="flex items-center gap-1.5 bg-green-600 text-white px-2.5 md:px-4 py-2 rounded hover:bg-green-700 transition text-xs md:text-sm">
                     <RefreshCw size={16} />
                     <span className="hidden sm:inline">Atualizar</span>
@@ -1128,117 +1139,260 @@ export const AdminDashboard = () => {
                 </form>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {lotes.map((lote) => (
-                  <div key={lote.id}
-                    onClick={() => handleSelectLote(lote)}
-                    className={`bg-stone-800 rounded-lg p-3 cursor-pointer transition hover:shadow-xl border-2 ${
-                      selectedLote?.id === lote.id ? 'border-itgeek-teal shadow-itgeek-teal/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'
-                    }`}>
-                    {lote.foto ? (
-                      <div className="relative w-full h-32 mb-2 rounded overflow-hidden bg-stone-900/30 flex items-center justify-center">
-                        <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome}
-                          className="max-w-full max-h-full object-contain" />
-                      </div>
-                    ) : (
-                      <div className="w-full h-24 bg-stone-700/50 rounded mb-2 flex items-center justify-center">
-                        <Image size={28} className="text-stone-500" />
-                      </div>
-                    )}
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                          <h3 className="font-bold text-base text-white">{lote.numero_lote || lote.nome}</h3>
-                          {lote.status_lote && (
-                            <span className="text-xs bg-orange-600/20 text-orange-400 px-1.5 py-0.5 rounded border border-orange-600/30">
-                              {lote.status_lote}
-                            </span>
-                          )}
-                          {lote.rastreio_importacao && (
-                            <span className="text-xs bg-orange-600/20 text-orange-400 px-1.5 py-0.5 rounded border border-orange-600/30">
-                              📦 {lote.rastreio_importacao}
-                            </span>
-                          )}
-                        </div>
-                        {lote.descricao && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{lote.descricao}</p>}
-                        <p className="text-xs text-gray-500 mt-0.5">{new Date(lote.data_criacao).toLocaleDateString('pt-BR')}</p>
-                        <div className="flex gap-3 mt-1">
-                          {lote.custo > 0 && <span className="text-xs font-semibold text-orange-400">Custo: R$ {Number(lote.custo).toFixed(2)}</span>}
-                          {lote.valor_total > 0 && <span className="text-xs font-semibold text-itgeek-teal">Receita: R$ {Number(lote.valor_total).toFixed(2)}</span>}
-                          {lote.custo > 0 && lote.valor_total > 0 && (
-                            <span className={`text-xs font-semibold ${lote.lucro >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              Lucro: R$ {Number(lote.lucro).toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-                        
-                        {/* Indicadores do lote */}
-                        <div className="mt-2 space-y-1">
-                          {/* Pagamentos das vendas */}
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-400">Pagamentos:</span>
-                            <div className="flex items-center gap-1.5">
-                              {lote.percentual_pago === 100
-                                ? <span className="text-xs bg-green-600/20 text-green-400 px-1.5 py-0.5 rounded border border-green-600/30">100% PAGO</span>
-                                : <>
-                                    <span className="text-xs text-green-400">{lote.vendas_pagas || 0} pago</span>
-                                    <span className="text-xs text-stone-600">·</span>
-                                    <span className="text-xs text-red-400">{lote.vendas_nao_pagas || 0} pendente</span>
-                                  </>
-                              }
-                            </div>
-                          </div>
+              {/* ── Main lote layout wrapper (flex in detail/master-detail mode) ── */}
+              <div className={loteViewMode === 'detail' ? 'flex gap-4 items-start' : 'block'}>
 
-                          {/* Tributos de importação */}
-                          {lote.total_vendas > 0 && (
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-400 flex items-center gap-1"><Receipt size={11} /> Tributos:</span>
-                              <div className="flex items-center gap-1.5">
-                                {lote.percentual_tributo_pago === 100
-                                  ? <span className="text-xs bg-green-600/20 text-green-400 px-1.5 py-0.5 rounded border border-green-600/30">100% PAGO</span>
-                                  : <>
-                                      <span className="text-xs text-green-400">{lote.tributos_pagos || 0} pago</span>
-                                      <span className="text-xs text-stone-600">·</span>
-                                      <span className="text-xs text-red-400">{lote.tributos_pendentes || 0} pendente</span>
-                                    </>
-                                }
+                {/* Left column: lote list */}
+                <div className={loteViewMode === 'detail' ? 'w-80 flex-shrink-0 space-y-2' : 'w-full'}>
+
+                  {/* CARDS VIEW */}
+                  {loteViewMode === 'cards' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                      {lotes.map((lote) => (
+                        <div key={lote.id} onClick={() => handleSelectLote(lote)}
+                          className={`bg-stone-800 rounded-xl border-2 cursor-pointer transition hover:shadow-xl ${selectedLote?.id === lote.id ? 'border-itgeek-teal shadow-itgeek-teal/20 shadow-lg' : 'border-stone-700 hover:border-stone-500'}`}>
+                          {lote.foto ? (
+                            <div className="w-full h-32 rounded-t-xl overflow-hidden bg-stone-900/30 flex items-center justify-center">
+                              <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome} className="max-w-full max-h-full object-contain" />
+                            </div>
+                          ) : (
+                            <div className="w-full h-24 bg-stone-700/50 rounded-t-xl flex items-center justify-center">
+                              <Image size={28} className="text-stone-500" />
+                            </div>
+                          )}
+                          <div className="p-3">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                                  <h3 className="font-extrabold text-base text-white">{lote.numero_lote || lote.nome}</h3>
+                                  {lote.status_lote && (
+                                    <span className={`text-xs px-1.5 py-0.5 rounded-full border font-semibold ${lote.status_lote === 'Chegou EUA' ? 'bg-blue-600/20 text-blue-400 border-blue-600/30' : lote.status_lote === 'Importado Brasil' ? 'bg-purple-600/20 text-purple-400 border-purple-600/30' : lote.status_lote === 'Alfandega/Tributação' ? 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30' : lote.status_lote === 'Centro Distribuição' ? 'bg-green-600/20 text-green-400 border-green-600/30' : 'bg-orange-600/20 text-orange-400 border-orange-600/30'}`}>
+                                      {lote.status_lote}
+                                    </span>
+                                  )}
+                                </div>
+                                {lote.descricao && <p className="text-xs text-gray-400 line-clamp-1">{lote.descricao}</p>}
+                              </div>
+                              <button onClick={(e) => { e.stopPropagation(); canDeleteLote() && handleDeleteLote(lote.id); }} disabled={!canDeleteLote()}
+                                title={!canDeleteLote() ? 'Sem permissão para deletar' : ''}
+                                className={`p-1 ml-1 flex-shrink-0 transition ${canDeleteLote() ? 'text-red-500 hover:text-red-400 cursor-pointer' : 'text-gray-600 cursor-not-allowed opacity-50'}`}>
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-3 gap-1 mb-2.5">
+                              <div className="bg-stone-900/60 rounded-lg p-1.5 text-center">
+                                <p className="text-gray-500 text-[9px] uppercase">Custo</p>
+                                <p className="text-orange-400 font-bold text-xs">{lote.custo > 0 ? `R$${Number(lote.custo).toFixed(0)}` : '—'}</p>
+                              </div>
+                              <div className="bg-stone-900/60 rounded-lg p-1.5 text-center">
+                                <p className="text-gray-500 text-[9px] uppercase">Receita</p>
+                                <p className="text-itgeek-teal font-bold text-xs">{lote.valor_total > 0 ? `R$${Number(lote.valor_total).toFixed(0)}` : '—'}</p>
+                              </div>
+                              <div className="bg-stone-900/60 rounded-lg p-1.5 text-center">
+                                <p className="text-gray-500 text-[9px] uppercase">Lucro</p>
+                                <p className={`font-bold text-xs ${lote.lucro > 0 ? 'text-green-400' : lote.lucro < 0 ? 'text-red-400' : 'text-gray-400'}`}>{lote.custo > 0 && lote.valor_total > 0 ? `R$${Number(lote.lucro).toFixed(0)}` : '—'}</p>
                               </div>
                             </div>
-                          )}
+                            <div className="space-y-1.5">
+                              <div>
+                                <div className="flex justify-between text-[10px] mb-0.5">
+                                  <span className="text-gray-400">Pagamentos</span>
+                                  <span className={lote.percentual_pago === 100 ? 'text-green-400 font-semibold' : 'text-gray-300'}>{lote.percentual_pago === 100 ? '✓ 100%' : `${lote.vendas_pagas || 0}/${lote.total_vendas || 0}`}</span>
+                                </div>
+                                <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
+                                  <div className={`h-full rounded-full transition-all ${lote.percentual_pago === 100 ? 'bg-green-500' : lote.percentual_pago > 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${lote.percentual_pago || 0}%` }} />
+                                </div>
+                              </div>
+                              {lote.total_vendas > 0 && (
+                                <div>
+                                  <div className="flex justify-between text-[10px] mb-0.5">
+                                    <span className="text-gray-400">Tributos</span>
+                                    <span className={lote.percentual_tributo_pago === 100 ? 'text-green-400 font-semibold' : 'text-gray-300'}>{lote.percentual_tributo_pago === 100 ? '✓ 100%' : `${lote.tributos_pagos || 0}/${lote.total_vendas || 0}`}</span>
+                                  </div>
+                                  <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
+                                    <div className={`h-full rounded-full transition-all ${lote.percentual_tributo_pago === 100 ? 'bg-green-500' : 'bg-yellow-500'}`} style={{ width: `${lote.percentual_tributo_pago || 0}%` }} />
+                                  </div>
+                                </div>
+                              )}
+                              <div>
+                                <div className="flex justify-between text-[10px] mb-0.5">
+                                  <span className="text-gray-400">Entregas</span>
+                                  <span className={lote.percentual_entregue === 100 ? 'text-teal-400 font-semibold' : 'text-gray-300'}>{lote.percentual_entregue === 100 ? '✓ 100%' : `${lote.vendas_entregues || 0}/${lote.total_vendas || 0}`}</span>
+                                </div>
+                                <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
+                                  <div className="h-full bg-teal-500 rounded-full transition-all" style={{ width: `${lote.percentual_entregue || 0}%` }} />
+                                </div>
+                              </div>
+                            </div>
+                            {lote.percentual_pago === 100 && lote.percentual_entregue === 100 && (
+                              <div className="mt-2 text-center bg-yellow-600/10 border border-yellow-600/30 rounded-lg py-1">
+                                <span className="text-yellow-400 text-[10px] font-bold">📁 PRONTO PARA ARQUIVAR</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-                          {/* Entregas */}
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-400">Entregas:</span>
-                            <div className="flex items-center gap-1.5">
-                              {lote.percentual_entregue === 100
-                                ? <span className="text-xs bg-teal-600/20 text-teal-400 px-1.5 py-0.5 rounded border border-teal-600/30">100% ENTREGUE</span>
-                                : <span className="text-xs text-gray-400">{lote.vendas_entregues || 0}/{lote.total_vendas || 0}</span>
-                              }
+                  {/* LIST VIEW */}
+                  {loteViewMode === 'list' && (
+                    <div className="space-y-3 mb-6">
+                      {lotes.map((lote) => (
+                        <div key={lote.id} onClick={() => handleSelectLote(lote)}
+                          className={`bg-stone-800 rounded-xl border-2 p-3 cursor-pointer transition ${selectedLote?.id === lote.id ? 'border-itgeek-teal shadow-lg shadow-itgeek-teal/10' : 'border-stone-700 hover:border-stone-500'}`}>
+                          <div className="flex items-center gap-3">
+                            {lote.foto ? (
+                              <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-stone-700/50 flex items-center justify-center">
+                                <img src={`data:image/jpeg;base64,${lote.foto}`} alt={lote.nome} className="max-w-full max-h-full object-contain" />
+                              </div>
+                            ) : (
+                              <div className="w-14 h-14 flex-shrink-0 bg-stone-700/50 rounded-lg flex items-center justify-center">
+                                <Image size={20} className="text-stone-500" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                                <span className="text-white font-extrabold">{lote.numero_lote || lote.nome}</span>
+                                {lote.status_lote && (
+                                  <span className={`text-xs px-1.5 py-0.5 rounded-full border font-semibold ${lote.status_lote === 'Chegou EUA' ? 'bg-blue-600/20 text-blue-400 border-blue-600/30' : lote.status_lote === 'Importado Brasil' ? 'bg-purple-600/20 text-purple-400 border-purple-600/30' : lote.status_lote === 'Alfandega/Tributação' ? 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30' : lote.status_lote === 'Centro Distribuição' ? 'bg-green-600/20 text-green-400 border-green-600/30' : 'bg-orange-600/20 text-orange-400 border-orange-600/30'}`}>
+                                    {lote.status_lote}
+                                  </span>
+                                )}
+                                {lote.percentual_pago === 100 && lote.percentual_entregue === 100 && (
+                                  <span className="text-xs bg-yellow-600/10 text-yellow-400 px-1.5 py-0.5 rounded-full border border-yellow-600/30">📁 Arquivar</span>
+                                )}
+                                {lote.descricao && <span className="text-xs text-gray-500 truncate hidden sm:inline">{lote.descricao}</span>}
+                              </div>
+                              <div className="grid grid-cols-3 gap-2">
+                                <div>
+                                  <div className="flex justify-between text-[10px] mb-0.5"><span className="text-gray-400">Pgto</span><span className={lote.percentual_pago === 100 ? 'text-green-400' : 'text-gray-300'}>{lote.percentual_pago || 0}%</span></div>
+                                  <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden"><div className={`h-full rounded-full ${lote.percentual_pago === 100 ? 'bg-green-500' : lote.percentual_pago > 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${lote.percentual_pago || 0}%` }} /></div>
+                                </div>
+                                <div>
+                                  <div className="flex justify-between text-[10px] mb-0.5"><span className="text-gray-400">Tributo</span><span className={lote.percentual_tributo_pago === 100 ? 'text-green-400' : 'text-gray-300'}>{lote.percentual_tributo_pago || 0}%</span></div>
+                                  <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden"><div className={`h-full rounded-full ${lote.percentual_tributo_pago === 100 ? 'bg-green-500' : 'bg-yellow-500'}`} style={{ width: `${lote.percentual_tributo_pago || 0}%` }} /></div>
+                                </div>
+                                <div>
+                                  <div className="flex justify-between text-[10px] mb-0.5"><span className="text-gray-400">Entrega</span><span className={lote.percentual_entregue === 100 ? 'text-teal-400' : 'text-gray-300'}>{lote.percentual_entregue || 0}%</span></div>
+                                  <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden"><div className="h-full bg-teal-500 rounded-full" style={{ width: `${lote.percentual_entregue || 0}%` }} /></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 text-right hidden md:block">
+                              <p className="text-itgeek-teal font-bold text-sm">{lote.valor_total > 0 ? `R$${Number(lote.valor_total).toFixed(0)}` : '—'}</p>
+                              {lote.custo > 0 && lote.valor_total > 0 && <p className={`text-xs ${lote.lucro >= 0 ? 'text-green-400' : 'text-red-400'}`}>{lote.lucro >= 0 ? '+' : ''}R${Number(lote.lucro).toFixed(0)} lucro</p>}
+                              <p className="text-gray-500 text-xs">{lote.total_vendas || 0} vendas</p>
+                            </div>
+                            <button onClick={(e) => { e.stopPropagation(); canDeleteLote() && handleDeleteLote(lote.id); }} disabled={!canDeleteLote()}
+                              className={`flex-shrink-0 p-1 transition ${canDeleteLote() ? 'text-red-500 hover:text-red-400 cursor-pointer' : 'text-gray-600 cursor-not-allowed opacity-50'}`}>
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* DETAIL SIDEBAR */}
+                  {loteViewMode === 'detail' && (
+                    <div className="space-y-2">
+                      {lotes.map((lote) => (
+                        <div key={lote.id} onClick={() => handleSelectLote(lote)}
+                          className={`bg-stone-800 rounded-xl border-2 p-3 cursor-pointer transition ${selectedLote?.id === lote.id ? 'border-itgeek-teal shadow-lg shadow-itgeek-teal/10' : 'border-stone-700 hover:border-stone-500'}`}>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-white font-extrabold text-sm truncate flex-1">{lote.numero_lote || lote.nome}</span>
+                            {lote.status_lote && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-semibold flex-shrink-0 ${lote.status_lote === 'Chegou EUA' ? 'bg-blue-600/20 text-blue-400 border-blue-600/30' : lote.status_lote === 'Importado Brasil' ? 'bg-purple-600/20 text-purple-400 border-purple-600/30' : lote.status_lote === 'Alfandega/Tributação' ? 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30' : 'bg-green-600/20 text-green-400 border-green-600/30'}`}>
+                                {lote.status_lote.split(' ')[0]}
+                              </span>
+                            )}
+                            {lote.valor_total > 0 && <span className="text-itgeek-teal text-xs font-bold flex-shrink-0">R${Number(lote.valor_total).toFixed(0)}</span>}
+                          </div>
+                          <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full transition-all ${lote.percentual_pago === 100 ? 'bg-green-500' : lote.percentual_pago > 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${lote.percentual_pago || 0}%` }} />
+                          </div>
+                          <p className="text-[10px] text-gray-500 mt-0.5">{lote.percentual_pago || 0}% pago · {lote.total_vendas || 0} vendas</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right panel: overview in master-detail mode */}
+                {loteViewMode === 'detail' && (
+                  <div className="flex-1 min-w-0">
+                    {selectedLote ? (
+                      <div className="bg-stone-800 rounded-xl border border-stone-700 p-5">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-white text-xl font-extrabold">{selectedLote.numero_lote || selectedLote.nome}</h3>
+                              {selectedLote.status_lote && (
+                                <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${selectedLote.status_lote === 'Chegou EUA' ? 'bg-blue-600/20 text-blue-400 border-blue-600/30' : selectedLote.status_lote === 'Importado Brasil' ? 'bg-purple-600/20 text-purple-400 border-purple-600/30' : selectedLote.status_lote === 'Alfandega/Tributação' ? 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30' : selectedLote.status_lote === 'Centro Distribuição' ? 'bg-green-600/20 text-green-400 border-green-600/30' : 'bg-orange-600/20 text-orange-400 border-orange-600/30'}`}>
+                                  {selectedLote.status_lote}
+                                </span>
+                              )}
+                            </div>
+                            {selectedLote.descricao && <p className="text-gray-400 text-sm mt-1">{selectedLote.descricao}</p>}
+                            <p className="text-gray-500 text-xs mt-0.5">{new Date(selectedLote.data_criacao).toLocaleDateString('pt-BR')}</p>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <button onClick={() => setEditingLote(!editingLote)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition ${editingLote ? 'bg-gray-600 text-gray-200' : 'bg-stone-700 text-gray-300 hover:bg-stone-600'}`}>
+                              <Pencil size={13} /> {editingLote ? 'Cancelar' : 'Editar'}
+                            </button>
+                            <button onClick={() => setShowVendaForm(!showVendaForm)} className="flex items-center gap-1.5 bg-itgeek-teal text-white px-3 py-1.5 rounded text-xs hover:bg-itgeek-teal-dark transition">
+                              <Plus size={13} /> {showVendaForm ? 'Cancelar' : 'Nova Venda'}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 mb-4">
+                          {([['Custo', selectedLote.custo > 0 ? `R$${Number(selectedLote.custo).toFixed(2)}` : '—', 'text-orange-400'], ['Receita', selectedLote.valor_total > 0 ? `R$${Number(selectedLote.valor_total).toFixed(2)}` : '—', 'text-itgeek-teal'], ['Lucro', selectedLote.custo > 0 && selectedLote.valor_total > 0 ? `R$${Number(selectedLote.lucro).toFixed(2)}` : '—', selectedLote.lucro >= 0 ? 'text-green-400' : 'text-red-400'], ['Vendas', selectedLote.total_vendas || 0, 'text-white']] as [string, string|number, string][]).map(([label, val, cls]) => (
+                            <div key={label} className="bg-stone-900/60 rounded-xl p-3 text-center">
+                              <p className="text-gray-500 text-[10px] uppercase tracking-wide mb-1">{label}</p>
+                              <p className={`font-extrabold text-sm ${cls}`}>{val}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="space-y-2.5 mb-4">
+                          {([['Pagamentos', selectedLote.percentual_pago, selectedLote.vendas_pagas, selectedLote.total_vendas, selectedLote.percentual_pago === 100 ? 'bg-green-500' : selectedLote.percentual_pago > 50 ? 'bg-yellow-500' : 'bg-red-500', selectedLote.percentual_pago === 100 ? 'text-green-400' : 'text-gray-300'], ['Tributos', selectedLote.percentual_tributo_pago, selectedLote.tributos_pagos, selectedLote.total_vendas, selectedLote.percentual_tributo_pago === 100 ? 'bg-green-500' : 'bg-yellow-500', selectedLote.percentual_tributo_pago === 100 ? 'text-green-400' : 'text-gray-300'], ['Entregas', selectedLote.percentual_entregue, selectedLote.vendas_entregues, selectedLote.total_vendas, 'bg-teal-500', selectedLote.percentual_entregue === 100 ? 'text-teal-400' : 'text-gray-300']] as [string, number, number, number, string, string][]).map(([label, pct, done, total, bar, txtCls]) => (
+                            <div key={label}>
+                              <div className="flex justify-between text-xs mb-1">
+                                <span className="text-gray-400 font-medium">{label}</span>
+                                <span className={txtCls}>{pct === 100 ? '✓ 100%' : `${done || 0}/${total || 0} (${pct || 0}%)`}</span>
+                              </div>
+                              <div className="h-2 bg-stone-700 rounded-full overflow-hidden"><div className={`h-full rounded-full transition-all ${bar}`} style={{ width: `${pct || 0}%` }} /></div>
+                            </div>
+                          ))}
+                        </div>
+                        {vendasLote.length > 0 ? (
+                          <div className="border border-stone-700 rounded-lg overflow-hidden">
+                            <div className="px-3 py-2 bg-stone-900/50 text-xs font-semibold text-gray-400 uppercase tracking-wide">Vendas do lote</div>
+                            <div className="max-h-64 overflow-y-auto">
+                              {vendasLote.map((venda) => (
+                                <div key={venda.id} className="flex items-center justify-between px-3 py-2 border-b border-stone-700/50 hover:bg-stone-700/20 text-sm">
+                                  <span className="text-white font-medium truncate flex-1">{venda.cliente_nome || venda.cliente?.nome}</span>
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <span className={`text-xs px-1.5 py-0.5 rounded-full border ${venda.pago ? 'bg-green-600/20 text-green-400 border-green-600/30' : 'bg-red-600/20 text-red-400 border-red-600/30'}`}>{venda.pago ? 'Pago' : 'Pendente'}</span>
+                                    <span className={`text-xs px-1.5 py-0.5 rounded-full border ${venda.status_entrega === 'entregue' ? 'bg-teal-600/20 text-teal-400 border-teal-600/30' : 'bg-stone-600/20 text-gray-400 border-stone-600/30'}`}>{venda.status_entrega || 'Aguardando'}</span>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
-
-                          {/* Pronto para arquivar */}
-                          {lote.percentual_pago === 100 && lote.percentual_entregue === 100 && (
-                            <span className="text-xs bg-yellow-600/20 text-yellow-400 px-2 py-1 rounded border border-yellow-600/30 inline-block mt-1">
-                              PRONTO PARA ARQUIVAR
-                            </span>
-                          )}
-                        </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-20 border border-stone-700 rounded-lg">
+                            <p className="text-gray-500 text-sm">Nenhuma venda neste lote</p>
+                          </div>
+                        )}
                       </div>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); canDeleteLote() && handleDeleteLote(lote.id); }}
-                        disabled={!canDeleteLote()}
-                        title={!canDeleteLote() ? 'Você não tem permissão para deletar lotes' : ''}
-                        className={`p-1 transition ${
-                          canDeleteLote() 
-                            ? 'text-red-500 hover:text-red-400 cursor-pointer' 
-                            : 'text-gray-600 cursor-not-allowed opacity-50'
-                        }`}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-64 bg-stone-800 rounded-xl border border-stone-700">
+                        <p className="text-gray-400 text-sm">← Selecione um lote para ver os detalhes</p>
+                      </div>
+                    )}
                   </div>
-                ))}
+                )}
               </div>
 
               {/* Seção de Lotes Arquivados */}
@@ -1329,7 +1483,7 @@ export const AdminDashboard = () => {
                 </div>
               )}
 
-              {selectedLote && (
+              {selectedLote && loteViewMode !== 'detail' && (
                 <div className="bg-stone-800 rounded-lg shadow-lg p-4 md:p-6 border border-stone-700 mt-8">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                     <div className="flex items-center gap-3 flex-wrap">
