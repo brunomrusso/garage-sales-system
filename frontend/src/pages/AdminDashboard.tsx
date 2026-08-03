@@ -1346,11 +1346,11 @@ export const AdminDashboard = () => {
                             </button>
                           </div>
                         </div>
-                        <div className="grid grid-cols-4 gap-2 mb-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
                           {([['Custo', selectedLote.custo > 0 ? `R$${Number(selectedLote.custo).toFixed(2)}` : '—', 'text-orange-400'], ['Receita', selectedLote.valor_total > 0 ? `R$${Number(selectedLote.valor_total).toFixed(2)}` : '—', 'text-itgeek-teal'], ['Lucro', selectedLote.custo > 0 && selectedLote.valor_total > 0 ? `R$${Number(selectedLote.lucro).toFixed(2)}` : '—', selectedLote.lucro >= 0 ? 'text-green-400' : 'text-red-400'], ['Vendas', selectedLote.total_vendas || 0, 'text-white']] as [string, string|number, string][]).map(([label, val, cls]) => (
-                            <div key={label} className="bg-stone-900/60 rounded-xl p-3 text-center">
+                            <div key={label} className="bg-stone-900/60 rounded-xl p-3 text-center min-w-0">
                               <p className="text-gray-500 text-[10px] uppercase tracking-wide mb-1">{label}</p>
-                              <p className={`font-extrabold text-sm ${cls}`}>{val}</p>
+                              <p className={`font-extrabold text-sm break-all ${cls}`}>{val}</p>
                             </div>
                           ))}
                         </div>
