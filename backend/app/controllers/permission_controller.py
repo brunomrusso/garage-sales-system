@@ -60,6 +60,20 @@ def get_admin_permissions(db: Session, admin_id: int) -> dict:
     
     perms = db.query(AdminPermission).filter(AdminPermission.admin_id == admin_id).first()
     if not perms:
+        if is_master:
+            # Admin master sem registro: retornar todas as permissões como True
+            return {
+                'id': None, 'admin_id': admin_id,
+                'cliente_view': True, 'cliente_create': True, 'cliente_edit': True,
+                'cliente_delete': True, 'cliente_reset_pwd': True,
+                'lote_view': True, 'lote_create': True, 'lote_edit': True,
+                'lote_delete': True, 'lote_archive': True,
+                'venda_view': True, 'venda_create': True, 'venda_edit': True,
+                'venda_delete': True, 'venda_change_status': True, 'venda_mark_paid': True,
+                'garagem_view': True, 'garagem_edit': True, 'garagem_foto_upload': True,
+                'admin_manage_perms': True, 'admin_approve_admins': True, 'admin_view_audit': True,
+                'max_deletes_per_day': 0,
+            }
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Permissões não encontradas para este admin"
